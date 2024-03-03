@@ -1,0 +1,7 @@
+ django
+ djangorestframework
+ requests
+ pyyaml
+ django-cors-headers
+ djangorestframework-simplejwt
+ psycopg2
