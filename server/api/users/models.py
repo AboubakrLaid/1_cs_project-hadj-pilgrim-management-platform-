@@ -6,4 +6,9 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    pass
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+    ]
+    
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
