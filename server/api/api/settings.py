@@ -40,7 +40,7 @@ INSTALLED_APPS = [
      # third party packages    
     'corsheaders',
     "rest_framework",
-     "rest_framework_simplejwt",
+    "rest_framework_simplejwt",
     # local apps
     'users'
 ]
@@ -132,6 +132,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
+USE_L10N = True
 
 USE_TZ = True
 
@@ -149,6 +150,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+
+AUTHENTICATION_BACKENDS = [
+    'users.backend.EmailBackend',  # Add your custom backend
+    'django.contrib.auth.backends.ModelBackend',  # Default ModelBackend
+]
 
 
 from datetime import timedelta
@@ -185,3 +191,13 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'belmiloudaboubakrdz@gmail.com'
+EMAIL_HOST_PASSWORD = 'idrw eckw hian jwje'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
