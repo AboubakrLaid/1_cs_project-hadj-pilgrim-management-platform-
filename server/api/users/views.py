@@ -87,11 +87,11 @@ def log_in(request):
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
 
-        try:
-            user_status = UserStatus.objects.get(user=user)
-            user_status = UserStatusSerializer(user_status).data
-        except UserStatus.DoesNotExist:
-            user_status = None
+        # try:
+        #     user_status = UserStatus.objects.get(user=user)
+        #     user_status = UserStatusSerializer(user_status).data
+        # except UserStatus.DoesNotExist:
+        #     user_status = None
 
         is_pilgrim = False
         try:
@@ -113,7 +113,7 @@ def log_in(request):
             "access": str(access_token),
             "refresh": str(refresh_token),
             "role": user.role,
-            "user_status": user_status if user_status else {},
+            "user_status": {},#user_status if user_status else {},
             "is_pilgrim": is_pilgrim,
             "is_email_verified": is_email_verified,
         }
