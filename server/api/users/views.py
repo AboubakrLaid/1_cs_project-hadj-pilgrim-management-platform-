@@ -135,6 +135,8 @@ def send_reset_password_code(request):
     try:
         user = User.objects.get(email=email)
         code = generate_random_numbers()
+        # delete any previous verification code
+        UserVerificationCode.objects.filter(user=user).delete()
         # generate a verification code and save it in the database
         obj = UserVerificationCode.objects.create(user=user, code=code)
         # send the verification code to the user's email
@@ -292,6 +294,7 @@ def send_new_code(request):
             obj.code = code
             obj.save()
         except UserEmailVerification.DoesNotExist:
+            # should not happen
             obj = UserEmailVerification.objects.create(user=user, code=code)
 
     # send the verification code to the user's email
