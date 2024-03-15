@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     # local apps
     'users',
     'personal_profile',
+    'pilgrimage_info',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
     "https://example.com",
     "https://www.example2.com",
 ]

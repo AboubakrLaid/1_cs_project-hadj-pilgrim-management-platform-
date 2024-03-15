@@ -11,7 +11,6 @@ from .serializers import PersonalProfileSerializer, CompanionSerializer
 from .models import PersonalProfile, Companion
 
 # Create your views here.
-
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
 def personal_profile(request):
