@@ -12,24 +12,34 @@ Class-based views
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+   2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
 """
+
+
+
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-    TokenVerifyView
+    TokenVerifyView,
 )
 
 urlpatterns = [
-     # always use api/**/ for all your api urls
-    path('admin/', admin.site.urls), 
+    path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
+
     path('api/profile/', include('personal_profile.urls')),
     path('api/pilgrimage/', include('pilgrimage_info.urls')),
+
+    
+    path('api/administrative/', include('municipal_wilaya.urls')),  
+   
+
     # token urls
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),  
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
 ]
+

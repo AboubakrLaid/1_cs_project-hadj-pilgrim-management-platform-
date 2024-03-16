@@ -1,14 +1,17 @@
-
 from rest_framework.response import Response
+
 from rest_framework.decorators import (
     api_view,
     permission_classes,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from roles.roles import IsCandidateUser
 from .serializers import PersonalProfileSerializer, CompanionSerializer
 from .models import PersonalProfile, Companion
+
+
+
+
 
 # Create your views here.
 @api_view(['POST', 'GET'])
@@ -45,4 +48,9 @@ def personal_profile(request):
         serializer.save()
         return Response({'success' : True, 'message' : 'profile created'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
