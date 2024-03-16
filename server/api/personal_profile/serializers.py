@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import PersonalProfile, Companion
 
 
-
 class CompanionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Companion
@@ -33,3 +32,4 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
     
         
         
+

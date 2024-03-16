@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     # local apps
     'users',
+    'municipal_wilaya',
     'personal_profile',
     'pilgrimage_info',
 ]
