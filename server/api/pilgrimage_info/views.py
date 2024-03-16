@@ -42,3 +42,18 @@ def get_previous_seasons(request):
 
     serializer = PilgrimageSeasonInfoSerializer(current_season, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def mark_season_as_finished(request):
+    season_year = request.data.get('year')
+    if not season_year:
+        return Response({'error': 'Year is required'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        season = PilgrimageSeasonInfo.objects.get(year=season_year)
+    except PilgrimageSeasonInfo.DoesNotExist:
+        return Response({'error': 'No such season'}, status=status.HTTP_404_NOT_FOUND)
+    season.is_active = False
+    season.save()
+    return Response({'success': True}, status=status.HTTP_200_OK)
