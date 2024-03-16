@@ -3,12 +3,11 @@ from rest_framework.decorators import (
     api_view,
     permission_classes,
 )
-from rest_framework.permissions import IsAuthenticated
 from roles.roles import IsAdminUser
 from rest_framework import status
-from .models import PilgrimageSeasonInfo, Phase
-from .serializers import PilgrimageSeasonInfoSerializer, PhaseSerializer
-
+from .models import PilgrimageSeasonInfo
+from .serializers import PilgrimageSeasonInfoSerializer
+from datetime import datetime, timedelta, date
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -54,6 +53,14 @@ def mark_season_as_finished(request):
         season = PilgrimageSeasonInfo.objects.get(year=season_year)
     except PilgrimageSeasonInfo.DoesNotExist:
         return Response({'error': 'No such season'}, status=status.HTTP_404_NOT_FOUND)
+    
+    now = datetime.now().date()
+    procedure_deadline_plus_30_days = season.procedure_deadline + timedelta(days=30)
+    print(procedure_deadline_plus_30_days, now)
+    
+    if now < procedure_deadline_plus_30_days:
+        return Response({'message': f'Cannot finish season until {procedure_deadline_plus_30_days}.'}, status=status.HTTP_200_OK)
+   
     season.is_active = False
     season.save()
     return Response({'success': True}, status=status.HTTP_200_OK)
