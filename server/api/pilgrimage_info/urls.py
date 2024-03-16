@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_pilgrimage_season_info, get_current_season, get_previous_seasons
+from .views import create_pilgrimage_season_info, get_current_season, get_previous_seasons, mark_season_as_finished
 
 
 
@@ -7,4 +7,5 @@ urlpatterns = [
     path('', create_pilgrimage_season_info),
     path('current', get_current_season),
     path('previous', get_previous_seasons),
+    path('finished', mark_season_as_finished),
 ]
