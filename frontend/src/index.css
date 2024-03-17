@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "poppins";
+}
+.Login-body {
+  background-image: url(./assets/LoginBackG.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+  background-attachment: fixed;
+}
+
+.input {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: rgb(0, 0, 0, 0.1);
+}
+.invalid-input {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  border: none;
+  outline: 1px solid red;
+  outline-offset: -1px;
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+.icon {
+  margin: 0px 0px 0px 15px;
+  color: rgb(0, 0, 0, 0.7);
+}
+
+.auth-form input,
+select {
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  border-radius: 20px;
+  line-height: 30px;
+  font-weight: 200;
+  padding-left: 16px;
+  width: 350px;
+  border: none;
+}
+
+.Forgot-pass {
+  position: relative;
+  left: 8px;
+  bottom: 8px;
+  color: #3c87f0 !important;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.Forgot-pass:hover {
+  text-decoration: underline;
+}
+.sub-but {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  height: 45px;
+}
+.Login-button {
+  width: 100%;
+  border-radius: 30px;
+  outline: none;
+  border: none;
+  background-color: #ab7595;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.5s ease;
+}
+
+.Login-button:hover {
+  background-color: #ac5f82;
+}
+.Login-to-Signup {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.Login-to-Signup a {
+  color: #ab7595;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.firstName-lastName {
+  border: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.firstName-lastName input {
+  width: 140px;
+}
+
+.error-container {
+  position: absolute;
+  width: 350px;
+}
+.error-msg {
+  color: red;
+  position: absolute;
+  bottom: 4px;
+  left: 12px;
+  font-size: 12px;
+}
+.no-arrows {
+  position: relative;
+  left: 20px;
+  width: 350px;
+  margin-bottom: 20px;
+}
+
+.no-arrows input[type="number"]::-webkit-inner-spin-button,
+.no-arrows input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* Removes the arrows */
+}
+.no-arrows input {
+  width: 48px;
+  height: 48px;
+  margin-right: 8px;
+  border-radius: 16px;
+  border-color: black;
+  background-color: rgba(231, 217, 202, 0.6);
+  font-size: 28px;
+  text-align: center;
+}
