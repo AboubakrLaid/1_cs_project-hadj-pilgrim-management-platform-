@@ -19,13 +19,13 @@ class User(AbstractUser):
     
     ROLE_CHOICES = [
         (IS_ADMIN, 'admin'),
-        (IS_GENERAL_ADMIN, 'general_admin')
+        (IS_GENERAL_ADMIN, 'general_admin'),
         (IS_CANDIDATE, 'candidate'),
         (IS_MEDICAL_ADMIN, 'medical_admin'),
         (IS_GUIDE, 'guide'),
     ]
     
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES,null=False, blank=False, default='M')
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=IS_CANDIDATE)
  
  

@@ -7,7 +7,7 @@ from . import validators
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(validators = validators.unique_email)
-    role = serializers.CharField(required=False, allow_blank=True, max_length=15, default=User.IS_CANDIDATE)
+    role = serializers.CharField(max_length=15, default=User.IS_CANDIDATE)
     class Meta:
         model = User
         fields = ['first_name','last_name','email','password','gender','role']
@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name': {'required': True},
             'last_name': {'required': True},
             'gender': {'required': True},
+            'role'  : {'read_only': True}
         }
         
     def create(self, validated_data):

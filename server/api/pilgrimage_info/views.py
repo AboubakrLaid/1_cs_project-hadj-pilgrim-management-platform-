@@ -3,14 +3,14 @@ from rest_framework.decorators import (
     api_view,
     permission_classes,
 )
-from roles.roles import IsAdminUser
+from roles.roles import IsGeneralAdminUser, IsGeneralAdminOrAdminUser, IsAdminUser
 from rest_framework import status
 from .models import PilgrimageSeasonInfo
 from .serializers import PilgrimageSeasonInfoSerializer
 from datetime import datetime, timedelta, date
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsGeneralAdminUser])
 def create_pilgrimage_season_info(request):
     serializer = PilgrimageSeasonInfoSerializer(data=request.data)
     
@@ -33,18 +33,18 @@ def get_current_season(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
-def get_previous_seasons(request):
+@permission_classes([IsGeneralAdminOrAdminUser])
+def get_all_seasons(request):
     
-    current_season = PilgrimageSeasonInfo.objects.filter(is_active=False)
+    seasons = PilgrimageSeasonInfo.objects.all().order_by('-year')
     
 
-    serializer = PilgrimageSeasonInfoSerializer(current_season, many=True)
+    serializer = PilgrimageSeasonInfoSerializer(seasons, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsGeneralAdminUser])
 def mark_season_as_finished(request):
     season_year = request.data.get('year')
     if not season_year:
