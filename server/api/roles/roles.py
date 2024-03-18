@@ -6,6 +6,10 @@ from users.models import User
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.role == User.IS_ADMIN
+    
+class IsGeneralAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.role == User.IS_GENERAL_ADMIN
 
 class IsCandidateUser(permissions.BasePermission):
     def has_permission(self, request, view):

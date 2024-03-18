@@ -12,12 +12,14 @@ class User(AbstractUser):
     ]
     
     IS_ADMIN = "Admin"
+    IS_GENERAL_ADMIN = "GeneralAdmin"
     IS_CANDIDATE = "Candidate"
     IS_MEDICAL_ADMIN = "MedicalAdmin"
     IS_GUIDE = "Guide"
     
     ROLE_CHOICES = [
         (IS_ADMIN, 'admin'),
+        (IS_GENERAL_ADMIN, 'general_admin')
         (IS_CANDIDATE, 'candidate'),
         (IS_MEDICAL_ADMIN, 'medical_admin'),
         (IS_GUIDE, 'guide'),
