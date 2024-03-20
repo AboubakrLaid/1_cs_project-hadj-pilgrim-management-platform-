@@ -36,23 +36,23 @@ class UserInscriptionHistory(models.Model):
 
 
 class UserStatus(models.Model):
-    PHASES_CHOICES = [
-        (1, 'won the lottery'),
-        (2, 'accepted in medical visit'),
-        (3, 'successful fees payment'),
-        (4, 'reservation phase')
-    ]
-    STATUS_CHOICES = [
-        (' ', 'candidate did not yet finish the phase'),
-        ('P', 'pending (for backup list)'),
-        ('R', 'rejected'),
-    ]
+    class Status(models.TextChoices):
+        PENDING = 'P', 'pending'
+        REJECTED = 'R', 'rejected'
+        CONFIRMED = 'C', 'confirmed'
+        IN_RESERVE = 'I', 'in reserve'
+   
+    class Process(models.TextChoices):
+        LOTTERY = 'L', 'lottery'
+        VISIT = 'V', 'visit'
+        PAYMENT = 'P', 'payment'
+        RESERVATION = 'R', 'reservation'
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='status')
-    phase = models.IntegerField(choices=PHASES_CHOICES, default=1)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=' ')
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='status')
+    process = models.CharField(max_length=1,choices=Process.choices, default=Process.LOTTERY.value)
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.REJECTED.value)
+    
+
     
 
 class UserVerificationCode(models.Model):

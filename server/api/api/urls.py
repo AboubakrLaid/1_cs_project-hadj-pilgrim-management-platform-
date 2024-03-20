@@ -35,6 +35,7 @@ urlpatterns = [
 
     
     path('api/administrative/', include('municipal_wilaya.urls')),  
+    path('api/lottery/', include('lottery.urls')),
    
 
     # token urls

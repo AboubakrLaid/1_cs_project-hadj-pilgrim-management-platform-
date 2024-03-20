@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import PersonalProfile, Companion
+from municipal_wilaya.serializers import MunicipalSerializer, WilayaSerializer
 
 
 class CompanionSerializer(serializers.ModelSerializer):
@@ -18,10 +19,10 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'user': {'write_only': True}
         }
-        
     companion = CompanionSerializer(required=False)
     
     def create(self, validated_data):
+        
         companion_data = validated_data.pop('companion', None)
         personal_profile = PersonalProfile.objects.create(**validated_data)
         
