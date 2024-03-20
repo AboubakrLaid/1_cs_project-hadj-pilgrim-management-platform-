@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .serializers import PersonalProfileSerializer, CompanionSerializer
 from .models import PersonalProfile, Companion
+from municipal_wilaya.models import Wilaya, Municipal
 
 
 
@@ -33,6 +34,8 @@ def personal_profile(request):
         data = PersonalProfileSerializer(profile).data
         data['companion'] = companion_data
         
+        data['wilaya'] = Wilaya.objects.get(id=data['wilaya']).name
+        data['municipal'] = Municipal.objects.get(id=data['municipal']).name
         
         return Response(data, status=status.HTTP_200_OK)
     # for POST

@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import serializers
 from .models import User, UserInscriptionHistory, UserStatus
 from . import validators
@@ -35,5 +36,13 @@ class UserSerializer(serializers.ModelSerializer):
 class UserStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserStatus
-        fields = ['phase','status','start_date','end_date']
+        fields = ['process','status','user']
+        
+    # def validate_user(self, value):
+    #     """
+    #     Check if the UserStatus for the user already exists.
+    #     """
+    #     if UserStatus.objects.filter(user=value).exists():
+    #         raise ValidationError("User status already exists for this user.")
+    #     return value
 
