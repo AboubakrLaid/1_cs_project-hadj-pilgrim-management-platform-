@@ -8,7 +8,7 @@ import axios from "../Api/base";
 import { useNavigate } from "react-router-dom";
 
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,26}$/;
+const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,26}$/;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Login = () => {
   }, [email]);
 
   useEffect(() => {
-    setValidPassword(passwordPattern.test(password));
+    setValidPassword(passwordPattern.test(password) && password.length >= 8);
   }, [password]);
 
   const handleSubmit = async (e) => {
@@ -62,23 +62,24 @@ const Login = () => {
         console.error("Error:", error);
       }
     } else {
-      alert("Invalid Entry");
+      console.log("none");
     }
   };
 
   return (
-    <div className="Login-body">
+    <div className="auth-body">
       <Box
         sx={{
           position: "absolute",
-          transform: "translateX(-50%)",
+          transform: "translate(-50%,-50%)",
           left: "50%",
+          top: "50%",
           width: 500,
-
+          maxHeight: "80vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mt: 20,
+          //mt: 20,
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 0.5)",
@@ -101,6 +102,7 @@ const Login = () => {
         <Box
           sx={{
             p: 2,
+            maxHeight: "calc(80vh - 100px)",
             width: 400,
             display: "flex",
             flexDirection: "column",
@@ -155,7 +157,7 @@ const Login = () => {
             </Link>
 
             <div className="sub-but">
-              <button className="Login-button" onClick={handleSubmit}>
+              <button className="button" onClick={handleSubmit}>
                 Log in
               </button>
             </div>

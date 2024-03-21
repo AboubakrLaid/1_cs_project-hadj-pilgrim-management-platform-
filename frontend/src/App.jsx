@@ -5,11 +5,15 @@ import LandingPage from "./Pages/LandingPage";
 import CheckCode from "./Auth/CheckCode";
 import Home from "./Pages/Home";
 import PasswordReset from "./Auth/PasswordReset";
+import Dashboard from "./content/Admin/Dashboard";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AdminInterface from "./Pages/AdminInterface";
+import Season from "./content/Admin/Season";
+import NewSeason from "./content/Admin/NewSeason";
 
 function App() {
   return (
-    <>
+    <div className="App">
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
@@ -19,9 +23,14 @@ function App() {
           <Route path="/Forget-Password" element={<RecoverPassword />} />
           <Route path="/Check-Code" element={<CheckCode />} />
           <Route path="/Reset-Password" element={<PasswordReset />} />
+          <Route path="/Admin" element={<AdminInterface />}>
+            <Route index element={<Dashboard />} />
+            <Route path="Season" element={<Season />} />
+            <Route path="NewSeason" element={<NewSeason />} />
+          </Route>
         </Routes>
       </BrowserRouter>
-    </>
+    </div>
   );
 }
 
