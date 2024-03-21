@@ -23,10 +23,11 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User(
             email=validated_data['email'],
-            username=validated_data['email'],
+            # username=validated_data['first_name']+' '+validated_data['last_name'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            gender=validated_data["gender"]
+            gender=validated_data["gender"],
+            role = validated_data["role"] if 'role' in validated_data else User.IS_CANDIDATE
         )
         user.set_password(validated_data['password'])
         user.save()

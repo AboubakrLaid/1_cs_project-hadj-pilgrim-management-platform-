@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'municipal_wilaya',
     'personal_profile',
     'pilgrimage_info',
-    'lottery'
+    'lottery',
+    'accounts_management'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

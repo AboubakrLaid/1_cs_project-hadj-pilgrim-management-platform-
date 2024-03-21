@@ -13,6 +13,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import UserSerializer, UserStatusSerializer
+from pilgrimage_info.serializers import PhaseSerializer
+
 from .models import (
     UserStatus,
     UserInscriptionHistory as UserIns,
@@ -20,6 +22,8 @@ from .models import (
     UserVerificationCode,
     UserEmailVerification
 )
+from lottery.models import ParticipantStatusPhase
+from pilgrimage_info.models import Phase
 
 # Create your views here.
 import random
@@ -87,11 +91,16 @@ def log_in(request):
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
 
-        # try:
-        #     user_status = UserStatus.objects.get(user=user)
-        #     user_status = UserStatusSerializer(user_status).data
-        # except UserStatus.DoesNotExist:
-        #     user_status = None
+        try:
+            par_status_phase = ParticipantStatusPhase.objects.get(participant=user)
+            my_status = UserStatus.objects.get(user=user)
+            phase = Phase.objects.get(id=par_status_phase.phase.id)
+            user_status = {
+                "phase": PhaseSerializer(phase).data,
+                "state": UserStatusSerializer(my_status).data,
+            }
+        except ParticipantStatusPhase.DoesNotExist:
+            user_status = None
 
         is_pilgrim = False
         try:
@@ -113,7 +122,9 @@ def log_in(request):
             "access": str(access_token),
             "refresh": str(refresh_token),
             "role": user.role,
-            "user_status": {},#user_status if user_status else {},
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "user_status": user_status,
             "is_pilgrim": is_pilgrim,
             "is_email_verified": is_email_verified,
         }
