@@ -30,7 +30,7 @@ class Municipal(models.Model):
 class Hospital(models.Model):
     name = models.CharField(max_length=150)
     eng_name = models.CharField(max_length=150)
-    wilaya_id = models.ForeignKey(Wilaya, on_delete=models.CASCADE)
+    wilaya = models.ForeignKey(Wilaya, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = "Hospital"
