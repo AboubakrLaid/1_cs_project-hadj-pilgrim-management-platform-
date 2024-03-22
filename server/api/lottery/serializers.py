@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import ParticipantStatusPhase
+from .models import ParticipantStatusPhase, LotteryAlgorithm
 from users.models import UserInscriptionHistory,UserStatus
 from users.serializers import UserStatusSerializer
 from pilgrimage_info.models import Phase
 from django.db import transaction
 from datetime import datetime
-from personal_profile.serializers import PersonalProfileSerializer
+from pilgrimage_info.models import PilgrimageSeasonInfo
 
 class ParticipantStatusPhaseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,4 +38,17 @@ class ParticipantStatusPhaseSerializer(serializers.ModelSerializer):
         
     
         
+class LotteryAlgorithmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LotteryAlgorithm
+        fields = ['algorithm']
+        
+    def create(self, validated_data):
+        try:
+            season = PilgrimageSeasonInfo.objects.get(is_active=True)
+            validated_data['season'] = season
+            
+            return super().create(validated_data)
+        except PilgrimageSeasonInfo.DoesNotExist:
+            raise serializers.ValidationError({'error':'There is no active season'})
         
