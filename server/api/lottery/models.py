@@ -3,8 +3,9 @@ from users.models import (
     User, UserStatus
 ) 
 from pilgrimage_info.models import (
-    Phase
+    Phase, PilgrimageSeasonInfo
 )
+
 
 # Create your models here.
 class ParticipantStatusPhase(models.Model):
@@ -16,3 +17,13 @@ class ParticipantStatusPhase(models.Model):
 
     class Meta:
         unique_together = ('participant', 'phase')
+        
+        
+class LotteryAlgorithm(models.Model):
+    class Algorithms(models.TextChoices):
+        RANDOM = 'RND', 'Random'
+        WEIGHTED = 'WTD', 'Weighted'
+        PRIORITY = 'PRT', 'Priority'
+        HYBRID = 'HYB', 'Hybrid'
+    season = models.OneToOneField(PilgrimageSeasonInfo, on_delete=models.CASCADE)
+    algorithm = models.CharField(max_length=3, choices=Algorithms.choices)
