@@ -91,6 +91,24 @@ select {
 .button:hover {
   background-color: #ac5f82;
 }
+
+.Finished-button {
+  margin-right: 40px;
+  font-weight: 600;
+  font-size: 16px;
+  height: 46px;
+  width: 13%;
+  border-radius: 30px;
+  color: black;
+  border: 2px solid black;
+  background-color: white;
+  transition: background-color 0.3s;
+}
+.Finished-button:hover {
+  background-color: rgba(171, 117, 149, 0.2);
+  cursor: pointer;
+}
+
 .Login-to-Signup {
   display: flex;
   flex-direction: row;
@@ -137,6 +155,9 @@ select {
 .no-arrows input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0; /* Removes the arrows */
+}
+.no-arrows input[type="number"] {
+  -moz-appearance: textfield; /* Removes the default spinner in Firefox */
 }
 .no-arrows input {
   width: 48px;
@@ -188,9 +209,9 @@ select {
 .season-box1 {
   position: relative;
   cursor: pointer;
-  flex: 0 0 auto; /* Ensure each box has fixed width */
-  width: 32%; /* Adjust width as needed */
-  height: 70%; /* Adjust height as needed */
+  flex: 0 0 auto;
+  width: 32%;
+  height: 70%;
   margin-right: 15px;
   border: 3px solid #ab7595;
   border-radius: 0 20px 20px 20px;

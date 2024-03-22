@@ -40,29 +40,29 @@ const Login = () => {
         if (response.status === 200) {
           const responseData = response.data;
           const accessToken = responseData?.access;
-          setAuth({ accessToken });
+          const refreshToken = responseData?.refresh;
+          const role = responseData?.role;
+          localStorage.setItem("accessToken", responseData?.access);
+          localStorage.setItem("refreshToken", responseData?.refresh);
+          setAuth({ role, accessToken, refreshToken });
           // Check for successful login response data
           if (responseData.access && responseData.refresh) {
             console.log(response.data);
-            // Successful login, handle accordingly
-            // For example, save tokens to local storage and navigate to dashboard
-            // localStorage.setItem("accessToken", responseData.access);
-            // localStorage.setItem("refreshToken", responseData.refresh);
+
             navigate("/Home");
           } else {
             // Handle invalid response data
             console.error("Invalid response data:", responseData);
           }
         } else {
-          // Handle non-200 response status
-          console.error("Non-200 response status:", response.status);
+          alert(response.error);
         }
       } catch (error) {
-        // Handle network errors or Axios request errors
         console.error("Error:", error);
+        alert("Request failed : Invalid cardenalities");
       }
     } else {
-      console.log("none");
+      alert("Invalid email or password");
     }
   };
 
