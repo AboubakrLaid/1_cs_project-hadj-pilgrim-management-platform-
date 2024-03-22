@@ -8,9 +8,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,26}$/;
+const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,26}$/;
 
 function Signup() {
+  const [submitted, setSubmitted] = useState(false);
   //First name states
   const [firstName, setFirstName] = useState("");
   const [validFirstName, setValidFirstName] = useState(false);
@@ -37,6 +38,11 @@ function Signup() {
 
   //Gender
   const [gender, setGender] = useState("");
+  const [validGender, setValidGender] = useState(false);
+
+  useEffect(() => {
+    setValidGender(gender.length >= 1);
+  }, [gender]);
 
   useEffect(() => {
     setValidFirstName(nameRegex.test(firstName));
@@ -66,6 +72,8 @@ function Signup() {
   };
 
   const handleSubmit = async (e) => {
+    setSubmitted(true);
+    console.log("entered");
     e.preventDefault();
     if (
       validFirstName &&
@@ -112,23 +120,24 @@ function Signup() {
         console.error("Error:", error);
       }
     } else {
-      alert("Register failed .Please try again later");
+      alert("Please fill all the fields with valid entry");
     }
   };
 
   return (
-    <div className="Login-body">
+    <div className="auth-body">
       <Box
         sx={{
           position: "absolute",
-          transform: "translateX(-50%)",
+          transform: "translate(-50%,-50%)",
           left: "50%",
+          top: "50%",
+          maxHeight: "100vh",
           width: 500,
-
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mt: 10,
+          //mt: 10,
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 0.5)",
@@ -267,7 +276,9 @@ function Signup() {
               </div>
             )}
 
-            <div className="input">
+            <div
+              className={!validGender && submitted ? "invalid-input" : "input"}
+            >
               <select required onChange={handleGenderChange}>
                 <option value="">Select gender</option>
                 <option value="male">Male</option>
@@ -276,7 +287,7 @@ function Signup() {
             </div>
 
             <div className="sub-but">
-              <button className="Login-button" onClick={handleSubmit}>
+              <button className="button" onClick={handleSubmit}>
                 Register
               </button>
             </div>

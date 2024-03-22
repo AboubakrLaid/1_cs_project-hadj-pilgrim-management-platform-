@@ -79,21 +79,23 @@ const RecoverPassword = () => {
   };
 
   return (
-    <div className="Login-body">
+    <div className="auth-body">
       <Link to="/Forget-Password">
         <ArrowBackIcon fontSize="large" sx={{ mt: 4, ml: 4 }} />
       </Link>
       <Box
         sx={{
           position: "absolute",
-          transform: "translateX(-50%)",
+          transform: "translate(-50%,-50%)",
           left: "50%",
+          top: "50%",
+          maxHeight: "100vh",
           width: 500,
 
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mt: 12,
+          //mt: 12,
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 0.5)",
@@ -135,7 +137,7 @@ const RecoverPassword = () => {
           <span style={{ color: "red" }}>{err}</span>
 
           <div className="sub-but">
-            <button className="Login-button" onClick={handleSubmit}>
+            <button className="button" onClick={handleSubmit}>
               Verify
             </button>
           </div>

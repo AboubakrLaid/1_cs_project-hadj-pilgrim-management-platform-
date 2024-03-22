@@ -8,7 +8,7 @@ import axios from "../Api/base";
 import { useNavigate } from "react-router-dom";
 
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,26}$/;
+const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,26}$/;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Login = () => {
   }, [email]);
 
   useEffect(() => {
-    setValidPassword(passwordPattern.test(password));
+    setValidPassword(passwordPattern.test(password) && password.length >= 8);
   }, [password]);
 
   const handleSubmit = async (e) => {
@@ -40,45 +40,46 @@ const Login = () => {
         if (response.status === 200) {
           const responseData = response.data;
           const accessToken = responseData?.access;
-          setAuth({ accessToken });
+          const refreshToken = responseData?.refresh;
+          const role = responseData?.role;
+          localStorage.setItem("accessToken", responseData?.access);
+          localStorage.setItem("refreshToken", responseData?.refresh);
+          setAuth({ role, accessToken, refreshToken });
           // Check for successful login response data
           if (responseData.access && responseData.refresh) {
             console.log(response.data);
-            // Successful login, handle accordingly
-            // For example, save tokens to local storage and navigate to dashboard
-            // localStorage.setItem("accessToken", responseData.access);
-            // localStorage.setItem("refreshToken", responseData.refresh);
+
             navigate("/Home");
           } else {
             // Handle invalid response data
             console.error("Invalid response data:", responseData);
           }
         } else {
-          // Handle non-200 response status
-          console.error("Non-200 response status:", response.status);
+          alert(response.error);
         }
       } catch (error) {
-        // Handle network errors or Axios request errors
         console.error("Error:", error);
+        alert("Request failed : Invalid cardenalities");
       }
     } else {
-      alert("Invalid Entry");
+      alert("Invalid email or password");
     }
   };
 
   return (
-    <div className="Login-body">
+    <div className="auth-body">
       <Box
         sx={{
           position: "absolute",
-          transform: "translateX(-50%)",
+          transform: "translate(-50%,-50%)",
           left: "50%",
+          top: "50%",
           width: 500,
-
+          maxHeight: "80vh",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mt: 20,
+          //mt: 20,
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 0.5)",
@@ -101,6 +102,7 @@ const Login = () => {
         <Box
           sx={{
             p: 2,
+            maxHeight: "calc(80vh - 100px)",
             width: 400,
             display: "flex",
             flexDirection: "column",
@@ -155,7 +157,7 @@ const Login = () => {
             </Link>
 
             <div className="sub-but">
-              <button className="Login-button" onClick={handleSubmit}>
+              <button className="button" onClick={handleSubmit}>
                 Log in
               </button>
             </div>
