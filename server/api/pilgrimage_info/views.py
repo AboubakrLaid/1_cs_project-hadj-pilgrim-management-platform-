@@ -46,13 +46,11 @@ def get_all_seasons(request):
 @api_view(['POST'])
 @permission_classes([IsGeneralAdminUser])
 def mark_season_as_finished(request):
-    season_year = request.data.get('year')
-    if not season_year:
-        return Response({'error': 'Year is required'}, status=status.HTTP_400_BAD_REQUEST)
+    # 
     try:
-        season = PilgrimageSeasonInfo.objects.get(year=season_year)
+        season = PilgrimageSeasonInfo.objects.get(is_active=True)
     except PilgrimageSeasonInfo.DoesNotExist:
-        return Response({'error': 'No such season'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'no active season'}, status=status.HTTP_404_NOT_FOUND)
     
     now = datetime.now().date()
     procedure_deadline_plus_30_days = season.procedure_deadline + timedelta(days=30)
