@@ -43,7 +43,7 @@ def personal_profile(request):
     user = request.user
     
     try:
-        profile = user.personal_profile.first()
+        profile = PersonalProfile.objects.get(user=user)
         return Response({'success':False,'message' : 'this user have already a personal profile'}, status=status.HTTP_409_CONFLICT)
     except PersonalProfile.DoesNotExist:
         pass
@@ -57,6 +57,23 @@ def personal_profile(request):
     if serializer.is_valid():
         serializer.save()
         return Response({'success' : True, 'message' : 'profile created'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_personal_profile(request):
+    user = request.user
+    data = request.data
+    data['user'] = user.id
+    try:
+        profile = user.personal_profile.first()
+    except PersonalProfile.DoesNotExist:
+        return Response({'success':False,'message' : 'profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    serializer = PersonalProfileSerializer(profile, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'success' : True, 'message' : 'profile updated'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
