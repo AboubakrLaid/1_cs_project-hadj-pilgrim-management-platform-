@@ -41,6 +41,13 @@ def personal_profile(request):
     # for POST
     data = request.data
     user = request.user
+    
+    try:
+        profile = user.personal_profile.first()
+        return Response({'success':False,'message' : 'this user have already a personal profile'}, status=status.HTTP_409_CONFLICT)
+    except PersonalProfile.DoesNotExist:
+        pass
+    
     data['user'] = user.id
     
     if data.get('companion') is not None:
