@@ -3,8 +3,8 @@ from django.core.validators import MinValueValidator
 from users.models import User
 
 class Wilaya(models.Model):
-    name = models.CharField(max_length=20, unique=True)  
-    eng_name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=100, unique=True)  
+    eng_name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         verbose_name = "Wilaya"
@@ -14,8 +14,8 @@ class Wilaya(models.Model):
         return self.name
 
 class Municipal(models.Model):
-    name = models.CharField(max_length=20)  
-    eng_name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)  
+    eng_name = models.CharField(max_length=100)
     population = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     wilaya = models.ForeignKey(Wilaya, on_delete=models.CASCADE, related_name='municipals')
 
