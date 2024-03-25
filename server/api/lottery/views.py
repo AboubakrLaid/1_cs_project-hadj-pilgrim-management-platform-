@@ -49,6 +49,10 @@ def lottery_algorithm(request):
     data = request.data
     serializer = LotteryAlgorithmSerializer(data=data)
     if serializer.is_valid():
+        season = PilgrimageSeasonInfo.objects.get(is_active=True)
+        total_participants = ParticipantStatusPhase.objects.count()
+        season.ratio = total_participants / season.total_pilgrims
+        season.save()
         serializer.save()
         return Response({"success": True}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
