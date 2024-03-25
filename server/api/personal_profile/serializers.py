@@ -31,6 +31,22 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
             
         return personal_profile
     
+    def update(self, instance, validated_data):
+        companion_data = validated_data.pop('companion', None)
+        print(validated_data)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.save()
+
+        # Handle updating/creating the companion instance
+        if companion_data is not None:
+            user = instance.user
+            companion = user.companion.first()
+            if companion is not None:
+                serializer = CompanionSerializer(companion, data=companion_data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                
+        return instance
         
         
 
