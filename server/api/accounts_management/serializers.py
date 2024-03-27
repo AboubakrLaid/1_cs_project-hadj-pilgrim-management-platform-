@@ -1,21 +1,7 @@
 from rest_framework import serializers
-from users.models import User
+from django.db import transaction
+from users.serializers import UserSerializer
 from .models import MedicalAdminProfile
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['email', 'password', 'first_name', 'last_name', 'gender']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'gender': {'required': True},
-        }
-
-    def create(self, validated_data):
-        validated_data['username'] = validated_data.get('email')
-        return super().create(validated_data)
 
 class MedicalAdminProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -24,18 +10,30 @@ class MedicalAdminProfileSerializer(serializers.ModelSerializer):
         model = MedicalAdminProfile
         fields = ['user', 'hospital', 'work_schedule', 'contact', 'state']
 
+    @transaction.atomic
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         user_serializer = UserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user = user_serializer.save()
 
+        hospital = validated_data.get('hospital')
+        if not hospital:
+            raise serializers.ValidationError("Hospital is required")
+
+        work_schedule = validated_data.get('work_schedule')
+        if not work_schedule:
+            raise serializers.ValidationError("Work schedule is required")
+
+        contact = validated_data.get('contact')
+        state = validated_data.get('state')
+
         medical_admin_data = {
             'user': user,
-            'hospital': validated_data.get('hospital'),
-            'work_schedule': validated_data.get('work_schedule'),
-            'contact': validated_data.get('contact', ''),
-            'state': validated_data.get('state', ''),
+            'hospital': hospital,
+            'work_schedule': work_schedule,
+            'contact': contact,
+            'state': state,
         }
         medical_admin = MedicalAdminProfile.objects.create(**medical_admin_data)
         return medical_admin

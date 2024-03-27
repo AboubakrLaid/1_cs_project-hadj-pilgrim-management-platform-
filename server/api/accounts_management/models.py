@@ -5,8 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import JSONField
 from phonenumber_field.modelfields import PhoneNumberField
-
-
 # from rest_framework import permissions
 # class IsAdminUser(permissions.BasePermission):
 #     def has_permission(self, request, view):
