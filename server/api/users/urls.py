@@ -24,4 +24,6 @@ urlpatterns = [
     ##############################
     path('email-validation-code', send_email_validation_code),
     path('email-validation', verify_email_validation_code), # this is for email validation
+
+    
 ]

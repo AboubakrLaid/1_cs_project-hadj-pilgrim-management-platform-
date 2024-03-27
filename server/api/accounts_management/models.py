@@ -4,6 +4,15 @@ from municipal_wilaya.models import Wilaya, Hospital
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import JSONField
+from phonenumber_field.modelfields import PhoneNumberField
+
+
+# from rest_framework import permissions
+# class IsAdminUser(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         return request.user and request.user.is_authenticated and request.user.role == User.IS_ADMIN
+    
+
 
 
 class BaseResponsibility(models.Model):
@@ -24,8 +33,11 @@ class BaseResponsibility(models.Model):
 class MedicalAdminProfile(BaseResponsibility):
     # profile_picture = models.ImageField(upload_to='medical_admins/profile_pictures/', null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='medical_admin_profile')
+    hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, default=None)
     work_schedule = JSONField(default=dict)
-    
+    state = models.CharField(max_length=255,default='')
+    contact = models.CharField(default='')
+
     def save(self, *args, **kwargs):
         if self.content_type != ContentType.objects.get_for_model(Hospital):
             raise ValueError('Medical Admin Profile must be related to a Hospital')
@@ -38,4 +50,3 @@ class AdminProfile(BaseResponsibility):
         if self.content_type != ContentType.objects.get_for_model(Wilaya):
             raise ValueError('Admin Profile must be related to a Wilaya')
         super().save(*args, **kwargs)
-
