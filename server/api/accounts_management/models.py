@@ -21,7 +21,6 @@ class BaseResponsibility(models.Model):
 class MedicalAdminProfile(BaseResponsibility):
     # profile_picture = models.ImageField(upload_to='medical_admins/profile_pictures/', null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='medical_admin_profile')
-    # hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, default=None)
     work_schedule = JSONField(default=dict)
 
     def save(self, *args, **kwargs):

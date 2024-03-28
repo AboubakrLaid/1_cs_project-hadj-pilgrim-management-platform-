@@ -7,6 +7,15 @@ from users.models import User
 from rest_framework.decorators import (api_view,permission_classes)
 from .models import MedicalAdminProfile
 
+from rest_framework import status
+from roles.roles import IsAdminUser
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from personal_profile.models import PersonalProfile, Companion
+from personal_profile.serializers import PersonalProfileSerializer, CompanionSerializer
+from roles.roles import IsAdminUser
+
+
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def add_medical_admin(request):
@@ -26,3 +35,5 @@ def delete_medical_admin(request, pk):
 
     medical_admin.delete()
     return Response({'success': True, 'message': 'Medical admin deleted successfully'}, status=status.HTTP_200_OK)
+
+

@@ -40,16 +40,16 @@ def validate_email(email):
     api_url = f"https://emailvalidation.abstractapi.com/v1/?api_key={key}&email={email}"
     response = requests.get(api_url)
     data = response.json()
-    if (
-        data["is_valid_format"]["value"]
-        and data["is_mx_found"]["value"]
-        and data["is_smtp_valid"]["value"]
-        and not data["is_catchall_email"]["value"]
-        and not data["is_role_email"]["value"]
-        and data["is_free_email"]["value"]
-    ):
-        return True
-    return False
+    # if (
+    #     data["is_valid_format"]["value"]
+    #     and data["is_mx_found"]["value"]
+    #     and data["is_smtp_valid"]["value"]
+    #     and not data["is_catchall_email"]["value"]
+    #     and not data["is_role_email"]["value"]
+    #     and data["is_free_email"]["value"]
+    # ):
+    return True
+    # return False
 
 
 @api_view(["POST"])
