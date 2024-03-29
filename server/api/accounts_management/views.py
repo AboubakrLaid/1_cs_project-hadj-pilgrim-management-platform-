@@ -43,44 +43,4 @@ def search_medical_admins(request):
 # Create your views here.
 
 
-# condidat 
-from rest_framework import viewsets, status
-from rest_framework.permissions import  IsAuthenticated
-from .models import User, , AdminProfile
-from .serializers import UserSerializer, AdminProfileSerializer
 
-class MedicalAdminViewSet(viewsets.ModelViewSet):
-    queryset = MedicalAdminProfile.objects.all()
-    serializer_class = MedicalAdminProfileSerializer
-    permission_classes = [IsAdminUser]
-
-class AdminViewSet(viewsets.ModelViewSet):
-    queryset = AdminProfile.objects.all()
-    serializer_class = AdminProfileSerializer
-    permission_classes = [IsAdminUser]
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        role = self.request.query_params.get('role')
-        wilaya = self.request.query_params.get('wilaya')
-        municipal = self.request.query_params.get('municipal')
-        gender = self.request.query_params.get('gender')
-        inscription_year = self.request.query_params.get('inscription_year')
-
-        if role:
-            queryset = queryset.filter(role=role)
-        if wilaya:
-            queryset = queryset.filter(wilaya=wilaya)
-        if municipal:
-            queryset = queryset.filter(municipal=municipal)
-        if gender:
-            queryset = queryset.filter(gender=gender)
-        if inscription_year:
-            queryset = queryset.filter(inscription_year=inscription_year)
-
-        return queryset
