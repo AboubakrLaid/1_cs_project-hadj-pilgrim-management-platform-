@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
+import ReplayIcon from "@mui/icons-material/Replay";
+import GroupsIcon from "@mui/icons-material/Groups";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CloseIcon from "@mui/icons-material/Close";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import { useNavigate } from "react-router-dom";
+import axios from "../../Api/base";
+import useAuth from "../../Context/useAuth";
 
 const validDate = /^\d{4}\-(0?[1-9]|1[0-2])\-(0?[1-9]|[12]\d|3[01])$/;
 
 const NewSeason = ({ onClose }) => {
+  const { auth } = useAuth();
+
+  const navigate = useNavigate();
   //Year
   const [year, setYear] = useState("");
   const [validYear, setValidYear] = useState(false);
@@ -85,6 +92,97 @@ const NewSeason = ({ onClose }) => {
   const handleSubmit = async (e) => {
     console.log("entered");
     e.preventDefault();
+
+    if (
+      validYear &&
+      validTotalP &&
+      validInscDeadline &&
+      validProcDeadline &&
+      validPhaseNum
+    ) {
+      //***********************************Algorithme */
+
+      const inscriptionDeadline = new Date(inscDeadline);
+      const procedureDeadline = new Date(procDeadline);
+
+      // Calculate the total number of days in the period
+      const totalDays =
+        (procedureDeadline - inscriptionDeadline) / (1000 * 60 * 60 * 24);
+
+      const phasesNumber = phaseNum;
+
+      // Divide the total period into equal parts
+      const partDays = Math.floor(totalDays / phasesNumber);
+
+      // Calculate the start and end dates for each part
+
+      const phase = [];
+      for (let i = 0; i < phasesNumber; i++) {
+        const partStartDate = new Date(
+          inscriptionDeadline.getTime() + i * partDays * 24 * 60 * 60 * 1000
+        );
+
+        let partEndDate;
+        if (i === phasesNumber - 1) {
+          partEndDate = procedureDeadline;
+        } else {
+          partEndDate = new Date(
+            inscriptionDeadline.getTime() +
+              (i + 1) * partDays * 24 * 60 * 60 * 1000 -
+              1
+          );
+        }
+
+        // Format the dates to YYYY-MM-DD
+        const formattedStartDate = partStartDate.toISOString().split("T")[0];
+        const formattedEndDate = partEndDate.toISOString().split("T")[0];
+
+        console.log(
+          `Phase ${
+            i + 1
+          }: Starts on ${formattedStartDate}, Ends on ${formattedEndDate}`
+        );
+
+        phase.push({
+          phase_number: i + 1,
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
+        });
+      }
+
+      //******************************END */
+
+      const yearInteger = parseInt(year, 10);
+      const totalPInteger = parseInt(totalP, 10);
+      const data = {
+        year: yearInteger,
+        total_pilgrims: totalPInteger,
+        inscription_deadline: inscDeadline,
+        procedure_deadline: procDeadline,
+        phases: phase,
+      };
+      console.log(data);
+      const access = auth?.accessToken;
+      try {
+        const response = await axios.post("/pilgrimage/", data, {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        });
+        if (response.status === 200) {
+          alert("success");
+          navigate("/Admin/Season");
+
+          // Check for successful login response data
+        } else {
+          alert(response.error);
+          console.log("here is undefined?");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Request failed : Invalid cardenalities");
+      }
+    }
   };
 
   return (
@@ -147,7 +245,7 @@ const NewSeason = ({ onClose }) => {
                 !validYear && year && !yearFocus ? "invalid-input" : "input"
               }
             >
-              <PersonIcon fontSize="medium" className="icon" />
+              <EventAvailableIcon fontSize="medium" className="icon" />
               <input
                 type="text"
                 placeholder="Year"
@@ -171,7 +269,7 @@ const NewSeason = ({ onClose }) => {
                   : "input"
               }
             >
-              <EmailIcon fontSize="medium" className="icon" />
+              <GroupsIcon fontSize="medium" className="icon" />
               <input
                 type="text"
                 placeholder="Total Pilgrims"
@@ -193,7 +291,7 @@ const NewSeason = ({ onClose }) => {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <CalendarMonthIcon className="icon" />
               <input
                 type="text"
                 placeholder="YY-MM-DD"
@@ -216,7 +314,7 @@ const NewSeason = ({ onClose }) => {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <CalendarMonthIcon className="icon" />
               <input
                 type="text"
                 placeholder="YY-MM-DD"
@@ -239,7 +337,7 @@ const NewSeason = ({ onClose }) => {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <ReplayIcon className="icon" />
               <input
                 type="text"
                 placeholder="Phase's number"

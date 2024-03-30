@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminInterface from "./Pages/AdminInterface";
 import Season from "./content/Admin/Season";
 import NewSeason from "./content/Admin/NewSeason";
+import Method from "./content/Admin/Method";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="Season" element={<Season />} />
             <Route path="NewSeason" element={<NewSeason />} />
+            <Route path="Method" element={<Method />} />
           </Route>
         </Routes>
       </BrowserRouter>
