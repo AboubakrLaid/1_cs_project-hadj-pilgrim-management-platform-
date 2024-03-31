@@ -140,3 +140,39 @@ def statistics(_):
         },
         status=status.HTTP_200_OK,
     )
+<<<<<<< Updated upstream
+=======
+
+
+@api_view(["POST"])
+# @permission_classes([IsAdminUser])
+def launch_lottery(request):
+    data = request.data
+    serializer = MunicipalGroupsSerializer(data=data)
+    if serializer.is_valid():
+        algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
+        algorithm_functions = {
+            LotteryAlgorithm.Algorithms.RANDOM: _random,
+            LotteryAlgorithm.Algorithms.WEIGHTED: _weighted,
+            LotteryAlgorithm.Algorithms.PRIORITY: _priority,
+            LotteryAlgorithm.Algorithms.HYBRID: _hybrid,
+        }
+        msg = algorithm_functions[algorithm.algorithm](
+            serializer.data["municipal_groups"]
+        )
+
+        return Response({"result": msg}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+from users.models import UserStatus
+
+
+@api_view(["GET"])
+def reset_lottery(_):
+    UserStatus.objects.all().update(
+        process=UserStatus.Process.LOTTERY.value,
+        status=UserStatus.Status.REJECTED.value,
+    )
+    return Response({"success": True}, status=status.HTTP_200_OK)
+>>>>>>> Stashed changes
