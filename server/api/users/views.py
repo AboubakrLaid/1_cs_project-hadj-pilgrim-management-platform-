@@ -57,14 +57,14 @@ def validate_email(email):
 def sign_up(request):
     data = request.data
     email = data.get('email')
-    if email is not None:
-        if  validate_email(email) == True:
-            pass
-        else:
-            return Response(
-                {"success": False, "error": "Invalid email"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+    # if email is not None:
+    #     if  validate_email(email) == True:
+    #         pass
+    #     else:
+    #         return Response(
+    #             {"success": False, "error": "Invalid email"},
+    #             status=status.HTTP_401_UNAUTHORIZED,
+    #         )
     serializer = UserSerializer(data=data)
     if serializer.is_valid():
 
