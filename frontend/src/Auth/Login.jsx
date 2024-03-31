@@ -42,20 +42,23 @@ const Login = () => {
           const accessToken = responseData?.access;
           const refreshToken = responseData?.refresh;
           const role = responseData?.role;
+          const name = responseData?.first_name + " " + responseData?.last_name;
+          const gender = responseData?.gender;
+          console.log(response);
           localStorage.setItem("accessToken", responseData?.access);
           localStorage.setItem("refreshToken", responseData?.refresh);
-          setAuth({ role, accessToken, refreshToken });
-          // Check for successful login response data
-          if (responseData.access && responseData.refresh) {
-            console.log(response.data);
-
-            navigate("/Home");
-          } else {
-            // Handle invalid response data
-            console.error("Invalid response data:", responseData);
+          localStorage.setItem("role", responseData?.role);
+          localStorage.setItem("name", name);
+          localStorage.setItem("gender", gender);
+          setAuth({ name, role, accessToken, refreshToken });
+          if (role === "Admin" || role === "GeneralAdmin") {
+            navigate("/Admin");
+            if (role === "Candidate") {
+              navigate("/Home");
+            }
           }
-        } else {
-          alert(response.error);
+        } else if (response.status === 401) {
+          alert("invalid email or password");
         }
       } catch (error) {
         console.error("Error:", error);

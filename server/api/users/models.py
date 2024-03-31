@@ -30,7 +30,7 @@ class User(AbstractUser):
  
  
 class UserInscriptionHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inscription_history')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='inscription_history')
     inscription_count = models.IntegerField(default=0) #! -1 for pilgrim
     latest_inscription_year = models.IntegerField(null=True, blank=True)
 

@@ -56,15 +56,15 @@ def validate_email(email):
 @permission_classes([AllowAny])
 def sign_up(request):
     data = request.data
-    email = data.get('email')
-    if email is not None:
-        if  validate_email(email) == True:
-            pass
-        else:
-            return Response(
-                {"success": False, "error": "Invalid email"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+    # email = data.get('email')
+    # if email is not None:
+    #     if  validate_email(email) == True:
+    #         pass
+    #     else:
+    #         return Response(
+    #             {"success": False, "error": "Invalid email"},
+    #             status=status.HTTP_401_UNAUTHORIZED,
+    #         )
     serializer = UserSerializer(data=data)
     if serializer.is_valid():
 
@@ -124,6 +124,7 @@ def log_in(request):
             "role": user.role,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "gender":user.gender,
             "user_status": user_status,
             "is_pilgrim": is_pilgrim,
             "is_email_verified": is_email_verified,
