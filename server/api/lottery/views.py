@@ -146,9 +146,6 @@ def statistics(_):
     )
 
 
-
-
-
 @api_view(["POST"])
 # @permission_classes([IsAdminUser])
 def launch_lottery(request):
@@ -168,3 +165,16 @@ def launch_lottery(request):
 
         return Response({"result": msg}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+from users.models import UserStatus
+
+
+@api_view(["GET"])
+def reset_lottery(_):
+    UserStatus.objects.all().update(
+        process=UserStatus.Process.LOTTERY.value,
+        status=UserStatus.Status.REJECTED.value,
+    )
+    return Response({"success": True}, status=status.HTTP_200_OK)
+
