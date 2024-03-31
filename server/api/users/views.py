@@ -56,7 +56,7 @@ def validate_email(email):
 @permission_classes([AllowAny])
 def sign_up(request):
     data = request.data
-    email = data.get('email')
+    # email = data.get('email')
     # if email is not None:
     #     if  validate_email(email) == True:
     #         pass

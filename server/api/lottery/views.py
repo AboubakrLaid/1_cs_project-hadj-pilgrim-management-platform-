@@ -1,15 +1,22 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from roles.roles import IsCandidateUser, IsGeneralAdminUser
+from roles.roles import IsAdminUser, IsCandidateUser, IsGeneralAdminUser
 from .models import ParticipantStatusPhase
-from .serializers import ParticipantStatusPhaseSerializer, LotteryAlgorithmSerializer
+from .serializers import (
+    ParticipantStatusPhaseSerializer,
+    LotteryAlgorithmSerializer,
+    MunicipalGroupsSerializer,
+)
 from pilgrimage_info.models import PilgrimageSeasonInfo
 from .models import LotteryAlgorithm
 from users.models import UserInscriptionHistory
 from personal_profile.models import PersonalProfile
 from django.utils.timezone import now
-import time
+from .algorithms.weighted import _weighted
+from .algorithms.random import _random
+from .algorithms.priority import _priority
+from .algorithms.hybrid import _hybrid
 
 
 @api_view(["POST"])
@@ -21,9 +28,6 @@ def participate_in_lottery(request):
         serializer.save()
         return Response({"success": True}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 
 @api_view(["POST", "GET"])
@@ -58,9 +62,9 @@ def lottery_algorithm(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 def _in_pourcentage(value, total):
     return (value / total) * 100
+
 
 @api_view(["GET"])
 @permission_classes([IsGeneralAdminUser])
@@ -140,3 +144,27 @@ def statistics(_):
         },
         status=status.HTTP_200_OK,
     )
+
+
+
+
+
+@api_view(["POST"])
+# @permission_classes([IsAdminUser])
+def launch_lottery(request):
+    data = request.data
+    serializer = MunicipalGroupsSerializer(data=data)
+    if serializer.is_valid():
+        algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
+        algorithm_functions = {
+            LotteryAlgorithm.Algorithms.RANDOM: _random,
+            LotteryAlgorithm.Algorithms.WEIGHTED: _weighted,
+            LotteryAlgorithm.Algorithms.PRIORITY: _priority,
+            LotteryAlgorithm.Algorithms.HYBRID: _hybrid,
+        }
+        msg = algorithm_functions[algorithm.algorithm](
+            serializer.data["municipal_groups"]
+        )
+
+        return Response({"result": msg}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

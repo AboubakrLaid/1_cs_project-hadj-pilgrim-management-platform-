@@ -10,8 +10,11 @@ class BaseResponsibility(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     # relation between this model and other models
+    # this would be the id of the model from the django_content_type table
+    # ContentType.objects.get_for_model(model_name)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # the id of the object that is related to this model
+    # it can be the id of a hospital, wilaya.
     object_id = models.PositiveIntegerField()
     # the object that is related to this model
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -19,7 +22,7 @@ class BaseResponsibility(models.Model):
     class Meta:
         abstract = True
         
-        
+     
         
 class MedicalAdminProfile(BaseResponsibility):
     # profile_picture = models.ImageField(upload_to='medical_admins/profile_pictures/', null=True, blank=True)
