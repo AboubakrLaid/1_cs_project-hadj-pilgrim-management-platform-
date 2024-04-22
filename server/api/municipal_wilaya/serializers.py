@@ -5,12 +5,12 @@ from .models import Wilaya, Municipal, Hospital
 class WilayaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wilaya
-        fields = [ 'name', 'eng_name']
+        fields = [ 'id', 'name']
 
 class MunicipalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipal
-        fields = [ 'name', 'eng_name', 'population', 'wilaya']
+        fields = [ 'name', 'population']
 
 
 

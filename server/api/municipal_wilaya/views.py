@@ -46,18 +46,18 @@ class GetAllSpecificMunicipalView(generics.ListAPIView):
     serializer_class = MunicipalSerializer
 
     def get_queryset(self):
-        try:
-            wilaya_id = self.kwargs['wilaya_id']
-            queryset = Municipal.objects.filter(wilaya_id=wilaya_id)
-            return queryset
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        wilaya_id = self.kwargs['wilaya_id']
+        return Municipal.objects.filter(wilaya_id=wilaya_id)
 
     def list(self, request, *args, **kwargs):
+        
         try:
             queryset = self.get_queryset()
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except Municipal.DoesNotExist:
+            return Response({'error': 'Municipal not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
