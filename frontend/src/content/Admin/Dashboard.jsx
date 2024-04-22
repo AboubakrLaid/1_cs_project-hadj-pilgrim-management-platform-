@@ -49,14 +49,12 @@ const Dashboard = () => {
           <Box
             sx={{
               textAlign: "center",
-              fontWeight: 600,
+              fontWeight: 400,
               height: "15%",
-              width: "100%",
-              fontSize: { xs: "22px", sm: "26px", md: "30px", lg: "34px" },
-              mb: 4,
+              width: "90%",
             }}
           >
-            <p>Welcome to your dashboard</p>
+            <h1>Welcome to your dashboard</h1>
           </Box>
           <Box
             sx={{

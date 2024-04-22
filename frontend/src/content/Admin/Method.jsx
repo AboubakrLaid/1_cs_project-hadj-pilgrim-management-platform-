@@ -241,7 +241,9 @@ const Method = () => {
             width={400}
             height={300}
           />
-          <span style={{ fontWeight: 500, fontSize: "14px" }}>
+          <span
+            style={{ fontWeight: 500, fontSize: "14px", textAlign: "center" }}
+          >
             Registration Time Percentage Circle
           </span>
         </Box>
