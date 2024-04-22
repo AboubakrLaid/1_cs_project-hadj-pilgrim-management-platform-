@@ -10,9 +10,9 @@ from .views import (
 
 
 urlpatterns = [
-    path('w', GetAllWilayaView.as_view(), name='GetAllWilayaView'),
+    path('wilayas', GetAllWilayaView.as_view(), name='GetAllWilayaView'),
+    path('wilaya/<int:wilaya_id>/municipals', GetAllSpecificMunicipalView.as_view(), name='GetAllSpecificMunicipalView'),
     path('m', GetAllMunicipalView.as_view(), name='GetAllMunicipalView'),
-    path('sm', GetAllSpecificMunicipalView.as_view(), name='GetAllSpecificMunicipalView'),
     path('h/<int:wilaya_id>', get_all_hospitals_of_wilaya, name='get_all_hospitals_of_wilaya'),
 ]
 
