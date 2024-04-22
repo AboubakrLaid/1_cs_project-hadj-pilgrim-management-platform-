@@ -11,6 +11,9 @@ import AdminInterface from "./Pages/AdminInterface";
 import Season from "./content/Admin/Season";
 import NewSeason from "./content/Admin/NewSeason";
 import Method from "./content/Admin/Method";
+import Participation from "./content/Hajj-participation/Participation";
+import Companion from "./content/Hajj-participation/Companion";
+import Draw from "./content/Candidate/Draw";
 
 function App() {
   return (
@@ -18,7 +21,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
-          <Route path="/Home" element={<Home />} />
+
+          <Route path="/Home" element={<Home />}>
+            <Route path="Draw" element={<Draw />} />
+          </Route>
           <Route exact path="/Login" element={<Login />} />
           <Route path="/Register" element={<Signup />} />
           <Route path="/Forget-Password" element={<RecoverPassword />} />
@@ -30,6 +36,8 @@ function App() {
             <Route path="NewSeason" element={<NewSeason />} />
             <Route path="Method" element={<Method />} />
           </Route>
+          <Route path="/Participate" element={<Participation />} />
+          <Route path="/Participate/Companion" element={<Companion />} />
         </Routes>
       </BrowserRouter>
     </div>
