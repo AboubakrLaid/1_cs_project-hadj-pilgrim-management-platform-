@@ -38,21 +38,30 @@ const Login = () => {
       try {
         const response = await axios.post("/auth/log-in", data);
         if (response.status === 200) {
+          console.log(response);
           const responseData = response.data;
           const accessToken = responseData?.access;
           const refreshToken = responseData?.refresh;
           const role = responseData?.role;
+          const name = responseData?.first_name + " " + responseData?.last_name;
+          const gender = responseData?.gender;
           localStorage.setItem("accessToken", responseData?.access);
           localStorage.setItem("refreshToken", responseData?.refresh);
-          setAuth({ role, accessToken, refreshToken });
-          // Check for successful login response data
-          if (responseData.access && responseData.refresh) {
-            console.log(response.data);
-
-            navigate("/Home");
-          } else {
-            // Handle invalid response data
-            console.error("Invalid response data:", responseData);
+          localStorage.setItem("role", responseData?.role);
+          localStorage.setItem("name", name);
+          localStorage.setItem("gender", gender);
+          localStorage.setItem("Status", responseData?.user_status);
+          localStorage.setItem("email", email);
+          setAuth({ name, role, accessToken, refreshToken });
+          if (role === "Admin" || role === "GeneralAdmin") {
+            navigate("/Admin");
+          }
+          if (role === "Candidate") {
+            if (!responseData?.user_status) {
+              navigate("/");
+            } else {
+              navigate("/Home");
+            }
           }
         } else {
           alert(response.error);
@@ -79,7 +88,6 @@ const Login = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          //mt: 20,
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 0.5)",

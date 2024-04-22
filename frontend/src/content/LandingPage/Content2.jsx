@@ -1,6 +1,9 @@
 import { Box, Stack } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Content2 = () => {
+  const navigate = useNavigate();
+  const access = localStorage.getItem("accessToken");
   return (
     <>
       <Box
@@ -45,16 +48,32 @@ const Content2 = () => {
             is Seamlessly Mapped Out from the Start
           </p>
           <Stack direction="row" spacing={4}>
-            <button
-              className="button"
-              style={{
-                width: "140px",
-                height: "50px",
-                borderRadius: "15px",
-              }}
-            >
-              Sign in
-            </button>
+            {!access && (
+              <button
+                onClick={() => navigate("/Login")}
+                className="button"
+                style={{
+                  width: "140px",
+                  height: "50px",
+                  borderRadius: "15px",
+                }}
+              >
+                Sign in
+              </button>
+            )}
+            {access && (
+              <button
+                onClick={() => navigate("/Participate")}
+                className="button"
+                style={{
+                  width: "140px",
+                  height: "50px",
+                  borderRadius: "15px",
+                }}
+              >
+                Register
+              </button>
+            )}
             <button
               className="button"
               style={{

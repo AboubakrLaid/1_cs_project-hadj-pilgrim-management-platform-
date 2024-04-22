@@ -2,13 +2,11 @@
   margin: 0;
   box-sizing: border-box;
 }
-.App {
-  min-width: 1200px;
-}
 
 body {
   font-family: "poppins";
 }
+
 .auth-body {
   background-image: url(./assets/LoginBackG.png);
   background-repeat: no-repeat;
@@ -17,7 +15,22 @@ body {
   background-attachment: fixed;
   position: relative;
 }
+.select-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  border-radius: 20px;
+  height: 100%;
+  font-weight: 200;
+  padding-left: 16px;
+  width: 85%;
+  border: none;
+}
 
+.custom-select {
+  color: rgb(0, 0, 0, 0.5);
+}
 .input {
   height: 45px;
   display: flex;
@@ -27,6 +40,7 @@ body {
   border: none;
   background-color: rgb(0, 0, 0, 0.1);
 }
+
 .invalid-input {
   height: 45px;
   display: flex;
@@ -55,6 +69,9 @@ select {
   padding-left: 16px;
   width: 350px;
   border: none;
+}
+.auth-form select:hover {
+  cursor: pointer;
 }
 
 .Forgot-pass {
@@ -299,4 +316,194 @@ select {
 }
 .season-scroll-button:hover {
   background-color: #ac5f82;
+}
+
+input[type="checkbox"] {
+  appearance: none; /* Hide default appearance */
+  -webkit-appearance: none; /* For older versions of Safari */
+  -moz-appearance: none; /* For older versions of Firefox */
+  display: inline-block; /* Display inline with the label */
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  border-radius: 6px; /* Rounded corners */
+  outline: none; /* Remove focus outline */
+  background-color: #e7d9ca;
+}
+input[type="checkbox"]:checked::before {
+  content: "\2713"; /* Unicode character for checkmark */
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 16px; /* Size of the checkmark */
+  text-align: center;
+  line-height: 20px; /* Center the checkmark vertically */
+}
+
+.Lottery-methods {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.Lottery-methods p {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+  margin-left: 32px;
+}
+.Methods-box {
+  display: flex; /* Use flexbox */
+  align-items: center; /* Align items vertically */
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
+.Methods-box label {
+  font-weight: 500;
+  font-size: 16px;
+}
+.Landing-page-Head {
+  background-image: url(./assets/MeccaImg.jpg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  height: 900px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Empty-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70px;
+  width: 70px;
+  border-radius: 10px;
+  background-color: #ab7595;
+}
+#landing-P1 {
+  color: black;
+  font-weight: 500;
+  font-size: 18px;
+  font-family: "Roboto";
+}
+#landing-P2 {
+  color: black;
+  font-weight: 500;
+  font-size: 13px;
+  text-align: center;
+}
+#landing-P3 {
+  color: #ab7595;
+  font-weight: 500;
+  font-size: 13px;
+}
+#landing-P3:hover {
+  cursor: pointer;
+}
+.landing-content2 {
+  position: relative;
+  border: 40px solid #ab7595;
+  border-bottom: 2px solid #ab7595;
+  height: 500px;
+  width: 440px;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  background-image: url(./assets/Content2.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.Content3-Img1 {
+  height: 500px;
+  width: 330px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30px;
+  border-bottom-right-radius: 20%;
+  border: 2px solid #ab7595;
+}
+.image-wrapper1 {
+  position: relative;
+
+  height: calc(100% - 10px);
+  width: calc(100% - 10px);
+  background-image: url(./assets/Mosque1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 30px;
+  border-bottom-right-radius: 20%;
+}
+.image-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(171, 117, 149, 0.25);
+  border-radius: 30px;
+  border-bottom-right-radius: 20%;
+}
+.Content3-Img2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  width: 240px;
+  border-radius: 30px;
+  border: 2px solid #ab7595;
+}
+
+.image-wrapper2 {
+  position: relative;
+  height: calc(100% - 10px);
+  width: calc(100% - 10px);
+  background-image: url(./assets/Mosque2.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 30px;
+}
+.image-wrapper2::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(171, 117, 149, 0.25);
+  border-radius: 30px;
+}
+.image-wrapper3 {
+  position: relative;
+
+  height: calc(100% - 10px);
+  width: calc(100% - 10px);
+  background-image: url(./assets/Kaaba.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 30px;
+}
+.image-wrapper3::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(171, 117, 149, 0.25);
+  border-radius: 30px;
+}
+.Content4 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  height: 500px;
+  width: 100%;
+  background-image: url(./assets/Content4.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 10px;
 }

@@ -12,49 +12,80 @@ import { TbCalendarFilled } from "react-icons/tb";
 import NewSeason from "./NewSeason";
 import Alert from "@mui/material/Alert";
 
-const data = [
+const dataRes = [
   {
     id: 1,
-    name: "Item 1",
-    content: ["Content 1a", "Content 1b", "Content 1c"],
-  },
-  { id: 2, name: "Item 2", content: ["Content 2a", "Content 2b"] },
-  {
-    id: 3,
-    name: "Item 3",
-    content: ["Content 3a", "Content 3b", "Content 3c", "Content 3d"],
-  },
-  { id: 4, name: "Item 4", content: ["Content 4a"] },
-  {
-    id: 5,
-    name: "Item 5",
-    content: ["Content 5a", "Content 5b", "Content 5c"],
+    name: "No data yet",
+    pahses: ["No data yet "],
   },
 ];
 
 const Season = () => {
+  const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [finish, setFinish] = useState(false);
+
   const [alertsuc, setAlertSuc] = useState(false);
   const [alertErr, setAlertErr] = useState(false);
+  const [alertInfo, setAlertInfo] = useState(false);
   const [err, setErr] = useState("");
 
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/pilgrimage/all", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
+          },
+        });
+
+        setData(response.data);
+      } catch (error) {
+        // Handle network errors or Axios request errors
+        console.error("Error:", error);
+        setErr("Invalid email");
+      }
+    };
+
+    fetchData(); // Call the async function to execute it
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      setSelectedItem(data[0]);
+    }
+  }, [data]);
+
   const handleSeasonFinished = async () => {
-    setFinish(true);
-    console.log("finished");
-    setAlertSuc(true);
-    hideAlert();
+    const accessToken = localStorage.getItem("accessToken");
+
     try {
-      const response = await axios.post("/pilgrimage/finished", {});
+      const response = await axios.post(
+        "/pilgrimage/finished",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (response.status === 200) {
-        setAlertSuc(true);
-        hideAlert();
+        if (response?.data?.message) {
+          setErr(response.data.message);
+          setAlertInfo(true);
+          hideAlert();
+        } else {
+          setAlertSuc(true);
+          setErr("Season finished successfully");
+          hideAlert();
+        }
       }
     } catch (error) {
-      // Handle network errors or Axios request errors
-      console.error("Error:", error);
-      setErr("Invalid email");
+      setAlertErr(true);
+      setErr("error");
+      hideAlert();
     }
   };
 
@@ -62,10 +93,9 @@ const Season = () => {
     setTimeout(() => {
       setAlertSuc(false);
       setAlertErr(false);
-    }, 2000); // 2000 milliseconds = 2 seconds
+      setAlertInfo(false);
+    }, 2000);
   };
-
-  // Call hideAlert when the component mounts
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -79,7 +109,7 @@ const Season = () => {
   const elementRef2 = useRef(null);
 
   const [arrowDisable, setArrowDisable] = useState(true);
-  const [selectedItem, setSelectedItem] = useState(data[0]);
+  const [selectedItem, setSelectedItem] = useState(data ? data[0] : dataRes[0]);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
@@ -103,7 +133,7 @@ const Season = () => {
 
   return (
     <>
-      <Box sx={{ height: "100vh" }}>
+      <Box sx={{ height: "100%", width: "100%" }}>
         {alertErr && (
           <Alert
             sx={{
@@ -127,13 +157,26 @@ const Season = () => {
             }}
             severity="success"
           >
-            Season finished successfully{" "}
+            {err}
+          </Alert>
+        )}
+
+        {alertInfo && (
+          <Alert
+            sx={{
+              position: "absolute",
+              opacity: 1,
+              transition: "opacity 0.5s ease-in-out",
+              boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.2)",
+            }}
+            severity="info"
+          >
+            {err}
           </Alert>
         )}
         <Box
           style={{
-            height: "15vh",
-
+            height: "120px",
             display: "flex",
             flexDirection: "row",
             justifyContent: "flex-end",
@@ -141,7 +184,6 @@ const Season = () => {
           }}
         >
           <button className="Finished-button" onClick={handleSeasonFinished}>
-            {" "}
             Finish season
           </button>
 
@@ -150,12 +192,11 @@ const Season = () => {
             style={{
               marginRight: "40px",
               height: "46px",
-              width: "13%",
+              width: "140px",
               borderRadius: 30,
             }}
             onClick={handleOpenModal}
           >
-            {" "}
             New season
           </button>
           <NotificationsNoneIcon
@@ -166,17 +207,18 @@ const Season = () => {
 
         <Box
           sx={{
-            height: "85vh",
+            height: "80%",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center", // Center the content horizontally
             alignItems: "center",
+            gap: { xs: "80px", md: "40px" },
           }}
         >
           <Box
             sx={{
-              width: "72%",
-              height: "30%",
+              width: { xs: "95%", md: "85%", lg: "75%" },
+              height: "200px",
               margin: "auto",
               display: "flex",
               flexDirection: "row",
@@ -195,7 +237,7 @@ const Season = () => {
             <div className="season-container" ref={elementRef1}>
               {data.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.year}
                   className="season-box1"
                   onClick={() => handleItemClick(item)}
                 >
@@ -212,8 +254,13 @@ const Season = () => {
                       }}
                     >
                       <TiCalendar color="#AB7595" size={24} />
-                      <p style={{ fontWeight: 500, marginLeft: "16px" }}>
-                        2024
+                      <p
+                        style={{
+                          fontWeight: 500,
+                          marginLeft: "16px",
+                        }}
+                      >
+                        {item.year}
                       </p>
                     </Stack>
                   </div>
@@ -228,18 +275,18 @@ const Season = () => {
                   >
                     <Stack
                       direction="row"
-                      spacing={2}
+                      spacing={1}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         color: "rgba(0, 0, 0, 0.43)",
                         fontWeight: 400,
-                        fontSize: "12px",
+                        fontSize: "14px",
                         height: "30%",
                       }}
                     >
-                      <p>number of piligrims</p>
-                      <p>active</p>
+                      <p>{item.total_pilgrims} piligrims</p>
+                      {item.is_active ? <p>active</p> : <p>inactive</p>}
                     </Stack>
                     <Stack
                       direction="row"
@@ -249,20 +296,19 @@ const Season = () => {
                         justifyContent: "space-between",
                         color: "rgba(0, 0, 0, 0.43)",
                         fontWeight: 400,
-                        fontSize: "12px",
+                        fontSize: "14px",
                         height: "30%",
                       }}
                     >
                       <p
                         style={{
                           color: "black",
-                          fontSize: "14px",
                           fontWeight: 500,
                         }}
                       >
                         Inscription deadline
                       </p>
-                      <p>date</p>
+                      <p>{item.inscription_deadline}</p>
                     </Stack>
                     <Stack
                       direction="row"
@@ -272,20 +318,19 @@ const Season = () => {
                         justifyContent: "space-between",
                         color: "rgba(0, 0, 0, 0.43)",
                         fontWeight: 400,
-                        fontSize: "12px",
+                        fontSize: "14px",
                         height: "30%",
                       }}
                     >
                       <p
                         style={{
                           color: "black",
-                          fontSize: "14px",
                           fontWeight: 500,
                         }}
                       >
-                        Payement deadline
+                        Procedure deadline
                       </p>
-                      <p>date</p>
+                      <p>{item.procedure_deadline}</p>
                     </Stack>
                   </Box>
 
@@ -307,10 +352,10 @@ const Season = () => {
                         style={{
                           fontWeight: 400,
                           color: "rgba(0, 0, 0, 0.43)",
-                          fontSize: "12px",
+                          fontSize: "14px",
                         }}
                       >
-                        x phases
+                        {item.phases.length} phases
                       </p>
                     </Stack>
                   </div>
@@ -329,7 +374,7 @@ const Season = () => {
           </Box>
           <Box
             sx={{
-              width: "50%",
+              width: { xs: "85%", md: "70%", lg: "50%" },
               height: "25%",
               margin: "auto",
               display: "flex",
@@ -337,7 +382,7 @@ const Season = () => {
             }}
           >
             <button
-              style={{ width: "8%" }}
+              style={{ width: "45px" }}
               className="season-scroll-button"
               onClick={() => {
                 handleHorizontalScroll(elementRef2.current, 25, 100, -225);
@@ -348,8 +393,8 @@ const Season = () => {
             </button>
 
             <div className="season-container" ref={elementRef2}>
-              {selectedItem.content.map((contentItem, index) => (
-                <div key={index} className="season-box2">
+              {selectedItem?.phases?.map((phaseItem) => (
+                <div key={phaseItem.phase_number} className="season-box2">
                   <Box
                     sx={{
                       display: "flex",
@@ -367,13 +412,11 @@ const Season = () => {
                         fontSize: "16px",
                       }}
                     >
-                      {" "}
-                      Phase n° x
+                      Phase n° {phaseItem.phase_number}
                     </span>
                     <Box
                       sx={{
                         mt: 2,
-
                         display: "flex",
                         flexDirection: "column",
                       }}
@@ -403,7 +446,7 @@ const Season = () => {
                         >
                           Start date:
                         </p>
-                        <p>2023/10/01</p>
+                        <p>{phaseItem.start_date}</p>
                       </Stack>
                       <Stack
                         direction="row"
@@ -429,7 +472,7 @@ const Season = () => {
                         >
                           End date:
                         </p>
-                        <p>2023/12/01</p>
+                        <p>{phaseItem.end_date}</p>
                       </Stack>
                     </Box>
                   </Box>

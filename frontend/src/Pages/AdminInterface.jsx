@@ -19,7 +19,7 @@ const SidebarDataGeneral = [
     icon: <EventNoteIcon />,
   },
   {
-    title: "Algo method",
+    title: "Method",
     path: "/Admin/Method",
     icon: <ShuffleIcon />,
   },
@@ -28,7 +28,7 @@ const SidebarDataGeneral = [
 const SidebarDataAdmin = [
   {
     title: "Dashboard",
-    path: "/Admin/Dashboard",
+    path: "/Admin",
     icon: <HomeIcon />,
   },
   {
@@ -45,8 +45,9 @@ const SidebarDataAdmin = [
 
 const AdminInterface = () => {
   const [selectedItem, setSelectedItem] = useState("Dashboard");
+  const name = localStorage.getItem("name");
+  const role = localStorage.getItem("role");
 
-  let role = "adminG";
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -68,46 +69,61 @@ const AdminInterface = () => {
   return (
     //--------------------------------------------SIDEBAR------------------------------------//
 
-    <Box sx={{ display: "flex", flexDirection: "row" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        height: "100%",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
-          width: "17%",
-
-          borderTopRightRadius: "20px",
-          height: "100vh",
+          flexDirection: { xs: "row", md: "column" },
+          width: { xs: "100%", md: "300px" },
+          border: "2px solid black",
+          borderTopRightRadius: { xs: "0px", md: "20px" },
+          borderBottomLeftRadius: { xs: "20px", md: "0px" },
+          height: { xs: "200px", md: "100vh" },
         }}
       >
         <Box
           sx={{
-            height: "30%",
+            height: { xs: "100%", md: "30%" },
             display: "flex",
             flexDirection: "column",
-            alignItems: "center", // Center items vertically
+            alignItems: "center",
             justifyContent: "center",
-            width: "100%",
-            borderTopRightRadius: "20px",
+            width: { xs: "30%", md: "100%" },
+            borderTopRightRadius: { xs: "0px", md: "20px" },
+            borderBottomLeftRadius: { xs: "20px", md: "0px" },
             backgroundColor: "#996986",
             borderBottom: "2px solid rgba(0, 0, 0, 0.4)",
           }}
         >
-          <Avatar src="/broken-image.jpg" sx={{ width: 140, height: 140 }} />
+          <Avatar
+            src="/broken-image.jpg"
+            sx={{
+              width: { xs: "70px", sm: "90px", md: "110px" },
+              height: { xs: "70px", sm: "90px", md: "110px" },
+            }}
+          />
           <div style={{ color: "white", fontWeight: "600", marginTop: "10px" }}>
-            Username
+            {name}
           </div>
         </Box>
         <Box
           sx={{
             paddingTop: "20px",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: { xs: "row", md: "column" },
             justifyContent: "space-between",
-            height: "70%",
+            height: { xs: "100%", md: "70%" },
             background: "rgba(153, 105, 134, 0.95)",
+            width: "100%",
           }}
         >
-          {role == "adminG" && (
+          {role == "GeneralAdmin" && (
             <ul className="Sidebar-List">
               {SidebarDataGeneral.map((item, index) => {
                 return (
@@ -127,7 +143,11 @@ const AdminInterface = () => {
                       {item.icon}
                     </Box>
                     <Box
-                      sx={{ flex: "70%", fontWeight: "600", fontSize: "21px" }}
+                      sx={{
+                        flex: "70%",
+                        fontWeight: "600",
+                        fontSize: { xs: "14px", md: "21px" },
+                      }}
                     >
                       {item.title}
                     </Box>
@@ -136,7 +156,7 @@ const AdminInterface = () => {
               })}
             </ul>
           )}
-          {role == "admin" && (
+          {role == "Admin" && (
             <ul className="Sidebar-List">
               {SidebarDataAdmin.map((item, index) => {
                 return (
@@ -156,7 +176,11 @@ const AdminInterface = () => {
                       {item.icon}
                     </Box>
                     <Box
-                      sx={{ flex: "70%", fontWeight: "600", fontSize: "13px" }}
+                      sx={{
+                        flex: "70%",
+                        fontWeight: "600",
+                        fontSize: { xs: "14px", md: "21px" },
+                      }}
                     >
                       {item.title}
                     </Box>
@@ -169,19 +193,36 @@ const AdminInterface = () => {
           <Stack
             direction="row"
             spacing={1}
+            onClick={() => {
+              const token = localStorage.getItem("accessToken");
+              console.log(token);
+              localStorage.removeItem("accessToken");
+              navigate("/");
+            }}
             sx={{
               marginLeft: "auto",
               marginRight: "auto",
               alignItems: "center",
               mb: 1,
+              ":hover": {
+                cursor: "pointer",
+                color: "red",
+              },
             }}
           >
             <LogoutIcon />
-            <div style={{ fontWeight: "600", fontSize: "22px" }}> logout</div>
+            <span
+              style={{
+                fontWeight: "600",
+                fontSize: { xs: "14px", md: "21px" },
+              }}
+            >
+              logout
+            </span>
           </Stack>
         </Box>
       </Box>
-      <Box sx={{ width: "83%" }}>
+      <Box sx={{ width: "100%" }}>
         <Outlet />
       </Box>
     </Box>
