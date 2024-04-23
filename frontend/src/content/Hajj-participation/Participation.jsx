@@ -64,58 +64,71 @@ const Participation = () => {
   }, [municipal]);
 
   //State fetching
-  /*
-  useEffect(() => {
-    
-    axios.get('your-endpoint-url')
-      .then(response => {
-        // Extract options from response data
-        const fetchedOptions = response.data.map(item => ({
-          value: item.value,
-          label: item.label
-        }));
-       setStateOptions(fetchedOptions);
-      })
-      .catch(error => {
-        console.error('Error fetching options:', error);
-      });
-  }, []); 
-  */
 
-  //municipal fetching
-  /*
   useEffect(() => {
-    
-    axios.get('your-endpoint-url')
-      .then(response => {
-        // Extract options from response data
-        const fetchedMun = response.data.map(item => ({
-          value: item.value,
-          label: item.label
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/administrative/wilayas");
+        console.log(response.data);
+
+        const fetchedOptions = response.data.map((item) => ({
+          value: item.name,
+          label: item.id,
+        }));
+
+        setStateOptions(fetchedOptions);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `/administrative/wilaya/${state}/municipals`
+        );
+        console.log(response.data);
+
+        const fetchedMun = response.data.map((item) => ({
+          value: item.name,
         }));
         setMunicipalOptions(fetchedMun);
-      })
-      .catch(error => {
-        console.error('Error fetching options:', error);
-      });
-  }, [state]); 
-  */
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
 
+    fetchData();
+  }, [state]);
+
+  console.log(municipal);
   const handleWilaya = (e) => {
-    setState(e.target.key);
+    setState(e.target.value);
   };
   const handleMunicipal = (e) => {
-    setMunicipal(e.target.key);
+    setMunicipal(e.target.value);
   };
 
   const handleSubmit = async (e) => {
     console.log("entered");
     e.preventDefault();
-    if (validBirthday && validNin && validPhoneNumber) {
+    if (
+      validBirthday &&
+      validNin &&
+      validPhoneNumber &&
+      validState &&
+      validMunicipal
+    ) {
       const data = {
         nin: nin,
         phone_number: phoneNumber,
         birth_date: birthday,
+        municipal: municipal,
+        wilaya: state,
       };
       const access = localStorage.getItem("accessToken");
       console.log(data);
@@ -144,6 +157,18 @@ const Participation = () => {
     } else {
       alert("Please fill all the fields with valid entry");
     }
+  };
+
+  const handleContinue = () => {
+    const data = {
+      nin: nin,
+      phone_number: phoneNumber,
+      birth_date: birthday,
+      municipal: municipal,
+      wilaya: state,
+    };
+    localStorage.setItem("ParticipateData", data);
+    navigate("/Participate/Companion");
   };
 
   return (
@@ -272,8 +297,8 @@ const Participation = () => {
               >
                 <option value="">Select Wilaya</option>
                 {stateOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                  <option key={option.label} value={option.label}>
+                    {option.value}
                   </option>
                 ))}
               </select>
@@ -283,7 +308,11 @@ const Participation = () => {
 
             {/* --------------- Municipal selection ------------- */}
 
-            <div className={!validState && state ? "invalid-input" : "input"}>
+            <div
+              className={
+                !validMunicipal && municipal ? "invalid-input" : "input"
+              }
+            >
               <select
                 required
                 className="custom-select"
@@ -292,7 +321,7 @@ const Participation = () => {
                 <option value="">Select Municipal</option>
                 {municipalOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {option.value}
                   </option>
                 ))}
               </select>
@@ -309,10 +338,7 @@ const Participation = () => {
             )}
             {gender === "F" && (
               <div className="sub-but">
-                <button
-                  className="button"
-                  onClick={navigate("/Participate/Companion")}
-                >
+                <button className="button" onClick={handleContinue}>
                   Continue
                 </button>
               </div>

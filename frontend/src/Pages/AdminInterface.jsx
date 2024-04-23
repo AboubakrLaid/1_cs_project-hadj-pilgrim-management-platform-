@@ -81,7 +81,6 @@ const AdminInterface = () => {
           display: "flex",
           flexDirection: { xs: "row", md: "column" },
           width: { xs: "100%", md: "300px" },
-          border: "2px solid black",
           borderTopRightRadius: { xs: "0px", md: "20px" },
           borderBottomLeftRadius: { xs: "20px", md: "0px" },
           height: { xs: "200px", md: "100vh" },

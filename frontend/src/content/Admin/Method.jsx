@@ -4,10 +4,15 @@ import { Box, Stack, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 
 const data = [
-  { id: 0, value: 10, label: "Series A" },
-  { id: 1, value: 15, label: "Series B" },
-  { id: 2, value: 20, label: "Series C" },
-  { id: 3, value: 20, label: "Series D" },
+  { id: 0, value: 1, label: "one time" },
+  { id: 1, value: 1, label: "from 2 to 4" },
+  { id: 2, value: 1, label: "more than 4" },
+];
+
+const data2 = [
+  { id: 0, value: 1, label: "< 50" },
+  { id: 1, value: 1, label: "50-70" },
+  { id: 2, value: 1, label: ">70" },
 ];
 
 const Method = () => {
@@ -162,7 +167,7 @@ const Method = () => {
         direction="column"
         spacing={2}
         sx={{
-          height: "85%",
+          height: "100%",
           alignItems: "center",
           justifyContent: "center",
           width: "50%",
@@ -225,7 +230,7 @@ const Method = () => {
           <PieChart
             series={[
               {
-                data,
+                data: data2,
                 highlightScope: { faded: "global", highlighted: "item" },
                 faded: { innerRadius: 30, additionalRadius: -5, color: "gray" },
                 innerRadius: 30,
@@ -244,7 +249,7 @@ const Method = () => {
           <span
             style={{ fontWeight: 500, fontSize: "14px", textAlign: "center" }}
           >
-            Registration Time Percentage Circle
+            Age Percentage Distribution
           </span>
         </Box>
       </Stack>
@@ -254,7 +259,7 @@ const Method = () => {
         spacing={2}
         sx={{
           position: "relative",
-          height: "85%",
+          height: "100%",
           alignItems: "center",
           justifyContent: "center",
           width: "50%",
