@@ -62,18 +62,30 @@ const Companion = () => {
   const handleSubmit = async (e) => {
     console.log("entered");
     e.preventDefault();
-    if (validBirthday && validNin && validPhoneNumber) {
+    if (
+      validFirstName &&
+      validLastName &&
+      validBirthday &&
+      validNin &&
+      validPhoneNumber
+    ) {
+      const participantData = localStorage.getItem("ParticipateData");
       const data = {
-        nin: nin,
-        phone_number: phoneNumber,
-        birth_date: birthday,
+        participantData,
+        Companion: {
+          first_name: firstName,
+          last_name: lastName,
+          nin: nin,
+          phone_number: phoneNumber,
+          birth_date: birthday,
+        },
       };
       const access = localStorage.getItem("accessToken");
       console.log(data);
 
       try {
         const response = await axios.post(
-          "/auth/sign-up",
+          "/auth/profile/",
           JSON.stringify({
             data,
           }),
@@ -86,16 +98,38 @@ const Companion = () => {
         console.log(response.data);
         console.log("here");
 
-        if (response.status === 201 && response.data.success) {
-          // Success, navigate to the login page
-          navigate("/login");
+        if (response.status === 200 && response.data.success) {
+          try {
+            const lotteryResponse = await axios.post(
+              "/lottery/",
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${access}`,
+                },
+              }
+            );
+            console.log(lotteryResponse.data);
+
+            if (
+              lotteryResponse.status === 200 &&
+              lotteryResponse.data.success
+            ) {
+              console.log("lottery endpoint success");
+              navigate("/Home/Draw");
+            } else {
+              console.log("lottery endpoint failed", lotteryResponse);
+            }
+          } catch (error) {
+            console.error("Lottery Error:", error);
+          }
         }
       } catch (error) {
         // Handle errors here
         console.error("Error:", error);
       }
     } else {
-      alert("Please fill all the fields with valid entry");
+      alert("Erorr");
     }
   };
 

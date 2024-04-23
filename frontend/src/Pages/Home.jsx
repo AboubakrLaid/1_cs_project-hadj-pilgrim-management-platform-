@@ -1,8 +1,7 @@
 import useAuth from "../Context/useAuth";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Box, Avatar, Stack } from "@mui/material";
-import LogoutIcon from "@mui/icons-material/Logout";
-
+import Stepper2 from "../Components/Stepper2";
 const Home = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
@@ -27,7 +26,6 @@ const Home = () => {
           display: "flex",
           flexDirection: { xs: "row", md: "column" },
           width: { xs: "100%", md: "300px" },
-          border: "2px solid black",
           borderTopRightRadius: { xs: "0px", md: "20px" },
           borderBottomLeftRadius: { xs: "20px", md: "0px" },
           height: { xs: "200px", md: "100vh" },
@@ -58,48 +56,33 @@ const Home = () => {
           <div style={{ color: "white", fontWeight: "600", marginTop: "10px" }}>
             {name}
           </div>
+          <Box sx={{ mt: 1 }}>
+            <button
+              style={{
+                width: "110px",
+                height: "35px",
+                borderRadius: "20px",
+                fontWeight: "600",
+                fontSize: "16px",
+                border: "none",
+                backgroundColor: "#E7D9CA",
+                cursor: "pointer",
+              }}
+            >
+              Edit profile
+            </button>
+          </Box>
         </Box>
         <Box
           sx={{
             paddingTop: "20px",
-            display: "flex",
-            flexDirection: { xs: "row", md: "column" },
-            justifyContent: "space-between",
+
             height: { xs: "100%", md: "70%" },
             background: "rgba(153, 105, 134, 0.95)",
             width: "100%",
           }}
         >
-          <Stack
-            direction="row"
-            spacing={1}
-            onClick={() => {
-              const token = localStorage.getItem("accessToken");
-              console.log(token);
-              localStorage.removeItem("accessToken");
-              navigate("/");
-            }}
-            sx={{
-              marginLeft: "auto",
-              marginRight: "auto",
-              alignItems: "center",
-              mb: 1,
-              ":hover": {
-                cursor: "pointer",
-                color: "red",
-              },
-            }}
-          >
-            <LogoutIcon />
-            <span
-              style={{
-                fontWeight: "600",
-                fontSize: { xs: "14px", md: "21px" },
-              }}
-            >
-              logout
-            </span>
-          </Stack>
+          <Stepper2 />
         </Box>
       </Box>
       <Box sx={{ width: "100%" }}>
