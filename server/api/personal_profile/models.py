@@ -13,6 +13,7 @@ class PersonalProfile(models.Model):
     passport_expiration_date = models.DateField( blank=True, null=True)
     birth_certificate_number = models.CharField(max_length=5, unique=True, blank=True, null=True)
     files = models.FileField(upload_to='files/', blank=True, null=True)
+    picture = models.ImageField(upload_to='pictures/', blank=True, null=True)
     address = models.CharField(max_length=180)
     birth_date = models.DateField()
     phone_number = models.CharField(max_length=10, unique=True)
