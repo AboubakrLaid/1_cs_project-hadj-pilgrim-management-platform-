@@ -5,6 +5,7 @@
 
 body {
   font-family: "poppins";
+  height: 100%;
 }
 
 .auth-body {
@@ -506,4 +507,25 @@ input[type="checkbox"]:checked::before {
   background-repeat: no-repeat;
   background-size: cover;
   border-radius: 10px;
+}
+
+#uploadButton {
+  display: none; /* Hide the actual file input */
+}
+#uploadButton + label {
+  display: inline-block;
+  height: 45px;
+  width: 200px;
+  display: flex;
+  padding-left: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+#uploadButton + label:hover {
+  background-color: rgb(0, 0, 0, 0.5);
+  cursor: pointer;
 }

@@ -8,6 +8,7 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/base";
 import useAuth from "../../Context/useAuth";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const validDate = /^\d{4}\-(0?[1-9]|1[0-2])\-(0?[1-9]|[12]\d|3[01])$/;
 
@@ -15,6 +16,7 @@ const NewSeason = ({ onClose }) => {
   const { auth } = useAuth();
 
   const navigate = useNavigate();
+
   //Year
   const [year, setYear] = useState("");
   const [validYear, setValidYear] = useState(false);
@@ -185,6 +187,52 @@ const NewSeason = ({ onClose }) => {
     }
   };
 
+  //File data
+  const [data, setData] = useState([]);
+
+  //handle CSV file
+  const handleCSVChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const result = event.target.result;
+      const data = parseCSV(result);
+      setData(data);
+    };
+
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
+  const parseCSV = (csv) => {
+    const rows = csv
+      .split("\n")
+      .map((row) => row.trim())
+      .filter((row) => row !== ""); // Trim whitespace and remove empty rows
+    const headers = rows[0].split(","); // Extract headers (assuming they are separated by commas)
+    const data = rows.slice(1).map((row) => {
+      const values = row.split(","); // Split row into values (assuming they are separated by commas)
+      const rowData = {};
+      headers.forEach((header, index) => {
+        rowData[header] = values[index] ? values[index].trim() : ""; // Trim whitespace and handle empty values
+      });
+      return rowData;
+    });
+    return data;
+  };
+
+  useEffect(() => {
+    if (data.length > 0) {
+      console.log("All Data:");
+      console.log(data);
+    } else {
+      console.log("No data available.");
+    }
+  }, [data]);
+  //---------------------------------------------
+
   return (
     <>
       <Box
@@ -198,7 +246,7 @@ const NewSeason = ({ onClose }) => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-
+          overflow: "auto",
           p: 5,
           borderRadius: 10,
           backgroundColor: "rgba(255, 255, 255, 1)",
@@ -354,6 +402,16 @@ const NewSeason = ({ onClose }) => {
                 </span>
               </div>
             )}
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCSVChange}
+              id="uploadButton"
+            />
+            <label htmlFor="uploadButton">
+              Upload CSV file
+              <UploadFileIcon sx={{ ml: 3 }} />
+            </label>
 
             <div className="sub-but">
               <button className="button" onClick={handleSubmit}>

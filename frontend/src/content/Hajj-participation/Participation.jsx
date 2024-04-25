@@ -95,6 +95,7 @@ const Participation = () => {
 
         const fetchedMun = response.data.map((item) => ({
           value: item.name,
+          key: item.id,
         }));
         setMunicipalOptions(fetchedMun);
       } catch (error) {
@@ -123,22 +124,18 @@ const Participation = () => {
       validState &&
       validMunicipal
     ) {
-      const data = {
-        nin: nin,
-        phone_number: phoneNumber,
-        birth_date: birthday,
-        municipal: municipal,
-        wilaya: state,
-      };
       const access = localStorage.getItem("accessToken");
-      console.log(data);
 
       try {
         const response = await axios.post(
-          "/auth/profile/",
-          JSON.stringify({
-            data,
-          }),
+          "/profile/",
+          {
+            nin: nin,
+            phone_number: phoneNumber,
+            birth_date: birthday,
+            municipal: parseInt(municipal),
+            wilaya: parseInt(state),
+          },
           {
             headers: {
               Authorization: `Bearer ${access}`,
@@ -148,8 +145,8 @@ const Participation = () => {
         console.log(response.data);
         console.log("here");
 
-        if (response.status === 200 && response.data.success) {
-          navigate("/Home");
+        if (response.status === 201) {
+          navigate("/Home/Draw");
         }
       } catch (error) {
         console.error("Error:", error);
@@ -320,7 +317,7 @@ const Participation = () => {
               >
                 <option value="">Select Municipal</option>
                 {municipalOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.key} value={option.key}>
                     {option.value}
                   </option>
                 ))}
