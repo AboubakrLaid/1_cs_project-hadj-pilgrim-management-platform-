@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from users.models import User
+from pilgrimage_info.models import PilgrimageSeasonInfo
 
 class Wilaya(models.Model):
     name = models.CharField(max_length=100, unique=True)  
@@ -38,3 +39,11 @@ class Hospital(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+    
+class Seats(models.Model):
+    season = models.ForeignKey(PilgrimageSeasonInfo, on_delete=models.CASCADE)
+    wilaya = models.OneToOneField(Wilaya, on_delete=models.CASCADE)
+    available_seats = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    extra_seats = models.PositiveIntegerField(validators=[MinValueValidator(0)])

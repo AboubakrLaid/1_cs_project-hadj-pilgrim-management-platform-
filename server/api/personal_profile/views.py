@@ -15,7 +15,7 @@ from municipal_wilaya.models import Wilaya, Municipal
 
 
 # Create your views here.
-@api_view(['POST', 'GET'])
+@api_view(['POST', 'GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def personal_profile(request):
     if request.method == 'GET':
@@ -38,26 +38,42 @@ def personal_profile(request):
         data['municipal'] = Municipal.objects.get(id=data['municipal']).name
         
         return Response(data, status=status.HTTP_200_OK)
-    # for POST
-    data = request.data
-    user = request.user
-    
-    try:
-        profile = PersonalProfile.objects.get(user=user)
-        return Response({'success':False,'message' : 'this user have already a personal profile'}, status=status.HTTP_409_CONFLICT)
-    except PersonalProfile.DoesNotExist:
-        pass
-    
-    data['user'] = user.id
-    
-    if data.get('companion') is not None:
-        data['companion']['user'] = user.id
+    elif request.method == 'POST':
+        data = request.data
+        user = request.user
         
-    serializer = PersonalProfileSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({'success' : True, 'message' : 'profile created'}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            profile = PersonalProfile.objects.get(user=user)
+            return Response({'success':False,'message' : 'this user have already a personal profile'}, status=status.HTTP_409_CONFLICT)
+        except PersonalProfile.DoesNotExist:
+            pass
+        
+        data['user'] = user.id
+        
+        if data.get('companion') is not None:
+            data['companion']['user'] = user.id
+            
+        serializer = PersonalProfileSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success' : True, 'message' : 'profile created'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    else: # PUT
+        user = request.user
+        data = request.data
+        data['user'] = user.id
+        
+        try:
+            profile = user.personal_profile
+        except PersonalProfile.DoesNotExist:
+            return Response({'success':False,'message' : 'profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = PersonalProfileSerializer(profile, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success' : True, 'message' : 'profile updated'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PATCH'])

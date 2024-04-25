@@ -40,6 +40,7 @@ def get_all_seasons(request):
     
 
     serializer = PilgrimageSeasonInfoSerializer(seasons, many=True)
+    
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
