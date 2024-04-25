@@ -8,7 +8,9 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/base";
 import useAuth from "../../Context/useAuth";
+
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+
 
 const validDate = /^\d{4}\-(0?[1-9]|1[0-2])\-(0?[1-9]|[12]\d|3[01])$/;
 
@@ -185,6 +187,7 @@ const NewSeason = ({ onClose }) => {
         alert("Request failed : Invalid cardenalities");
       }
     }
+
   };
 
   //File data
@@ -204,6 +207,7 @@ const NewSeason = ({ onClose }) => {
     if (file) {
       reader.readAsText(file);
     }
+
   };
 
   const parseCSV = (csv) => {

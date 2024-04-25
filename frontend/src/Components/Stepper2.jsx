@@ -9,7 +9,7 @@ import { PiNumberTwoBold } from "react-icons/pi";
 import { PiNumberThreeBold } from "react-icons/pi";
 import { PiNumberFourBold } from "react-icons/pi";
 
-const Stepper = () => {
+const Stepper2 = () => {
   return (
     <Timeline
       sx={{
@@ -30,13 +30,13 @@ const Stepper = () => {
             sx={{
               height: "40px",
               width: "40px",
-              backgroundColor: "#E7D9CA",
+              backgroundColor: "green",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <CheckIcon sx={{ color: "#AB7595" }} />
+            <CheckIcon />
           </TimelineDot>
           <TimelineConnector
             sx={{ backgroundColor: "white", height: "30px" }}
@@ -60,7 +60,7 @@ const Stepper = () => {
             sx={{
               height: "40px",
               width: "40px",
-              backgroundColor: "#E7D9CA",
+              backgroundColor: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -92,7 +92,7 @@ const Stepper = () => {
             sx={{
               height: "40px",
               width: "40px",
-              backgroundColor: "#E7D9CA",
+              backgroundColor: "rgba(255, 255, 255, 0.4) ",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -124,7 +124,7 @@ const Stepper = () => {
             sx={{
               height: "40px",
               width: "40px",
-              backgroundColor: "#E7D9CA",
+              backgroundColor: "rgba(255, 255, 255, 0.4) ",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -145,11 +145,10 @@ const Stepper = () => {
           }}
         >
           Payement
-
         </TimelineContent>
       </TimelineItem>
     </Timeline>
   );
 };
 
-export default Stepper;
+export default Stepper2;

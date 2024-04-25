@@ -59,6 +59,13 @@ const Participation = () => {
     setValidState(state);
   }, [state]);
 
+  if (parseInt(state) === 21) {
+    console.log("state is int");
+  }
+  if (parseInt(municipal) === 362) {
+    console.log("municipal is int");
+  }
+
   useEffect(() => {
     setValidMunicipal(municipal);
   }, [municipal]);
@@ -124,7 +131,9 @@ const Participation = () => {
       validState &&
       validMunicipal
     ) {
+
       const access = localStorage.getItem("accessToken");
+
 
       try {
         const response = await axios.post(
@@ -145,7 +154,9 @@ const Participation = () => {
         console.log(response.data);
         console.log("here");
 
+
         if (response.status === 201) {
+
           navigate("/Home/Draw");
         }
       } catch (error) {

@@ -1,9 +1,11 @@
 import useAuth from "../Context/useAuth";
 import { Outlet, useNavigate } from "react-router-dom";
+
 import { Box, Avatar } from "@mui/material";
 import Stepper from "../Components/Stepper";
 import { useTheme, useMediaQuery } from "@mui/material";
 import HorStepper from "../Components/HorStepper";
+
 const Home = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
@@ -84,6 +86,7 @@ const Home = () => {
             position: "relative",
             border: "2px solid black",
             paddingTop: "20px",
+
             height: { xs: "100%", md: "70%" },
             background: "rgba(153, 105, 134, 0.95)",
             width: "100%",
@@ -91,6 +94,7 @@ const Home = () => {
             justifyContent: "center",
           }}
         >
+
           <Box
             sx={{
               border: "2px solid red",
@@ -98,6 +102,7 @@ const Home = () => {
           >
             {isXsMd ? <HorStepper /> : <Stepper />}
           </Box>
+
         </Box>
       </Box>
       <Box sx={{ width: "100%", overflow: "auto" }}>

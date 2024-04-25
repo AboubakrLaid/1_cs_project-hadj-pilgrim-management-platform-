@@ -4,8 +4,11 @@ import { purple } from "@mui/material/colors";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import Calendar from "../../Components/Calendar";
+
+
 
 const Draw = () => {
   const [arrow, setArrow] = useState(0);
@@ -48,11 +51,14 @@ const Draw = () => {
         </Box>
         <Box
           sx={{
+
             height: { xs: "1500px", md: "80%" },
+
             width: "100%",
             display: "flex",
             flexDirection: {
               xs: "column",
+
               md: "row",
             },
             border: "2px solid Black",
@@ -61,12 +67,14 @@ const Draw = () => {
             margin: "auto",
             px: { xs: "10px", md: "20px", lg: "50px", xl: "70px" },
             gap: { xs: "20px", md: "40px" },
+
           }}
         >
           <Stack
             direction="column"
             spacing={2}
             sx={{
+
               borderRadius: "20px",
               boxShadow: "5px 3px rgba(0, 0, 0, 0.1)",
               py: 6,
@@ -76,6 +84,7 @@ const Draw = () => {
             }}
           >
             <Calendar />
+
           </Stack>
 
           <Stack
@@ -83,7 +92,9 @@ const Draw = () => {
             spacing={2}
             sx={{
               position: "relative",
+
               height: { xs: "50%", md: "100%" },
+
 
               width: "70%",
             }}
