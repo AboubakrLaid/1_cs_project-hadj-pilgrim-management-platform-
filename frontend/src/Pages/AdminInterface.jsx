@@ -71,19 +71,22 @@ const AdminInterface = () => {
 
     <Box
       sx={{
+        border: "3px solid Black",
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
-        height: "100%",
+        height: "100vh",
+        overflow: "auto",
       }}
     >
       <Box
         sx={{
+          border: "3px solid Yellow",
           display: "flex",
           flexDirection: { xs: "row", md: "column" },
           width: { xs: "100%", md: "300px" },
           borderTopRightRadius: { xs: "0px", md: "20px" },
           borderBottomLeftRadius: { xs: "20px", md: "0px" },
-          height: { xs: "200px", md: "100vh" },
+          height: { xs: "200px", md: "100%" },
         }}
       >
         <Box
@@ -193,9 +196,7 @@ const AdminInterface = () => {
             direction="row"
             spacing={1}
             onClick={() => {
-              const token = localStorage.getItem("accessToken");
-              console.log(token);
-              localStorage.removeItem("accessToken");
+              localStorage.clear();
               navigate("/");
             }}
             sx={{
@@ -221,7 +222,7 @@ const AdminInterface = () => {
           </Stack>
         </Box>
       </Box>
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ border: "3px solid red", width: "100%", overflowY: "auto" }}>
         <Outlet />
       </Box>
     </Box>

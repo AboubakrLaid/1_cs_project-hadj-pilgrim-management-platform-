@@ -11,7 +11,7 @@ import {
 
 const Dashboard = () => {
   return (
-    <Box sx={{ height: "100%" }}>
+    <Box sx={{ height: "100%", border: "2px solid green" }}>
       <div
         style={{
           height: "15%",

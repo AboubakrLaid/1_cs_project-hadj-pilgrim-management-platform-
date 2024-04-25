@@ -6,15 +6,23 @@ import Content1 from "../content/LandingPage/Content1";
 import Content2 from "../content/LandingPage/Content2";
 import Content3 from "../content/LandingPage/Content3";
 import Content4 from "../content/LandingPage/Content4";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   //if access exits and status is defined and =! null
   const [clicked, setClicked] = useState(false);
   const [access, setAccess] = useState(localStorage.getItem("accessToken"));
   const name = localStorage.getItem("name");
   const email = localStorage.getItem("email");
-  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
+  console.log(role);
+
+  useEffect(() => {
+    if (role === "GeneralAdmin" || role === "Admin") {
+      navigate("/Admin");
+    }
+  }, []);
 
   return (
     <>

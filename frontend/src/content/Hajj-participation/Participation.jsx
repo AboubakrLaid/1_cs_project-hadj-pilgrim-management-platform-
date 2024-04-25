@@ -131,9 +131,9 @@ const Participation = () => {
       validState &&
       validMunicipal
     ) {
-      
+
       const access = localStorage.getItem("accessToken");
-     
+
 
       try {
         const response = await axios.post(
@@ -154,7 +154,9 @@ const Participation = () => {
         console.log(response.data);
         console.log("here");
 
-        if (response.status === 201 ) {
+
+        if (response.status === 201) {
+
           navigate("/Home/Draw");
         }
       } catch (error) {
