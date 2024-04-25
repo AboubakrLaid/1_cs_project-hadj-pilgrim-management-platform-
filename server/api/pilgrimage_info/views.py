@@ -6,7 +6,7 @@ from rest_framework.decorators import (
 from roles.roles import IsGeneralAdminUser, IsGeneralAdminOrAdminUser, IsAdminUser
 from rest_framework import status
 from .models import PilgrimageSeasonInfo
-from .serializers import PilgrimageSeasonInfoSerializer
+from .serializers import PilgrimageSeasonInfoSerializer, AllPilgrimageSeasonInfoSerializer
 from datetime import datetime, timedelta, date
 
 @api_view(['POST'])
@@ -39,7 +39,7 @@ def get_all_seasons(request):
     seasons = PilgrimageSeasonInfo.objects.all().order_by('-year')
     
 
-    serializer = PilgrimageSeasonInfoSerializer(seasons, many=True)
+    serializer = AllPilgrimageSeasonInfoSerializer(seasons, many=True)
     
     return Response(serializer.data, status=status.HTTP_200_OK)
 
