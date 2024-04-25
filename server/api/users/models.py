@@ -43,14 +43,15 @@ class UserStatus(models.Model):
         IN_RESERVE = 'I', 'in reserve'
    
     class Process(models.TextChoices):
+        INSCRIPTION = 'I', 'inscription'
         LOTTERY = 'L', 'lottery'
         VISIT = 'V', 'visit'
         PAYMENT = 'P', 'payment'
         RESERVATION = 'R', 'reservation'
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='status')
-    process = models.CharField(max_length=1,choices=Process.choices, default=Process.LOTTERY.value)
-    status = models.CharField(max_length=1, choices=Status.choices, default=Status.REJECTED.value)
+    process = models.CharField(max_length=1,choices=Process.choices, default=Process.INSCRIPTION.value)
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.PENDING.value)
     
 
     

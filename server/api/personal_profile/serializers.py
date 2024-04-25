@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import PersonalProfile, Companion
-from municipal_wilaya.serializers import MunicipalSerializer, WilayaSerializer
-
+from users.models import UserStatus
 
 class CompanionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Companion
-        fields = ['user', 'nin', 'birth_date', 'first_name', 'last_name']
+        fields = '__all__'
         extra_kwargs = {
             'user': {'write_only': True},
         }
@@ -15,7 +14,7 @@ class CompanionSerializer(serializers.ModelSerializer):
 class PersonalProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalProfile
-        fields = [ 'user', 'nin', 'birth_date', 'phone_number', 'municipal', 'wilaya', 'companion']
+        fields = '__all__'
         extra_kwargs = {
             'user': {'write_only': True}
         }
@@ -28,24 +27,22 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         
         if companion_data is not None:
             Companion.objects.create(**companion_data)
-            
+        UserStatus.objects.create(user=personal_profile.user)
         return personal_profile
     
     def update(self, instance, validated_data):
         companion_data = validated_data.pop('companion', None)
-        print(validated_data)
-        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
-        instance.save()
-
-        # Handle updating/creating the companion instance
+        
+        instance = super().update(instance, validated_data)
+        
         if companion_data is not None:
-            user = instance.user
-            companion = user.companion.first()
-            if companion is not None:
-                serializer = CompanionSerializer(companion, data=companion_data, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                
+            companion = instance.user.companion
+
+            
+            companion_serializer = CompanionSerializer(companion, data=companion_data, partial=True)
+            if companion_serializer.is_valid(raise_exception=True):
+                companion_serializer.save()
+        UserStatus.objects.update(user=instance.user, status='P', process='I')
         return instance
         
         

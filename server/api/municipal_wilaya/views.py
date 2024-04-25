@@ -94,3 +94,5 @@ def get_all_hospitals_of_wilaya(request, wilaya_id):
         return Response({'error': 'Wilaya does not exist'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
