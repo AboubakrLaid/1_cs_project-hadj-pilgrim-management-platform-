@@ -24,6 +24,7 @@ from .models import (
 )
 from lottery.models import ParticipantStatusPhase
 from pilgrimage_info.models import Phase
+from accounts_management.models import AdminProfile
 
 # Create your views here.
 import random
@@ -90,46 +91,51 @@ def log_in(request):
     if user:
         refresh_token = RefreshToken.for_user(user)
         access_token = refresh_token.access_token
-
-        try:
-            par_status_phase = ParticipantStatusPhase.objects.get(participant=user)
-            my_status = UserStatus.objects.get(user=user)
-            phase = Phase.objects.get(id=par_status_phase.phase.id)
-            user_status = {
-                "phase": PhaseSerializer(phase).data,
-                "state": UserStatusSerializer(my_status).data,
-            }
-        except ParticipantStatusPhase.DoesNotExist:
-            user_status = None
-
-        is_pilgrim = False
-        try:
-            user_inscription_history = UserIns.objects.get(user=user)
-            is_pilgrim = (
-                True if user_inscription_history.inscription_count == -1 else False
-            )
-        except UserIns.DoesNotExist:
-            user_inscription_history = None
-            
-        is_email_verified = False
-        try:
-            UserEmailVerification.objects.get(user=user)
-            is_email_verified = False
-        except UserEmailVerification.DoesNotExist:
-            is_email_verified = True
-            
         response = {
             "access": str(access_token),
             "refresh": str(refresh_token),
             "role": user.role,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "gender":user.gender,
-            "user_status": user_status,
-            "is_pilgrim": is_pilgrim,
-            "is_email_verified": is_email_verified,
         }
-
+        if user.role != User.IS_CANDIDATE:
+            response['wilaya'] = user.admin_profile.object_id
+        else:
+            user_status['phase'] = None
+            user_status['status'] = None
+            try:
+                par_status_phase = ParticipantStatusPhase.objects.get(participant=user)
+                phase = Phase.objects.get(id=par_status_phase.phase.id)
+                user_status = {
+                    "phase": PhaseSerializer(phase).data,
+                }
+            except ParticipantStatusPhase.DoesNotExist:
+                pass
+            
+            try:
+                user_stat = UserStatus.objects.get(user=user)
+                user_status['status'] = UserStatusSerializer(user_stat).data
+            except UserStatus.DoesNotExist:
+                pass
+            response['user_status'] = user_status
+            is_pilgrim = False
+            try:
+                user_inscription_history = UserIns.objects.get(user=user)
+                is_pilgrim = (
+                    True if user_inscription_history.inscription_count == -1 else False
+                )
+            except UserIns.DoesNotExist:
+                user_inscription_history = None
+            response["is_pilgrim"] = is_pilgrim
+            is_email_verified = False
+            try:
+                UserEmailVerification.objects.get(user=user)
+                is_email_verified = False
+            except UserEmailVerification.DoesNotExist:
+                is_email_verified = True
+            response["is_email_verified"] = is_email_verified    
+            
+        print(response)
         return Response(response, status=status.HTTP_200_OK)
     return Response(
         {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
