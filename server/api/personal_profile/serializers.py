@@ -46,4 +46,3 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         return instance
         
         
-
