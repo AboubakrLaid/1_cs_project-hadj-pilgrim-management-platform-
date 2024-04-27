@@ -83,7 +83,7 @@ def personal_profile(request):
 
 
 @api_view(['POST'])
-# @permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])
 def accept_or_refuse_candidate(request):
     data = request.data
     is_accepted = data.get('is_accepted')
