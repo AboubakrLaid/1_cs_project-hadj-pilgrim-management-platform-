@@ -5,10 +5,16 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework.permissions import IsAuthenticated
+from roles.roles import IsAdminUser
 from rest_framework import status
 from .serializers import PersonalProfileSerializer, CompanionSerializer
 from .models import PersonalProfile, Companion
 from municipal_wilaya.models import Wilaya, Municipal
+from users.models import User, UserStatus, UserInscriptionHistory
+from lottery.models import ParticipantStatusPhase
+from pilgrimage_info.models import Phase
+from datetime import datetime
+
 
 
 
@@ -76,21 +82,55 @@ def personal_profile(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
-def update_personal_profile(request):
-    user = request.user
+@api_view(['POST'])
+# @permission_classes([IsAdminUser])
+def accept_or_refuse_candidate(request):
     data = request.data
-    data['user'] = user.id
+    is_accepted = data.get('is_accepted')
+    nin = data.get('nin')
+    print(data)
     try:
-        profile = user.personal_profile.first()
-    except PersonalProfile.DoesNotExist:
-        return Response({'success':False,'message' : 'profile not found'}, status=status.HTTP_404_NOT_FOUND)
-    serializer = PersonalProfileSerializer(profile, data=data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({'success' : True, 'message' : 'profile updated'}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(personal_profile__nin=nin)
+    except User.DoesNotExist:
+        return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+    print(is_accepted)
+    if is_accepted:
+        inscription_count = data.get('inscription_count', 0)
+        try:
+            user_status = UserStatus.objects.get(user=user)
+            user_status.status = UserStatus.Status.PENDING
+            user_status.process = UserStatus.Process.LOTTERY
+            user_status.save()
+            UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
+            try:
+                phase = Phase.objects.get(pilgrimage_season_info__is_active=True, phase_number=1)
+            except Phase.DoesNotExist:
+                return Response({'success': False, 'message': 'No active season found'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            ParticipantStatusPhase.objects.create(participant=user, phase=phase, status=user_status)
+            
+            return Response({'success': True, 'message': 'candidate accepted/refused'}, status=status.HTTP_200_OK)
+        except UserStatus.DoesNotExist:
+            # should not happen
+            return Response({'success': False, 'msg' : 'went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+        
+        
+    else:
+        user_status = UserStatus.objects.get(user=user)
+        user_status.status = UserStatus.Status.REJECTED
+        user_status.process = UserStatus.Process.INSCRIPTION
+        user_status.save()
+        return Response({'success': True, 'message': 'candidate accepted/refused'}, status=status.HTTP_200_OK)
+    
+    
+    
+        
+    
+        
+
 
 
 

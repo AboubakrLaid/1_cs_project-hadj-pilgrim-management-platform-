@@ -8,7 +8,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', participate_in_lottery),
+    # path('', participate_in_lottery),
     path('algorithm', lottery_algorithm),
     path('statistics', statistics),
     path('result', launch_lottery),
