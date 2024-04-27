@@ -98,9 +98,9 @@ def log_in(request):
             "first_name": user.first_name,
             "last_name": user.last_name,
         }
-        if user.role != User.IS_CANDIDATE:
+        if user.role == User.IS_ADMIN:
             response['wilaya'] = user.admin_profile.object_id
-        else:
+        elif user.role == User.IS_CANDIDATE:
             user_status['phase'] = None
             user_status['status'] = None
             try:
