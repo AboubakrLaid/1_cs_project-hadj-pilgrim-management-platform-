@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.db.models import Q
 from .models import MedicalAdminProfile, AdminProfile
-from  users.models import User
+from  users.models import User , UserInscriptionHistory , UserStatus , UserEmailVerification ,UserVerificationCode
 from .serializers import (
     MedicalAdminProfileSerializer, CandidateSerializer,
      MedicalAdminSerializer, UserSerializer,
@@ -103,10 +103,23 @@ def search_users(request):
     if nin:
         users = users.filter(nin__icontains=nin)
     if email:
-        users = users.filter(email__icontains=email)
+        users = users.filter(email__icontains=email) 
+        
 
+        serialized_data = []
+    for user in users:
+        user_data = UserSerializer(user).data
+        user_data['inscription_history'] = UserInscriptionHistory(user.inscription_history.all(), many=True).data
+        user_data['status'] = UserStatus(user.status.all(), many=True).data
+        user_data['verification_code'] = UserVerificationCode(user.verification_code.all(), many=True).data
+        user_data['email_verification'] = UserEmailVerification(user.email_verification.all(), many=True).data
+        serialized_data.append(user_data)     
+    
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+
+
 
 
 # guide
