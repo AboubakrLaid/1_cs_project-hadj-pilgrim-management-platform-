@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.db.models import Q
 from .models import MedicalAdminProfile, AdminProfile
+from personal_profile.models import PersonalProfile ,Companion
 from  users.models import User , UserInscriptionHistory , UserStatus , UserEmailVerification ,UserVerificationCode
 from .serializers import (
     MedicalAdminProfileSerializer, CandidateSerializer,
@@ -113,12 +114,28 @@ def search_users(request):
         user_data['status'] = UserStatus(user.status.all(), many=True).data
         user_data['verification_code'] = UserVerificationCode(user.verification_code.all(), many=True).data
         user_data['email_verification'] = UserEmailVerification(user.email_verification.all(), many=True).data
-        serialized_data.append(user_data)     
+        serialized_data.append(user_data)   
+
+        personal_profile = PersonalProfile.objects.filter(user=user).first()
+        companion = Companion.objects.filter(user=user).first()
+
+        user_data['personal_profile'] = PersonalProfile(personal_profile).data if personal_profile else {}
+        user_data['companion'] = Companion(companion).data if companion else {} 
     
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
 
+"""
+    serialized_data = []
+    for user in users:
+        user_data = UserSerializer(user).data
+        user_data['inscription_history'] = UserInscriptionHistory(user.inscription_history.all(), many=True).data
+        user_data['status'] = UserStatus(user.status.all(), many=True).data
+        user_data['verification_code'] = UserVerificationCodeSerializer(user.verification_code.all(), many=True).data
+        user_data['email_verification'] = UserEmailVerificationSerializer(user.email_verification.all(), many=True).data
+        serialized_data.append(user_data)    
+"""
 
 
 
