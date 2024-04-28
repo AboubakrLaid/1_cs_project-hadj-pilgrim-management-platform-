@@ -2,12 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.db.models import Q
-from .models import MedicalAdminProfile, AdminProfile, Candidate
+from .models import MedicalAdminProfile, AdminProfile
+from  users.models import User
 from .serializers import (
     MedicalAdminProfileSerializer, CandidateSerializer,
-    GuideSerializer, MedicalAdminSerializer, UserSerializer,
-    PersonalInfoSerializer, CompanionInfoSerializer,
-    UserInscriptionHistorySerializer, AdminProfileSerializer
+     MedicalAdminSerializer, UserSerializer,
+    PersonalInfoSerializer, AdminProfileSerializer
 )
 
 @api_view(['GET'])
@@ -45,48 +45,14 @@ def search_medical_admins(request):
     return Response(serializer.data)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# condidat 
-
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
-def add_guide(request):
-    serializer = GuideSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
-
-@api_view(['DELETE'])
-@permission_classes([IsAdminUser])
-def delete_guide(request, guide_id):
-    try:
-        guide = Guide.objects.get(id=guide_id)
-        guide.delete()
-        return Response({'message': 'Guide deleted successfully'}, status=204)
-    except Guide.DoesNotExist:
-        return Response({'message': 'Guide not found'}, status=404)
+#candidat
 
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def edit_candidate_info(request, candidate_id):
     try:
-        candidate = Candidate.objects.get(id=candidate_id)
-    except Candidate.DoesNotExist:
+        candidate = User.objects.get(id=candidate_id)
+    except User.DoesNotExist:
         return Response({'message': 'Candidate not found'}, status=404)
 
     if request.method == 'GET':
@@ -114,11 +80,10 @@ def search_users(request):
     email = request.GET.get('email')
 
     if role == 'candidate':
-        users = Candidate.objects.all()
-    elif role == 'guide':
-        users = Guide.objects.all()
+        users = users.objects.all()
+    
     elif role == 'medical_admin':
-        users = MedicalAdmin.objects.all()
+        users = MedicalAdminProfile.objects.all()
     else:
         return Response({'message': 'Invalid role specified'}, status=400)
 
@@ -142,3 +107,26 @@ def search_users(request):
 
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+
+# guide
+"""
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def add_guide(request):
+    serializer = GuideSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def delete_guide(request, guide_id):
+    try:
+        guide = Guide.objects.get(id=guide_id)
+        guide.delete()
+        return Response({'message': 'Guide deleted successfully'}, status=204)
+    except Guide.DoesNotExist:
+        return Response({'message': 'Guide not found'}, status=404)
+"""
