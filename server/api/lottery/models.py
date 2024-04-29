@@ -11,7 +11,8 @@ from pilgrimage_info.models import (
 class ParticipantStatusPhase(models.Model):
     participant = models.ForeignKey(User, on_delete=models.CASCADE)
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE)
-    status = models.ForeignKey(UserStatus, on_delete=models.CASCADE)
+    season = models.ForeignKey(PilgrimageSeasonInfo, on_delete=models.CASCADE)
+    # status = models.ForeignKey(UserStatus, on_delete=models.CASCADE)
     # cretaed_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
 

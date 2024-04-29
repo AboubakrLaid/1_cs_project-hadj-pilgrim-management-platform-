@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
 
 from pathlib import Path
 
@@ -92,16 +97,29 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'hadj_db',
-       'USER': 'postgres',
-       'PASSWORD': 'postgres123',
-       'HOST': 'localhost',
-       'PORT': '5432',
-   }
-}
+IS_CLOUD = False
+if IS_CLOUD:
+    DATABASES = {
+        'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'bjptpu6yqq0rauf0iyc9',
+           'USER': 'uaoyyb1s0sb1vfgsmgnu',
+           'PASSWORD': 'pBQILPEcFQj2VoWtweX55fTSPm8ECd',
+           'HOST': 'bjptpu6yqq0rauf0iyc9-postgresql.services.clever-cloud.com',
+           'PORT': '50013',
+       }
+    } 
+else:
+    DATABASES = {
+        'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hadj_db',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres123',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+    }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (   
