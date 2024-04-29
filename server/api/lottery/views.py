@@ -1,33 +1,33 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from roles.roles import IsAdminUser, IsCandidateUser, IsGeneralAdminUser
+from roles.roles import IsAdminUser, IsGeneralAdminUser
 from .models import ParticipantStatusPhase
 from .serializers import (
-    ParticipantStatusPhaseSerializer,
+    
     LotteryAlgorithmSerializer,
-    MunicipalGroupsSerializer,
+    
 )
+from users.models import User
 from pilgrimage_info.models import PilgrimageSeasonInfo
 from .models import LotteryAlgorithm
 from users.models import UserInscriptionHistory
 from personal_profile.models import PersonalProfile
 from django.utils.timezone import now
-from .algorithms.weighted import _weighted
-from .algorithms.random import _random
-from .algorithms.priority import _priority
-from .algorithms.hybrid import _hybrid
+from .algorithms.the_algorithm import _the_algorithm
+from municipal_wilaya.models import Municipal
+from accounts_management.models import AdminProfile
 
 
-@api_view(["POST"])
-@permission_classes([IsCandidateUser])
-def participate_in_lottery(request):
-    data = {"participant": request.user.id}
-    serializer = ParticipantStatusPhaseSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response({"success": True}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(["POST"])
+# @permission_classes([IsCandidateUser])
+# def participate_in_lottery(request):
+#     data = {"participant": request.user.id}
+#     serializer = ParticipantStatusPhaseSerializer(data=data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response({"success": True}, status=status.HTTP_200_OK)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST", "GET"])
@@ -145,26 +145,59 @@ def statistics(_):
         status=status.HTTP_200_OK,
     )
 
-
-@api_view(["POST"])
-# @permission_classes([IsAdminUser])
+from django.http import StreamingHttpResponse
+@api_view(["POST", "GET"])
+@permission_classes([IsAdminUser])
 def launch_lottery(request):
     data = request.data
-    serializer = MunicipalGroupsSerializer(data=data)
-    if serializer.is_valid():
-        algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
-        algorithm_functions = {
-            LotteryAlgorithm.Algorithms.RANDOM: _random,
-            LotteryAlgorithm.Algorithms.WEIGHTED: _weighted,
-            LotteryAlgorithm.Algorithms.PRIORITY: _priority,
-            LotteryAlgorithm.Algorithms.HYBRID: _hybrid,
-        }
-        msg = algorithm_functions[algorithm.algorithm](
-            serializer.data["municipal_groups"]
-        )
+    municipal = data.get('municipal', None)
+    if municipal is None:
+        return Response({"error": "Municipal is required"}, status=status.HTTP_400_BAD_REQUEST)
+    user = request.user
+    wilaya = user.admin_profile.object_id
+    try:
+        if Municipal.objects.get(id=municipal).wilaya_id != wilaya:
+            return Response({"error": "Municipal is not in the same wilaya"}, status=status.HTTP_400_BAD_REQUEST)
+    except Municipal.DoesNotExist:
+        return Response({"error": "Municipal not found"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if request.method == "GET":
+        participants_ids = list(
+                ParticipantStatusPhase.objects.filter(
+                    participant__personal_profile__municipal=municipal
+                ).values_list("participant", flat=True)
+            )
+        result = []
+        for id in participants_ids:
+            result.append(
+                
+                {
+                    "nin": PersonalProfile.objects.get(user_id=id).nin,
+                    "first_name": User.objects.get(id=id).first_name,
+                    "last_name": User.objects.get(id=id).last_name,
+                    "inscription_count": UserInscriptionHistory.objects.get(user_id=id).inscription_count,
+                }
+            ) 
+        return Response({"participants": result}, status=status.HTTP_200_OK)
+    
+    
+    # POST
+    algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
+    algorithm_functions = {
+        LotteryAlgorithm.Algorithms.RANDOM: _the_algorithm,
+        LotteryAlgorithm.Algorithms.WEIGHTED: _the_algorithm,
+        LotteryAlgorithm.Algorithms.PRIORITY: _the_algorithm,
+        LotteryAlgorithm.Algorithms.HYBRID: _the_algorithm,
+    }
+    result = algorithm_functions[algorithm.algorithm](
+        municipal,wilaya
+    )
+    
+    return Response({"result": result}, status=status.HTTP_200_OK)
 
-        return Response({"result": msg}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+    
 
 
 from users.models import UserStatus

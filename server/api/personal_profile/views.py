@@ -98,7 +98,7 @@ def accept_or_refuse_candidate(request):
         inscription_count = data.get('inscription_count', 0)
         try:
             user_status = UserStatus.objects.get(user=user)
-            user_status.status = UserStatus.Status.PENDING
+            user_status.status = UserStatus.Status.REJECTED
             user_status.process = UserStatus.Process.LOTTERY
             user_status.save()
             UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
@@ -106,8 +106,8 @@ def accept_or_refuse_candidate(request):
                 phase = Phase.objects.get(pilgrimage_season_info__is_active=True, phase_number=1)
             except Phase.DoesNotExist:
                 return Response({'success': False, 'message': 'No active season found'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            ParticipantStatusPhase.objects.create(participant=user, phase=phase, status=user_status)
+            season = phase.pilgrimage_season_info
+            ParticipantStatusPhase.objects.create(participant=user, phase=phase, season=season)
             
             return Response({'success': True, 'message': 'candidate accepted/refused'}, status=status.HTTP_200_OK)
         except UserStatus.DoesNotExist:
