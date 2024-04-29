@@ -17,10 +17,10 @@ class MedicalAdminSerializer(serializers.ModelSerializer):
         model = MedicalAdminProfile
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'nin', 'phone_number', 'role', 'wilaya', 'municipal', 'gender', 'inscription_year']
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'email', 'first_name', 'last_name', 'nin', 'phone_number', 'role', 'wilaya', 'municipal', 'gender', 'inscription_year']
 
 class PersonalInfoSerializer(serializers.ModelSerializer):
     class Meta:

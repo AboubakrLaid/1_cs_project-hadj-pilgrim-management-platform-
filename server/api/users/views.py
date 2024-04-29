@@ -99,7 +99,10 @@ def log_in(request):
             "last_name": user.last_name,
         }
         if user.role == User.IS_ADMIN:
-            response['wilaya'] = user.admin_profile.object_id
+            response['wilaya'] = {
+                "id": user.admin_profile.object_id,
+                "name": user.admin_profile.content_object.name
+            }
         elif user.role == User.IS_CANDIDATE:
             user_status['phase'] = None
             user_status['status'] = None
