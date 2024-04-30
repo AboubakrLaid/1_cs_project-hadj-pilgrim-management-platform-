@@ -58,8 +58,9 @@ def personal_profile(request):
         
         if data.get('companion') is not None:
             data['companion']['user'] = user.id
-            
-        serializer = PersonalProfileSerializer(data=data)
+        my_data = {key:value[0] for key,value in data.lists()}
+        print(my_data)
+        serializer = PersonalProfileSerializer(data=my_data)
         if serializer.is_valid():
             serializer.save()
             return Response({'success' : True, 'message' : 'profile created'}, status=status.HTTP_201_CREATED)
@@ -74,8 +75,8 @@ def personal_profile(request):
             profile = user.personal_profile
         except PersonalProfile.DoesNotExist:
             return Response({'success':False,'message' : 'profile not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = PersonalProfileSerializer(profile, data=data, partial=True)
+        my_data = {key:value[0] for key,value in data.list()}
+        serializer = PersonalProfileSerializer(profile, data=my_data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'success' : True, 'message' : 'profile updated'}, status=status.HTTP_200_OK)

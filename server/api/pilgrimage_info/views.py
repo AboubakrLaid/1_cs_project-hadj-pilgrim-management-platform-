@@ -10,7 +10,7 @@ from .serializers import PilgrimageSeasonInfoSerializer, AllPilgrimageSeasonInfo
 from datetime import datetime, timedelta, date
 
 @api_view(['POST'])
-@permission_classes([IsGeneralAdminUser])
+# @permission_classes([IsGeneralAdminUser])
 def create_pilgrimage_season_info(request):
     serializer = PilgrimageSeasonInfoSerializer(data=request.data)
     

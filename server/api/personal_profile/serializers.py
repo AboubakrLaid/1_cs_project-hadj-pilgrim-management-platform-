@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import PersonalProfile, Companion
 from users.models import UserStatus
+from users.models import UserInscriptionHistory
+from datetime import datetime
+
 
 class CompanionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,7 +30,11 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         
         if companion_data is not None:
             Companion.objects.create(**companion_data)
-        UserStatus.objects.create(user=personal_profile.user)
+        user = validated_data["user"]
+        user_inscription_history = UserInscriptionHistory.objects.create(user=user)
+        user_inscription_history.inscription_count += 1
+        user_inscription_history.latest_inscription_year = datetime.now().year
+        user_inscription_history.save()
         return personal_profile
     
     def update(self, instance, validated_data):
@@ -43,6 +50,7 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
             if companion_serializer.is_valid(raise_exception=True):
                 companion_serializer.save()
         UserStatus.objects.update(user=instance.user, status='P', process='I')
+        
         return instance
         
         

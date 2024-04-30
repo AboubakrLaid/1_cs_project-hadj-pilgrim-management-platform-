@@ -29,7 +29,7 @@ class ParticipantStatusPhaseSerializer(serializers.ModelSerializer):
             # user participate to the lottery
             participant_status_phase = super().create(validated_data)
 
-            user_inscription_history = UserInscriptionHistory.objects.create(user=user)
+            user_inscription_history = UserInscriptionHistory.objects.get(user=user)
             user_inscription_history.inscription_count += 1
             user_inscription_history.latest_inscription_year = datetime.now().year
             user_inscription_history.save()

@@ -19,6 +19,7 @@ class Municipal(models.Model):
     eng_name = models.CharField(max_length=100)
     population = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     wilaya = models.ForeignKey(Wilaya, on_delete=models.CASCADE, related_name='municipals')
+    is_lottery_done = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Municipal"
