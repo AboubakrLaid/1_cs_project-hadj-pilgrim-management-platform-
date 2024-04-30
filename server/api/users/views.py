@@ -106,6 +106,7 @@ def log_in(request):
             }
         elif user.role == User.IS_CANDIDATE:
             user_status = {}
+            user_status = {}
             user_status['phase'] = None
             user_status['status'] = None
             try:
