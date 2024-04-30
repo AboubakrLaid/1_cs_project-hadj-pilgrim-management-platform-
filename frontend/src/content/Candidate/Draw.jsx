@@ -4,11 +4,8 @@ import { purple } from "@mui/material/colors";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import Calendar from "../../Components/Calendar";
-
-
 
 const Draw = () => {
   const [arrow, setArrow] = useState(0);
@@ -51,7 +48,6 @@ const Draw = () => {
         </Box>
         <Box
           sx={{
-
             height: { xs: "1500px", md: "80%" },
 
             width: "100%",
@@ -61,30 +57,132 @@ const Draw = () => {
 
               md: "row",
             },
-            border: "2px solid Black",
+
             justifyContent: "center",
             alignItems: "center",
             margin: "auto",
             px: { xs: "10px", md: "20px", lg: "50px", xl: "70px" },
             gap: { xs: "20px", md: "40px" },
-
           }}
         >
           <Stack
             direction="column"
             spacing={2}
             sx={{
-
               borderRadius: "20px",
               boxShadow: "5px 3px rgba(0, 0, 0, 0.1)",
-              py: 6,
+              py: 3,
               height: "600px",
               alignItems: "center",
               width: { xs: "100%", md: "330px" },
             }}
           >
             <Calendar />
-
+            <Stack
+              direction={"row"}
+              spacing={1}
+              sx={{
+                justifyContent: "center",
+                alignItems: "center",
+                height: "15%",
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  borderRadius: "5px",
+                  height: "100%",
+                  width: "20%",
+                  bgcolor: "#E7D9CA",
+                  color: "#AB7595",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontWeight: 600,
+                  fontSize: "60px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                8
+              </Box>
+              <Box
+                sx={{
+                  height: "100%",
+                  width: "5%",
+                  color: "black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontWeight: 400,
+                  fontSize: "60px",
+                }}
+              >
+                :
+              </Box>
+              <Box
+                sx={{
+                  borderRadius: "5px",
+                  height: "100%",
+                  width: "20%",
+                  bgcolor: "#CCCCCC",
+                  color: "black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontWeight: 500,
+                  fontSize: "50px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                00
+              </Box>
+              <Stack
+                direction={"column"}
+                spacing={0}
+                sx={{
+                  height: "100%",
+                  width: "30%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    borderTopLeftRadius: "5px",
+                    borderTopRightRadius: "5px",
+                    height: "50%",
+                    width: "60%",
+                    bgcolor: "#E7D9CA",
+                    color: "#AB7595",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontWeight: 500,
+                    fontSize: "16px",
+                  }}
+                >
+                  AM
+                </Box>
+                <Box
+                  sx={{
+                    borderBottomLeftRadius: "5px",
+                    borderBottomRightRadius: "5px",
+                    height: "50%",
+                    width: "60%",
+                    bgcolor: "#F9F9F9",
+                    color: "#cccccc",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  PM
+                </Box>
+              </Stack>
+            </Stack>
           </Stack>
 
           <Stack
@@ -94,7 +192,6 @@ const Draw = () => {
               position: "relative",
 
               height: { xs: "50%", md: "100%" },
-
 
               width: "70%",
             }}

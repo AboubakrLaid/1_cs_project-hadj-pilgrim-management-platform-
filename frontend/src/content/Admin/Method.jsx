@@ -44,6 +44,7 @@ const Method = () => {
             Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
           },
         });
+        console.log(response);
 
         setStats(response?.data);
       } catch (error) {

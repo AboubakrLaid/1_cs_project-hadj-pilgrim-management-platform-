@@ -77,6 +77,8 @@ def _the_algorithm(municipal, wilaya):
         process=UserStatus.Process.LOTTERY,
     )
 
+    UserStatus.objects.filter(user__id__in=participants_ids).update(status = UserStatus.Status.REJECTED, process=UserStatus.Process.LOTTERY)
+
     # print(f"winners: {winners}")
 
     return {

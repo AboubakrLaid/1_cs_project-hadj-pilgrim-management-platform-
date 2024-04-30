@@ -29,12 +29,12 @@ const Calendar = () => {
             flexDirection: "column",
           }}
         >
-          <span style={{ color: "#AB7595", fontSize: "14px" }}>hello</span>
-          <span style={{ color: "black", fontSize: "20px" }}>Date</span>
+          <span style={{ color: "#AB7595", fontSize: "14px" }}>Draw</span>
+          <span style={{ color: "black", fontSize: "20px" }}>2024-05-29</span>
         </Box>
         <DemoItem>
           <DateCalendar
-            defaultValue={dayjs("2024-04-17")}
+            defaultValue={dayjs("2024-05-29")}
             readOnly
             slotProps={{
               day: {

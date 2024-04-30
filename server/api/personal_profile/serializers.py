@@ -27,14 +27,20 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         
         companion_data = validated_data.pop('companion', None)
         personal_profile = PersonalProfile.objects.create(**validated_data)
+        print(personal_profile)
         
         if companion_data is not None:
             Companion.objects.create(**companion_data)
         user = validated_data["user"]
-        user_inscription_history = UserInscriptionHistory.objects.create(user=user)
+        try:
+            user_inscription_history = UserInscriptionHistory.objects.get(user=user)
+        except UserInscriptionHistory.DoesNotExist:
+            user_inscription_history = UserInscriptionHistory.objects.create(user=user)
         user_inscription_history.inscription_count += 1
         user_inscription_history.latest_inscription_year = datetime.now().year
         user_inscription_history.save()
+        UserStatus.objects.create(user=user, status='P', process='I')
+
         return personal_profile
     
     def update(self, instance, validated_data):
@@ -49,6 +55,10 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
             companion_serializer = CompanionSerializer(companion, data=companion_data, partial=True)
             if companion_serializer.is_valid(raise_exception=True):
                 companion_serializer.save()
+        user = validated_data["user"]
+        user_inscription_history = UserInscriptionHistory.objects.create(user=user)
+        user_inscription_history.inscription_count = 1
+        user_inscription_history.latest_inscription_year = datetime.now().year
         UserStatus.objects.update(user=instance.user, status='P', process='I')
         
         return instance

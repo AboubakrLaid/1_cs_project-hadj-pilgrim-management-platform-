@@ -5,10 +5,12 @@ from roles.roles import IsAdminUser
 from django.db.models import Q
 from .models import MedicalAdminProfile
 from users.models import User, UserInscriptionHistory, UserStatus
-from personal_profile.models import PersonalProfile
+from personal_profile.models import PersonalProfile, Companion
 from .serializers import MedicalAdminProfileSerializer, CandidateSerializer
 from rest_framework import status
 from users.serializers import UserSerializer
+from personal_profile.serializers import CompanionSerializer
+from base64 import b64encode
 
 
 @api_view(["GET"])
@@ -90,16 +92,28 @@ def search_users(request):
     gender_dictionary = {"M":"Male", "F":"Female"}
     for i in range(len(users_data)):
         email = users_data[i]["email"]
+        personal_profile = PersonalProfile.objects.get(user__email=email)
+
         users_data[i]["gender"] = gender_dictionary[users_data[i]["gender"]]
-        users_data[i]["nin"]= PersonalProfile.objects.get(user__email=email).nin
-        users_data[i]["profile_picture"]= PersonalProfile.objects.get(user__email=email).picture or None
-        users_data[i]["file"]= PersonalProfile.objects.get(user__email=email).files or None
-        users_data[i]["birth_date"]= PersonalProfile.objects.get(user__email=email).birth_date
-        users_data[i]["municipal"]= PersonalProfile.objects.get(user__email=email).municipal.name
+        
+        users_data[i]["nin"]= personal_profile.nin
+
+        picture_data = personal_profile.picture.read() if personal_profile.picture else None
+        files_data = personal_profile.files.read() if personal_profile.files else None
+
+        users_data[i]["profile_pic"] = b64encode(picture_data).decode('utf-8') if picture_data else None
+        users_data[i]["file"] = b64encode(files_data).decode('utf-8') if files_data else None
+
+        users_data[i]["birth_date"]= personal_profile.birth_date
+        users_data[i]["municipal"]= personal_profile.municipal.name
         users_data[i]["phase"]=process_Dictionary[UserStatus.objects.get(user__email=email).process]
         users_data[i]["phase_status"]=status_Dictionary[UserStatus.objects.get(user__email=email).status]
-        users_data[i]["contact"] = PersonalProfile.objects.get(user__email=email).phone_number
-        users_data[i]["participation_number"] = UserInscriptionHistory.objects.get(user__email=email).inscription_count
+        users_data[i]["contact"] = personal_profile.phone_number
+        try:
+            x = UserInscriptionHistory.objects.get(user__email=email)
+        except UserInscriptionHistory.DoesNotExist:
+            pass
+        users_data[i]["participation_number"] = x.inscription_count if x else -1
         
         
     return Response(users_data, status=status.HTTP_200_OK)

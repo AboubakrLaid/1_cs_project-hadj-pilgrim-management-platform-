@@ -14,6 +14,10 @@ from users.models import User, UserStatus, UserInscriptionHistory
 from lottery.models import ParticipantStatusPhase
 from pilgrimage_info.models import Phase
 from datetime import datetime
+from django.core.mail import send_mail
+from api.settings import EMAIL_HOST_USER
+from pilgrimage_info.models import PilgrimageSeasonInfo
+
 
 
 
@@ -89,20 +93,43 @@ def accept_or_refuse_candidate(request):
     data = request.data
     is_accepted = data.get('is_accepted')
     nin = data.get('nin')
-    print(data)
+    description = data.get('description', """
+Congratulations! 
+                           
+You have been accepted to participate in the pilgrimage.
+                           
+Whish you a good luck!
+""")
+    
     try:
         user = User.objects.get(personal_profile__nin=nin)
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-    print(is_accepted)
+    season = PilgrimageSeasonInfo.objects.get(is_active=True)
+    message = f"""
+{description}
+"""
+    if not is_accepted:
+        message += f"""\n
+Review and Edit Your Pilgrimage Application Beffore {season.inscription_deadline}
+"""
+    send_mail(
+            subject="Decision Ready: Learn the outcome of your application",
+            message=message,
+            from_email=EMAIL_HOST_USER,
+            recipient_list=[user.email],
+        )
     if is_accepted:
         inscription_count = data.get('inscription_count', 0)
         try:
             user_status = UserStatus.objects.get(user=user)
-            user_status.status = UserStatus.Status.REJECTED
+            user_status.status = UserStatus.Status.PENDING
             user_status.process = UserStatus.Process.LOTTERY
             user_status.save()
-            UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
+
+            user_inscription_hist = UserInscriptionHistory.objects.get(user=user)
+            user_inscription_hist.inscription_count += int(inscription_count)
+            user_inscription_hist.save()
             try:
                 phase = Phase.objects.get(pilgrimage_season_info__is_active=True, phase_number=1)
             except Phase.DoesNotExist:
@@ -123,6 +150,7 @@ def accept_or_refuse_candidate(request):
         user_status = UserStatus.objects.get(user=user)
         user_status.status = UserStatus.Status.REJECTED
         user_status.process = UserStatus.Process.INSCRIPTION
+        UserInscriptionHistory.objects.filter(user=user).delete()
         user_status.save()
         return Response({'success': True, 'message': 'candidate accepted/refused'}, status=status.HTTP_200_OK)
     

@@ -7,6 +7,9 @@ import ShuffleIcon from "@mui/icons-material/Shuffle";
 //import { SidebarData } from "./SidebarData";
 import Avatar from "@mui/material/Avatar";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+import { FaUserDoctor } from "react-icons/fa6";
+import { RiFilePaper2Fill } from "react-icons/ri";
 const SidebarDataGeneral = [
   {
     title: "Dashboard",
@@ -32,14 +35,19 @@ const SidebarDataAdmin = [
     icon: <HomeIcon />,
   },
   {
-    title: "Season",
-    path: "/Admin/Season",
-    icon: <EventNoteIcon />,
+    title: "Members",
+    path: "/Admin/Members",
+    icon: <PersonIcon />,
   },
   {
-    title: "arbo method",
-    path: "/Admin/Method",
-    icon: <ShuffleIcon />,
+    title: "Doctors",
+    path: "/Admin/Doctors",
+    icon: <FaUserDoctor />,
+  },
+  {
+    title: "Lottery",
+    path: "/Admin/Lottery",
+    icon: <RiFilePaper2Fill />,
   },
 ];
 
@@ -63,7 +71,7 @@ const AdminInterface = () => {
 
   const handleItemClick = (item) => {
     setSelectedItem(item.title);
-    localStorage.setItem("selectedItem", item.title);
+    //localStorage.setItem("selectedItem", item.title);
     navigate(item.path);
   };
   return (
@@ -71,7 +79,6 @@ const AdminInterface = () => {
 
     <Box
       sx={{
-        border: "3px solid Black",
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         height: "100vh",
@@ -80,7 +87,6 @@ const AdminInterface = () => {
     >
       <Box
         sx={{
-          border: "3px solid Yellow",
           display: "flex",
           flexDirection: { xs: "row", md: "column" },
           width: { xs: "100%", md: "300px" },
@@ -121,7 +127,7 @@ const AdminInterface = () => {
             flexDirection: { xs: "row", md: "column" },
             justifyContent: "space-between",
             height: { xs: "100%", md: "70%" },
-            background: "rgba(153, 105, 134, 0.95)",
+            background: "#ab7595",
             width: "100%",
           }}
         >
@@ -166,7 +172,7 @@ const AdminInterface = () => {
                     id={selectedItem === item.title ? "active" : ""}
                     className="row"
                     key={index}
-                    onClick={() => setSelectedItem(item.title)}
+                    onClick={() => handleItemClick(item)}
                   >
                     <Box
                       sx={{
@@ -222,7 +228,12 @@ const AdminInterface = () => {
           </Stack>
         </Box>
       </Box>
-      <Box sx={{ border: "3px solid red", width: "100%", overflowY: "auto" }}>
+      <Box
+        sx={{
+          width: "100%",
+          overflowY: "auto",
+        }}
+      >
         <Outlet />
       </Box>
     </Box>

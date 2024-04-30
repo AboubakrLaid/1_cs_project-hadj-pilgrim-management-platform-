@@ -118,6 +118,7 @@ function Signup() {
       } catch (error) {
         // Handle errors here
         console.error("Error:", error);
+        setErr(error.response.data.email);
       }
     } else {
       alert("Please fill all the fields with valid entry");

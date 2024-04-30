@@ -22,7 +22,6 @@ def create_pilgrimage_season_info(request):
     
     
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
 def get_current_season(request):
     try:
         current_season = PilgrimageSeasonInfo.objects.get(is_active=True)

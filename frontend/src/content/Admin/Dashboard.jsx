@@ -11,11 +11,10 @@ import {
 
 const Dashboard = () => {
   return (
-    <Box sx={{ height: "100%", border: "2px solid green" }}>
+    <Box sx={{ height: { xs: "800px", md: "100%" } }}>
       <div
         style={{
-          height: "15%",
-
+          height: "100px",
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-end",
@@ -39,7 +38,7 @@ const Dashboard = () => {
       >
         <Box
           sx={{
-            width: "50%",
+            width: { xs: "75%", md: "50%" },
             height: "80%",
             marginLeft: "auto",
             marginTop: "auto",
