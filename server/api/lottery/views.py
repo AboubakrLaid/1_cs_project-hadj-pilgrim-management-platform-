@@ -33,7 +33,7 @@ from .algorithms.A import _age_category
 
 
 @api_view(["POST", "GET"])
-# @permission_classes([IsGeneralAdminUser])
+@permission_classes([IsGeneralAdminUser])
 def lottery_algorithm(request):
     if request.method == "GET":
         try:
