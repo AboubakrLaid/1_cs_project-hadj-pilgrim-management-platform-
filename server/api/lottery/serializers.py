@@ -40,12 +40,30 @@ class ParticipantStatusPhaseSerializer(serializers.ModelSerializer):
 class LotteryAlgorithmSerializer(serializers.ModelSerializer):
     class Meta:
         model = LotteryAlgorithm
-        fields = ["algorithm"]
+        fields =    ["season", "algorithm", "values" ]
+
+        extra_kwargs = {
+            "season": {"read_only": True},
+        }
 
     def create(self, validated_data):
+        if LotteryAlgorithm.objects.filter(season__is_active=True).exists():
+            raise serializers.ValidationError(
+                {"error": "There is already an algorithm for the active season"}
+            )
         try:
             season = PilgrimageSeasonInfo.objects.get(is_active=True)
             validated_data["season"] = season
+            # check if there is values for the algorithms
+            # of type A and AR
+            if validated_data["algorithm"] in [
+                LotteryAlgorithm.Algorithms.AGE_CATEGORIES,
+                LotteryAlgorithm.Algorithms.AGE_REGISTRATION_PRIORITY,
+            ]:
+                if "values" not in validated_data:
+                    raise serializers.ValidationError(
+                        {"error": "Values are required for the selected algorithm"}
+                    )
 
             return super().create(validated_data)
         except PilgrimageSeasonInfo.DoesNotExist:
@@ -62,7 +80,7 @@ class MunicipalGroupsSerializer(serializers.Serializer):
     def validate_municipal_groups(self, value):
         """
         {
-            "groups": [
+            "municipal_groups": [
             "grp_1": [1, 2, 3],
             "grp_2": [4, 5, 6],
         ]

@@ -16,18 +16,18 @@ class  AllPilgrimageSeasonInfoSerializer(serializers.ModelSerializer):
     phases = PhaseSerializer(many=True, required=True)
     class Meta:
         model = PilgrimageSeasonInfo
-        fields = ['year', 'ratio','is_active' ,'total_pilgrims', 'inscription_deadline', 'procedure_deadline', 'phases']
+        fields = ['year','is_active' ,'total_pilgrims', 'inscription_deadline', 'procedure_deadline', 'phases']
         extra_kwargs = {
-            'ratio' : {'read_only': True},
+            # 'ratio' : {'read_only': True},
             'is_active' : {'read_only': True},
         }  
 class  PilgrimageSeasonInfoSerializer(serializers.ModelSerializer):
     phases = PhaseSerializer(many=True, required=True)
     class Meta:
         model = PilgrimageSeasonInfo
-        fields = ['year', 'ratio','is_active' ,'total_pilgrims', 'inscription_deadline', 'procedure_deadline', 'phases', 'wilayas_seats']
+        fields = ['year','is_active' ,'total_pilgrims', 'inscription_deadline', 'procedure_deadline', 'phases', 'wilayas_seats']
         extra_kwargs = {
-            'ratio' : {'read_only': True},
+            # 'ratio' : {'read_only': True},
             'is_active' : {'read_only': True},
             'wilayas_seats': {'write_only': True},
         }
