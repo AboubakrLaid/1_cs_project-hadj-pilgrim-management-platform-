@@ -6,6 +6,9 @@ class WilayaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wilaya
         fields = [ 'id', 'name']
+        extra_kwargs = {
+            'name': {'read_only': True}
+        }
 
 class MunicipalSerializer(serializers.ModelSerializer):
     class Meta:

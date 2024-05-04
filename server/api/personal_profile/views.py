@@ -99,7 +99,7 @@ def accept_or_refuse_candidate(request):
         inscription_count = data.get('inscription_count', 0)
         try:
             user_status = UserStatus.objects.get(user=user)
-            user_status.status = UserStatus.Status.REJECTED
+            user_status.status = UserStatus.Status.PENDING
             user_status.process = UserStatus.Process.LOTTERY
             user_status.save()
             UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
