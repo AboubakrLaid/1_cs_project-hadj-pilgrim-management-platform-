@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
-import { Box } from "@mui/material";
+import { Box, Checkbox, Stack } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import AuthContext from "../Context/AuthProvider";
@@ -63,8 +64,8 @@ const Login = () => {
           setAuth({ name, role, accessToken, refreshToken });
           if (role === "Admin" || role === "GeneralAdmin") {
             navigate("/Admin");
-            localStorage.setItem("wilaya", response?.data?.wilaya.name);
-            localStorage.setItem("wilaya_id", response?.data?.wilaya.id);
+            localStorage.setItem("wilaya", response?.data?.wilaya?.name);
+            localStorage.setItem("wilaya_id", response?.data?.wilaya?.id);
           }
           if (role === "Candidate") {
             if (responseData?.user_status?.pahse == null) {
@@ -107,7 +108,7 @@ const Login = () => {
         <h5
           style={{
             color: "#000000",
-            fontWeight: "bold",
+            fontWeight: 500,
             fontSize: "30px",
             height: 51,
           }}
@@ -171,9 +172,36 @@ const Login = () => {
                 <span className="error-msg">invalid password </span>
               </div>
             )}
-            <Link to="/Forget-Password" className="Forgot-pass">
-              Forgot password?
-            </Link>
+            <Stack
+              direction={"row"}
+              sx={{
+                position: "relative",
+                height: "30px",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <FormControlLabel
+                sx={{
+                  height: "30px",
+                  color: "rgba(0, 0, 0, 0.5)",
+                }}
+                control={<Checkbox />}
+                label="Remember me"
+              />
+              <Link
+                to="/Forget-Password"
+                className="Forgot-pass"
+                style={{
+                  height: "30px",
+                  display: "inline-block",
+                  position: "relative",
+                  top: 0,
+                }}
+              >
+                Forgot password?
+              </Link>
+            </Stack>
 
             <div className="sub-but">
               <button className="button" onClick={handleSubmit}>

@@ -19,6 +19,7 @@ import NewDoctor from "./content/Admin/NewDoctor";
 import Doctors from "./content/Admin/Doctors";
 import Message from "./content/Candidate/Message";
 import Lottery from "./content/Admin/Lottery";
+import Admins from "./content/Admin/Admins";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="Members" element={<Members />} />
             <Route path="Doctors" element={<Doctors />} />
             <Route path="Lottery" element={<Lottery />} />
+            <Route path="Admins" element={<Admins />} />
           </Route>
           <Route path="/Participate" element={<Participation />} />
           <Route path="/Participate/Companion" element={<Companion />} />

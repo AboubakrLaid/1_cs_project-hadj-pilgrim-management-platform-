@@ -3,25 +3,43 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { Box, Stack, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 
-const data = [
-  { id: 0, value: 1, label: "one time" },
-  { id: 1, value: 1, label: "from 2 to 4" },
-  { id: 2, value: 1, label: "more than 4" },
-];
-
-const data2 = [
-  { id: 0, value: 1, label: "< 50" },
-  { id: 1, value: 1, label: "50-70" },
-  { id: 2, value: 1, label: ">70" },
-];
-
 const Method = () => {
-  const [stats, setStats] = useState([]);
+  const [statsParticipation, setStatsParticipation] = useState([]);
+  const [statsAge, setStatsAge] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [alertsuc, setAlertSuc] = useState(false);
   const [alertErr, setAlertErr] = useState(false);
   const [alertInfo, setAlertInfo] = useState(false);
   const [err, setErr] = useState("");
+  //categories inputs
+  const [elderlyMinAge, setElderlyMinAge] = useState("");
+  const [elderlyPercentage, setElderlyPercentage] = useState("");
+  const [category1MinAge, setCategory1MinAge] = useState("");
+  const [category1Percentage, setCategory1Percentage] = useState("");
+  const [category2MinAge, setCategory2MinAge] = useState("");
+  const [category2Percentage, setCategory2Percentage] = useState("");
+  const [category3MinAge, setCategory3MinAge] = useState("");
+  const [category3Percentage, setCategory3Percentage] = useState("");
+
+  const isConfirmEnabled = () => {
+    switch (selectedMethod) {
+      case "Age Priority & Registration Priority":
+        return elderlyMinAge !== "" && elderlyPercentage !== "";
+      case "Age Priority":
+        return (
+          category1MinAge !== "" &&
+          category1Percentage !== "" &&
+          category2MinAge !== "" &&
+          category2Percentage !== "" &&
+          category3MinAge !== "" &&
+          category3Percentage !== ""
+        );
+      case "Registration Priority":
+        return true;
+      default:
+        return false;
+    }
+  };
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -44,9 +62,41 @@ const Method = () => {
             Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
           },
         });
-        console.log(response);
+        if (response.status === 200) {
+          console.log(response);
+          const totalParticipants = response.data.total_participants;
+          const numberOfParticipationData = Object.entries(
+            response?.data.participation_counts_pourcentages
+          ).map(([label, percentage], index) => ({
+            id: index,
+            value: Math.round((percentage / 100) * totalParticipants),
+            label: label === "more_than_four" ? ">4" : label.replace(/_/g, " "),
+          }));
+          const ageStats = Object.entries(
+            response.data.age_groups_pourcentages
+          ).map(([label, percentage], index) => {
+            let formattedLabel;
 
-        setStats(response?.data);
+            if (label === "under_40") {
+              formattedLabel = "<40";
+            } else if (label === "between_41_70") {
+              formattedLabel = "41-70";
+            } else if (label === "above_71") {
+              formattedLabel = ">71";
+            } else {
+              formattedLabel = label.replace(/_/g, " ");
+            }
+
+            return {
+              id: index,
+              value: Math.round((percentage / 100) * totalParticipants),
+              label: formattedLabel,
+            };
+          });
+          setStatsParticipation(numberOfParticipationData);
+          setStatsAge(ageStats);
+          console.log(statsParticipation);
+        }
       } catch (error) {
         // Handle network errors or Axios request errors
         console.error("Error:", error);
@@ -55,8 +105,11 @@ const Method = () => {
 
     fetchData(); // Call the async function to execute it
   }, []);
+  console.log(statsParticipation);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!selectedMethod) {
       return;
     }
@@ -171,7 +224,7 @@ const Method = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          width: "50%",
+          width: "40%",
         }}
       >
         <span style={{ fontWeight: 500, fontSize: "30px" }}>statistics</span>
@@ -192,7 +245,7 @@ const Method = () => {
           <PieChart
             series={[
               {
-                data,
+                data: statsParticipation,
                 highlightScope: { faded: "global", highlighted: "item" },
                 faded: { innerRadius: 30, additionalRadius: -5, color: "gray" },
                 innerRadius: 30,
@@ -231,7 +284,7 @@ const Method = () => {
           <PieChart
             series={[
               {
-                data: data2,
+                data: statsAge,
                 highlightScope: { faded: "global", highlighted: "item" },
                 faded: { innerRadius: 30, additionalRadius: -5, color: "gray" },
                 innerRadius: 30,
@@ -261,52 +314,34 @@ const Method = () => {
         sx={{
           position: "relative",
           height: "100%",
-          alignItems: "center",
+
           justifyContent: "center",
-          width: "50%",
+          width: "60%",
         }}
       >
-        <span style={{ fontWeight: 500, fontSize: "16px" }}>
-          Explore the different draw algorithm options and select the one that
-          ligns with the overview depicted in the circle diagrams
-        </span>
+        <Stack
+          direction={"row"}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "90%",
+            padding: "10px",
+          }}
+        >
+          <span style={{ fontWeight: 500, fontSize: "36px" }}>Algorithm</span>
+          {selectedMethod && (
+            <button
+              className="button"
+              style={{ width: "25%", height: "50px", borderRadius: "15px" }}
+              onClick={handleSubmit}
+              disabled={!isConfirmEnabled()}
+            >
+              Confirm
+            </button>
+          )}
+        </Stack>
         <div className="Lottery-methods">
-          <div className="Methods-box">
-            <input
-              type="checkbox"
-              checked={selectedMethod === "Random"}
-              onChange={() => handleCheckboxChange("Random")}
-            />
-            <label>Random</label>
-          </div>
-          <p>
-            Providing each candidate an equal chance of being chosen, regardless
-            of external factors
-          </p>
-          <div className="Methods-box">
-            <input
-              type="checkbox"
-              checked={selectedMethod === "Age Priority"}
-              onChange={() => handleCheckboxChange("Age Priority")}
-            />
-            <label>Age Priority</label>
-          </div>
-          <p>
-            Considering the age of participants as a key factor in the selection
-            process
-          </p>
-          <div className="Methods-box">
-            <input
-              type="checkbox"
-              checked={selectedMethod === "Registration Priority"}
-              onChange={() => handleCheckboxChange("Registration Priority")}
-            />
-            <label>Registration Priority</label>
-          </div>
-          <p>
-            Considering the frequency of a candidate's participation in the Hajj
-            draw
-          </p>
           <div className="Methods-box">
             <input
               type="checkbox"
@@ -317,23 +352,75 @@ const Method = () => {
                 handleCheckboxChange("Age Priority & Registration Priority")
               }
             />
-            <label>Age Priority & Registration Priority</label>
+            <label>Age & Registration priority</label>
           </div>
-          <p>Considering the 2 options in one algorithm</p>
+          <div className="options">
+            <label>Min age for elderly [2nd draw]</label>
+            <input
+              onChange={(e) => setElderlyMinAge(e.target.value)}
+              type="text"
+            />
+            <label>Percentage</label>
+            <input
+              onChange={(e) => setElderlyPercentage(e.target.value)}
+              type="text"
+            />
+          </div>
+          <div className="Methods-box">
+            <input
+              type="checkbox"
+              checked={selectedMethod === "Age Priority"}
+              onChange={() => handleCheckboxChange("Age Priority")}
+            />
+            <label>Age Category</label>
+          </div>
+          <div>
+            <div className="options">
+              <label>Min age for 1st category</label>
+              <input
+                onChange={(e) => setCategory1MinAge(e.target.value)}
+                type="text"
+              />
+              <label>Percentage</label>
+              <input
+                onChange={(e) => setCategory1Percentage(e.target.value)}
+                type="text"
+              />
+            </div>
+            <div className="options">
+              <label> Min age for 2nd category</label>
+              <input
+                onChange={(e) => setCategory2MinAge(e.target.value)}
+                type="text"
+              />
+              <label>Percentage</label>
+              <input
+                onChange={(e) => setCategory2Percentage(e.target.value)}
+                type="text"
+              />
+            </div>
+            <div className="options">
+              <label>Min age for 3rd category</label>
+              <input
+                onChange={(e) => setCategory3MinAge(e.target.value)}
+                type="text"
+              />
+              <label>Percentage</label>
+              <input
+                onChange={(e) => setCategory3Percentage(e.target.value)}
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="Methods-box">
+            <input
+              type="checkbox"
+              checked={selectedMethod === "Registration Priority"}
+              onChange={() => handleCheckboxChange("Registration Priority")}
+            />
+            <label>Registration Priority</label>
+          </div>
         </div>
-
-        {selectedMethod && (
-          <button
-            onClick={handleSubmit}
-            className="button"
-            style={{
-              width: "150px",
-              height: "50px",
-            }}
-          >
-            Confirm
-          </button>
-        )}
       </Stack>
     </Box>
   );

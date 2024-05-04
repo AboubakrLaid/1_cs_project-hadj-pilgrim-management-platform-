@@ -1,7 +1,7 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, requirePropFactory } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { purple } from "@mui/material/colors";
-
+import TimeImage from "../../assets/Time.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUsers,
@@ -150,7 +150,7 @@ const Dashboard = () => {
             marginBottom: "auto",
           }}
         >
-          <img src="/Time management-pana.svg" />
+          <img src={TimeImage} />
         </Box>
       </Box>
     </Box>

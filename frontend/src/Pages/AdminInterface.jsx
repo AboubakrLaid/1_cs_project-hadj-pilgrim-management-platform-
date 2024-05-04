@@ -10,6 +10,10 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import { FaUserDoctor } from "react-icons/fa6";
 import { RiFilePaper2Fill } from "react-icons/ri";
+import { FaUserCog } from "react-icons/fa";
+import Photo from "../assets/AdminImg.png";
+import Newyear from "../assets/NewYear.png";
+import Random from "../assets/Random.png";
 const SidebarDataGeneral = [
   {
     title: "Dashboard",
@@ -19,12 +23,17 @@ const SidebarDataGeneral = [
   {
     title: "Season",
     path: "/Admin/Season",
-    icon: <EventNoteIcon />,
+    icon: <img src={Newyear} />,
   },
   {
-    title: "Method",
+    title: "Lottery",
     path: "/Admin/Method",
-    icon: <ShuffleIcon />,
+    icon: <img src={Random} />,
+  },
+  {
+    title: "Admins",
+    path: "/Admin/Admins",
+    icon: <FaUserCog />,
   },
 ];
 
@@ -64,6 +73,8 @@ const AdminInterface = () => {
 
     if (lastPathSegment === "Admin") {
       setSelectedItem("Dashboard");
+    } else if (lastPathSegment === "Method") {
+      setSelectedItem("Lottery");
     } else {
       setSelectedItem(lastPathSegment);
     }
@@ -110,7 +121,8 @@ const AdminInterface = () => {
           }}
         >
           <Avatar
-            src="/broken-image.jpg"
+            src={Photo}
+            alt={name}
             sx={{
               width: { xs: "70px", sm: "90px", md: "110px" },
               height: { xs: "70px", sm: "90px", md: "110px" },
