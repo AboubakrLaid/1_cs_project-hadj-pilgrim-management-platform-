@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
+from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
 from django.db.models import Q
 from .models import MedicalAdminProfile
 from users.models import User, UserInscriptionHistory, UserStatus
@@ -11,6 +12,7 @@ from personal_profile.models import PersonalProfile
 from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer 
 from rest_framework import status
 from users.serializers import UserSerializer
+
 
 
 @api_view(["GET"])
@@ -139,19 +141,24 @@ def create_new_admin(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["PATCH"])
+@api_view(["PATCH", "DELETE"])
 @permission_classes([IsGeneralAdminOrAdminUser])
-def update_admin(request, admin_id):
+def update_delete_admin(request, admin_id):
     try:
         admin = User.objects.get(id=admin_id)
     except User.DoesNotExist:
         return Response({"success":False,"message": "Admin not found"}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == "PATCH":
 
-    serializer = AdminProfileSerializer(admin, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=400)
+        serializer = AdminProfileSerializer(admin, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    else: # DELETE
+        admin.delete()
+        return Response({"success":True}, status=status.HTTP_200_OK)
     
     
         
