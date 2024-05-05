@@ -1,14 +1,15 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from roles.roles import IsAdminUser
+from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
 from django.db.models import Q
 from .models import MedicalAdminProfile
 from users.models import User, UserInscriptionHistory, UserStatus
 from personal_profile.models import PersonalProfile
-from .serializers import MedicalAdminProfileSerializer, CandidateSerializer
+from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer
 from rest_framework import status
 from users.serializers import UserSerializer
+
 
 
 @api_view(["GET"])
@@ -103,18 +104,57 @@ def search_users(request):
         
         
     return Response(users_data, status=status.HTTP_200_OK)
+ 
+ 
+@api_view(["GET"])
+# @permission_classes([IsGeneralAdminOrAdminUser])
+def get_all_admins(_):
+    admins = User.objects.filter(role=User.IS_ADMIN)
+    serializer = AdminProfileSerializer(admins, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+ 
+@api_view(["POST"])
+@permission_classes([IsGeneralAdminOrAdminUser])
+def create_new_admin(request):
+    
+    data = request.data
+    print(data)
+    serializer = AdminProfileSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"success":True}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-"""
-    serialized_data = []
-    for user in users:
-        user_data = UserSerializer(user).data
-        user_data['inscription_history'] = UserInscriptionHistory(user.inscription_history.all(), many=True).data
-        user_data['status'] = UserStatus(user.status.all(), many=True).data
-        user_data['verification_code'] = UserVerificationCodeSerializer(user.verification_code.all(), many=True).data
-        user_data['email_verification'] = UserEmailVerificationSerializer(user.email_verification.all(), many=True).data
-        serialized_data.append(user_data)    
-"""
+@api_view(["PATCH", "DELETE"])
+# @permission_classes([IsGeneralAdminOrAdminUser])
+def update_delete_admin(request, admin_id):
+    try:
+        admin = User.objects.get(id=admin_id)
+    except User.DoesNotExist:
+        return Response({"success":False,"message": "Admin not found"}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == "PATCH":
+
+        serializer = AdminProfileSerializer(admin, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    else: # DELETE
+        admin.delete()
+        return Response({"success":True}, status=status.HTTP_200_OK)
+    
+    
+    
+        
+        
+        
+     
+        
+
+
+
 
 
 # guide
