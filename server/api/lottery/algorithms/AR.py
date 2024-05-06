@@ -19,7 +19,9 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
 
     participants_ids = list(
         ParticipantStatusPhase.objects.filter(
-            participant__personal_profile__municipal__in=municipals
+            participant__personal_profile__municipal__in=municipals,
+            participant__status__status=UserStatus.Status.PENDING.value,
+            participant__status__process=UserStatus.Process.LOTTERY.value,
         ).values_list("participant", flat=True)
     )
     participants = [
@@ -61,13 +63,13 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
         wilaya_seats.available_seats
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
-    ) 
+    )
 
     # starting from the last category
     # givimg it extra seats
     available_seats = round(
-            extra_seats * 0.01 * ((100 * municipals_population) / wilaya_population)
-        )
+        extra_seats * 0.01 * ((100 * municipals_population) / wilaya_population)
+    )
     print(f"seats: {seats}")
     for i in range(1, -1, -1):
         participants_weighted_ids = []
@@ -80,7 +82,7 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
         # shuffle the participants
         random.shuffle(participants_weighted_ids)
 
-        available_seats += round(seats * percentages[i]) 
+        available_seats += round(seats * percentages[i])
         print(f"available_seats: {available_seats}")
 
         select_winners(
@@ -91,12 +93,12 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
             status=UserStatus.Status.PENDING.value,
             result_list=winners,
         )
-        
+
         backup_seats = round(available_seats * 0.5)
         # initialize the available seats
-        
+
         available_seats = 0
-        
+
         print(f"backup_seats: {backup_seats}")
         select_winners(
             participants_ids=participants_weighted_ids,
@@ -107,7 +109,14 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
             result_list=backup,
         )
 
+        try:
+            UserStatus.objects.filter(user__in=participants_grps[i]).update(status=UserStatus.Status.REJECTED.value)
+        except Exception as e:
+            print(f"Error updating UserStatus: {e}")
+
+    
     result = {
+        "total_winners": seats,
         "winners": winners,
         "backup": backup,
     }

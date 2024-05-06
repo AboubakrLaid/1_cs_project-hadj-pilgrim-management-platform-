@@ -18,7 +18,9 @@ def _registration_priority(municipals, wilaya, _):
 
     participants_ids = list(
         ParticipantStatusPhase.objects.filter(
-            participant__personal_profile__municipal__in=municipals
+            participant__personal_profile__municipal__in=municipals,
+            participant__status__status=UserStatus.Status.PENDING.value,
+            participant__status__process=UserStatus.Process.LOTTERY.value,
         ).values_list("participant", flat=True)
     )
     participants_weighted_ids = []
@@ -74,8 +76,13 @@ def _registration_priority(municipals, wilaya, _):
         status=UserStatus.Status.IN_RESERVE.value,
         result_list=backup,
     )
+    try:
+        UserStatus.objects.filter(user__in = participants_ids).update(status = UserStatus.Status.REJECTED.value)
+    except Exception as e:
+        print(f"error {e}")
 
     result = {
+        "total_winners": seats,
         "winners": winners,
         "backup": backup,
     }
