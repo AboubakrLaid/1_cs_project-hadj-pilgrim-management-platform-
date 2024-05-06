@@ -4,14 +4,17 @@ from .views import (
     lottery_algorithm,
     statistics,
     launch_lottery,
-    reset_lottery
+    reset_lottery,
+    is_lottery_done
 )
 
 urlpatterns = [
     # path('', participate_in_lottery),
+    path('', is_lottery_done),
     path('algorithm', lottery_algorithm),
     path('statistics', statistics),
     path('result', launch_lottery),
     path('reset', reset_lottery),
+    
     # path('v2/statistics', optimized_statistics),
 ]
