@@ -17,6 +17,7 @@ from django.utils.timezone import now
 from .algorithms.AR import _age_registrations_priority
 from .algorithms.R import _registration_priority
 from .algorithms.A import _age_category
+from municipal_wilaya.models import Municipal
 
 
 
@@ -229,7 +230,10 @@ def launch_lottery(request):
         result = algorithm_functions[algorithm.algorithm](
             municipals, wilaya,algorithm
         )
-
+        
+        for municipal in municipals:
+            Municipal.objects.filter(id=municipal).update(is_lottery_done=True)
+        
         return Response(result, status=status.HTTP_200_OK)
 
     
