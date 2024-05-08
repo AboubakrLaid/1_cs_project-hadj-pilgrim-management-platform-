@@ -1,17 +1,22 @@
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from roles.roles import IsAdminUser ,IsGeneralAdminUser
+from users.models import User
+from rest_framework.decorators import (api_view,permission_classes)
+from .models import MedicalAdminProfile
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework import status
 from base64 import b64encode
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
-from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
 from django.db.models import Q
-from .models import MedicalAdminProfile
 from users.models import User, UserInscriptionHistory, UserStatus
 from personal_profile.models import PersonalProfile
-from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer 
-from rest_framework import status
+from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer ,HospitalsAdminSerializer
 from users.serializers import UserSerializer
+from municipal_wilaya.models import Wilaya, Hospital
 
 
 
@@ -119,15 +124,15 @@ def search_users(request):
         
         
     return Response(users_data, status=status.HTTP_200_OK)
- 
- 
+
+
 @api_view(["GET"])
 @permission_classes([IsGeneralAdminOrAdminUser])
 def get_all_admins(_):
     admins = User.objects.filter(role=User.IS_ADMIN)
     serializer = AdminProfileSerializer(admins, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
- 
+
 @api_view(["POST"])
 @permission_classes([IsGeneralAdminOrAdminUser])
 def create_new_admin(request):
@@ -164,7 +169,7 @@ def update_delete_admin(request, admin_id):
         
         
         
-     
+
         
 
 
@@ -172,23 +177,101 @@ def update_delete_admin(request, admin_id):
 
 
 # guide
-"""
+# """
+# @api_view(['POST'])
+# @permission_classes([IsAdminUser])
+# def add_guide(request):
+#     serializer = GuideSerializer(data=request.data)
+#     if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data, status=201)
+#     return Response(serializer.errors, status=400)
+
+# @api_view(['DELETE'])
+# @permission_classes([IsAdminUser])
+# def delete_guide(request, guide_id):
+#     try:
+#         guide = Guide.objects.get(id=guide_id)
+#         guide.delete()
+#         return Response({'message': 'Guide deleted successfully'}, status=204)
+#     except Guide.DoesNotExist:
+#         return Response({'message': 'Guide not found'}, status=404)
+# """
+
+
+
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
-def add_guide(request):
-    serializer = GuideSerializer(data=request.data)
+def add_medical_admin(request):
+    serializer = MedicalAdminProfileSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
+        medical_admin = serializer.save()  # Save the instance once
+        # Send email to the newly added medical admin
+        email_subject = 'Welcome to our platform'
+        email_message = f'Hello {medical_admin.user.first_name},\n\nYou have been added as a medical admin on our platform. Your password is the concatenation of your last name and email. Thank you.'
+
+        send_mail(
+            email_subject,
+            email_message,
+            settings.EMAIL_HOST_USER,
+            [medical_admin.user.email],
+            fail_silently=False,
+        )
+        return Response({'success': True, 'message': 'Medical admin added successfully'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
-def delete_guide(request, guide_id):
+def delete_medical_admin(request, pk):
     try:
-        guide = Guide.objects.get(id=guide_id)
-        guide.delete()
-        return Response({'message': 'Guide deleted successfully'}, status=204)
-    except Guide.DoesNotExist:
-        return Response({'message': 'Guide not found'}, status=404)
-"""
+        medical_admin = MedicalAdminProfile.objects.get(pk=pk)
+    except MedicalAdminProfile.DoesNotExist:
+        return Response({'error': 'Medical admin not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    user_id = medical_admin.user.id  
+    medical_admin.delete()
+
+    try:
+        user = User.objects.get(id=user_id)
+        user.delete()
+    except User.DoesNotExist:
+        pass  # User already deleted, do nothing
+
+    return Response({'success': True, 'message': 'Medical admin deleted successfully'}, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def update_medical_admin(request, pk):
+    try:
+        medical_admin = MedicalAdminProfile.objects.get(pk=pk)
+    except MedicalAdminProfile.DoesNotExist:
+        return Response({'error': 'Medical admin not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = MedicalAdminProfileSerializer(medical_admin, data=request.data, partial=True)
+    if serializer.is_valid():
+        user_data = serializer.validated_data.get('user', {})
+        user = medical_admin.user
+        for key, value in user_data.items():
+            setattr(user, key, value)
+        user.save()
+        serializer.save()
+
+        return Response({'success': True, 'message': 'Medical admin updated successfully'}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_hospitals_in_wilaya(request):
+    try:
+        wilaya_id = request.user.admin_profile.object_id
+        hospitals = Hospital.objects.filter(wilaya_id=wilaya_id)
+        serializer = HospitalsAdminSerializer(hospitals, many=True)
+        return Response(serializer.data)
+    except User.DoesNotExist:
+        return Response({'error': 'Admin not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Hospital.DoesNotExist:
+        return Response({'error': 'Hospitals not found for this wilaya'}, status=status.HTTP_404_NOT_FOUND)

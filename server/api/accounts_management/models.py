@@ -5,8 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import JSONField
 
-
-
 class BaseResponsibility(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
@@ -20,13 +18,12 @@ class BaseResponsibility(models.Model):
     class Meta:
         abstract = True
         
-        
-        
+
 class MedicalAdminProfile(BaseResponsibility):
     # profile_picture = models.ImageField(upload_to='medical_admins/profile_pictures/', null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='medical_admin_profile')
-    work_schedule = JSONField(default=dict)
-    
+    work_schedule = JSONField(default=list)
+
     def save(self, *args, **kwargs):
         if self.content_type != ContentType.objects.get_for_model(Hospital):
             raise ValueError('Medical Admin Profile must be related to a Hospital')
@@ -39,9 +36,3 @@ class AdminProfile(BaseResponsibility):
         if self.content_type != ContentType.objects.get_for_model(Wilaya):
             raise ValueError('Admin Profile must be related to a Wilaya')
         super().save(*args, **kwargs)
-
-
-
-
-
-
