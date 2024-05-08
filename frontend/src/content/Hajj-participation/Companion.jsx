@@ -1,27 +1,51 @@
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
-import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
+import { Box, Stack } from "@mui/material";
 import axios from "../../Api/base";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { FaIdCard } from "react-icons/fa";
-import PersonIcon from "@mui/icons-material/Person";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import BadgeIcon from "@mui/icons-material/Badge";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { Link, useNavigate } from "react-router-dom";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import PersonIcon from "@mui/icons-material/Person";
+import useAuth from "../../Context/useAuth";
 
+import dayjs from "dayjs";
+
+const today = dayjs();
 const NIN = /^\d{18}$/;
-const date = /^(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
-const Number = /^(0)(5|6|7)([0-9]{8})$/;
-const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
+const birthCert = /^\d{5}$/;
+const passport = /^\d{9}$/;
+const nameRegExp = /^[a-zA-Z]+(?:[\s'-][a-zA-Z]+)*$/;
 
 const Companion = () => {
-  //First name states
-  const [firstName, setFirstName] = useState("");
-  const [validFirstName, setValidFirstName] = useState(false);
-  const [firstNameFocus, setFirstNameFocus] = useState(false);
-  //Last name states
-  const [lastName, setLastName] = useState("");
-  const [validLastName, setValidLastName] = useState(false);
-  const [lastNameFocus, setLastNameFocus] = useState(false);
+  const { auth } = useAuth();
+  const data = auth?.data;
+
+  const navigate = useNavigate();
+  //adress
+  const [adress, setAdress] = useState("");
+  const [validAdress, setValidAdress] = useState(false);
+  const [adressFocus, setAdressFocus] = useState(false);
+
+  //birth certificate number
+  const [birthCertificateNumber, setBirthCertificateNumber] = useState("");
+  const [validBirthCertificateNumber, setValidBirthCertificateNumber] =
+    useState(false);
+  const [birthCertificateNumberFocus, setBirthCertificateNumberFocus] =
+    useState(false);
+  //Date of passport's expiration
+  const [passportExpiration, setPassportExpiration] = useState(null);
+  const [validPassportExpiration, setValidPassportExpiration] = useState(false);
+  const [passportExpirationFocus, setPassportExpirationFocus] = useState(false);
+  let passportExp = dayjs(passportExpiration?.$d).format("YYYY-MM-DD");
+
+  //Passport Number
+  const [passportNumber, setPassportNumber] = useState("");
+  const [validPassportNumber, setValidPassportNumber] = useState(false);
+  const [passportNumberFocus, setPassportNumberFocus] = useState(false);
 
   //NIN
   const [nin, setNin] = useState("");
@@ -29,107 +53,149 @@ const Companion = () => {
   const [ninFocus, setNinFocus] = useState(false);
 
   //Birthday
-  const [birthday, setBirthday] = useState("");
+  const [birthday, setBirthday] = useState(null);
   const [validBirthday, setValidBirthday] = useState(false);
   const [birthdayFocus, setBirthdayFocus] = useState(false);
-  //Phone Number
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [validPhoneNumber, setValidPhoneNumber] = useState(false);
-  const [phoneNumberFocus, setPhoneNumberFocus] = useState(false);
+  let userBirthDate = dayjs(birthday?.$d).format("YYYY-MM-DD");
+
+  //first name
+  const [firstName, setFirstName] = useState("");
+  const [validFirstName, setValidFirstName] = useState(false);
+  const [firstNameFocus, setFirstNameFocus] = useState(false);
+
+  //last name
+  const [lastName, setLastName] = useState("");
+  const [validLastName, setValidLastName] = useState(false);
+  const [lastNameFocus, setLastNameFocus] = useState(false);
 
   useEffect(() => {
-    setValidFirstName(nameRegex.test(firstName));
+    setValidFirstName(nameRegExp.test(firstName));
   }, [firstName]);
 
   useEffect(() => {
-    setValidLastName(nameRegex.test(lastName));
+    setValidLastName(nameRegExp.test(lastName));
   }, [lastName]);
+
+  useEffect(() => {
+    setValidAdress(adress);
+  }, [adress]);
+
+  useEffect(() => {
+    setValidBirthCertificateNumber(birthCert.test(birthCertificateNumber));
+  }, [birthCertificateNumber]);
 
   useEffect(() => {
     setValidNin(NIN.test(nin));
   }, [nin]);
+  useEffect(() => {
+    setValidPassportNumber(passport.test(passportNumber));
+  }, [passportNumber]);
+
+  // Age and birthday check
+  const calculateAge = (birthdate) => {
+    const birthDate = dayjs(birthdate);
+    const age = today.diff(birthDate, "year");
+    return age;
+  };
 
   useEffect(() => {
-    setValidBirthday(date.test(birthday));
-  }, [birthday]);
+    if (calculateAge(userBirthDate) >= 18) {
+      setValidBirthday(true);
+    } else {
+      setValidBirthday(false);
+    }
+  }, [userBirthDate]);
+  //----------------------------------------------------
 
   useEffect(() => {
-    setValidPhoneNumber(Number.test(phoneNumber));
-  }, [phoneNumber]);
-
-  const navigate = useNavigate();
+    if (passportExpiration) {
+      const differenceInMonths = passportExpiration.diff(today, "months");
+      setValidPassportExpiration(differenceInMonths >= 6);
+    }
+  }, [passportExpiration, passportExp]);
 
   const handleSubmit = async (e) => {
-    console.log("entered");
     e.preventDefault();
+
+    const access = localStorage.getItem("accessToken");
+    console.log({
+      profile_pic: data.profile_pic,
+      nin: data.nin,
+      phone_number: data.phone_number,
+      birth_date: data.birth_date,
+      passport_number: data.passport_number,
+      passport_expiration_date: data.passport_expiration_date,
+      birth_certificate_number: data.birth_certificate_number,
+      files: data.files,
+      address: data.address,
+      municipal: data.municipal,
+      wilaya: data.wilaya,
+      companion: {
+        first_name: firstName,
+        last_name: lastName,
+        birth_date: userBirthDate,
+        nin: nin,
+        passport_number: passportNumber,
+        passport_expiration_date: passportExp,
+        birth_certificate_number: birthCertificateNumber,
+        address: adress,
+      },
+    });
+
     if (
-      validFirstName &&
-      validLastName &&
       validBirthday &&
       validNin &&
-      validPhoneNumber
+      validBirthCertificateNumber &&
+      validPassportExpiration &&
+      validPassportNumber &&
+      validFirstName &&
+      validLastName &&
+      validAdress
     ) {
-      const participantData = localStorage.getItem("ParticipateData");
-      const data = {
-        participantData,
-        Companion: {
-          first_name: firstName,
-          last_name: lastName,
-          nin: nin,
-          phone_number: phoneNumber,
-          birth_date: birthday,
-        },
-      };
-      const access = localStorage.getItem("accessToken");
-      console.log(data);
-
       try {
         const response = await axios.post(
-          "/auth/profile/",
-          JSON.stringify({
-            data,
-          }),
+          "/profile/",
+          {
+            picture: data.profile_pic,
+            nin: data.nin,
+            phone_number: data.phone_number,
+            birth_date: data.birth_date,
+            passport_number: data.passport_number,
+            passport_expiration_date: data.passport_expiration_date,
+            birth_certificate_number: data.birth_certificate_number,
+            files: data.files,
+            address: data.address,
+            municipal: data.municipal,
+            wilaya: data.wilaya,
+            companion: {
+              first_name: firstName,
+              last_name: lastName,
+              birth_date: userBirthDate,
+              nin: nin,
+              passport_number: passportNumber,
+              passport_expiration_date: passportExp,
+              birth_certificate_number: birthCertificateNumber,
+              address: adress,
+            },
+          },
           {
             headers: {
+              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${access}`,
             },
           }
         );
         console.log(response.data);
-        console.log("here");
 
-        if (response.status === 200 && response.data.success) {
-          try {
-            const lotteryResponse = await axios.post(
-              "/lottery/",
-              {},
-              {
-                headers: {
-                  Authorization: `Bearer ${access}`,
-                },
-              }
-            );
-            console.log(lotteryResponse.data);
-
-            if (
-              lotteryResponse.status === 200 &&
-              lotteryResponse.data.success
-            ) {
-              console.log("lottery endpoint success");
-              navigate("/Home/Draw");
-            } else {
-              console.log("lottery endpoint failed", lotteryResponse);
-            }
-          } catch (error) {
-            console.error("Lottery Error:", error);
-          }
+        if (response.status === 201) {
+          localStorage.setItem("Status", "P");
+          navigate("/home/message");
         }
       } catch (error) {
-        // Handle errors here
         console.error("Error:", error);
       }
     } else {
-      alert("Erorr");
+      alert("Please fill all the fields with valid entry");
     }
   };
 
@@ -140,15 +206,17 @@ const Companion = () => {
       </Link>
       <Box
         sx={{
+          border: "1px solid black",
           position: "absolute",
           transform: "translate(-50%,-50%)",
           left: "50%",
           top: "50%",
-          maxHeight: "100vh",
-          width: 500,
+          maxHeight: "100%",
+          width: 1000, //changes also in col direction
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          gap: 2,
           //mt: 10,
           p: 5,
           borderRadius: 10,
@@ -163,128 +231,278 @@ const Companion = () => {
             height: 51,
           }}
         >
-          Companion Information
+          Companion information
         </h5>
         <p style={{ color: "rgba(0, 0, 0, 0.5)" }}>
-          Complete Companion’s information to validate your registration
+          Complete our registration form to start your Hajj experience
         </p>
 
         <Box
           sx={{
+            gap: 2,
             p: 2,
-            width: 400,
+            width: 800, //400 in the column direction
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            alignItems: "center ",
           }}
         >
           <form className="auth-form Login-form" onSubmit={handleSubmit}>
-            <div
-              className={
-                !validFirstName && firstName && !firstNameFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <PersonIcon fontSize="medium" className="icon" />
-              <input
-                type="text"
-                placeholder="First name"
-                onChange={(e) => setFirstName(e.target.value)}
-                onFocus={() => setFirstNameFocus(true)}
-                onBlur={() => setFirstNameFocus(false)}
-                required
-              />
-            </div>
-            <div
-              className={
-                !validLastName && lastName && !lastNameFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <PersonIcon fontSize="medium" className="icon" />
-              <input
-                type="text"
-                placeholder="Last name"
-                onChange={(e) => setLastName(e.target.value)}
-                onFocus={() => setLastNameFocus(true)}
-                onBlur={() => setLastNameFocus(false)}
-                required
-              />
-            </div>
-            <div
-              className={
-                !validNin && nin && !ninFocus ? "invalid-input" : "input"
-              }
-            >
-              <FaIdCard fontSize="medium" className="icon" />
-              <input
-                type="text"
-                placeholder="NIN"
-                onChange={(e) => setNin(e.target.value)}
-                onFocus={() => setNinFocus(true)}
-                onBlur={() => setNinFocus(false)}
-                required
-              />
-            </div>
-            {!validNin && nin && !ninFocus && (
-              <div className="error-container">
-                <span className="error-msg">
-                  Please enter a valid NIN -18 Numbers-
-                </span>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- first name ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validFirstName && firstName && !firstNameFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <PersonIcon fontSize="large" className="icon" />
+                <input
+                  type="text"
+                  placeholder="First name"
+                  onChange={(e) => setFirstName(e.target.value)}
+                  onFocus={() => setFirstNameFocus(true)}
+                  onBlur={() => setFirstNameFocus(false)}
+                  required
+                />
+                {!validFirstName && firstName && !firstName && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Please fill this input with a valid name
+                  </span>
+                )}
               </div>
-            )}
-            <div
-              className={
-                !validBirthday && birthday && !birthdayFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <CalendarMonthIcon className="icon" />
-              <input
-                type="text"
-                placeholder="Birthday"
-                onChange={(e) => setBirthday(e.target.value)}
-                onFocus={() => setBirthdayFocus(true)}
-                onBlur={() => setBirthdayFocus(false)}
-                required
-              />
-            </div>
-            {!validBirthday && birthday && !birthdayFocus && (
-              <div className="error-container">
-                <span className="error-msg">invalid date : YYYY-MM-DD </span>
+              {/* ----------------- last name ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validLastName && lastName && !lastNameFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <PersonIcon className="icon" />
+                <input
+                  type="text"
+                  placeholder="Last name"
+                  onChange={(e) => setLastName(e.target.value)}
+                  onFocus={() => setLastNameFocus(true)}
+                  onBlur={() => setLastNameFocus(false)}
+                  required
+                />
+                {!validLastName && lastName && !lastNameFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Please fill this input with a valid name
+                  </span>
+                )}
               </div>
-            )}
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- Passport Number ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validPassportNumber && passportNumber && !passportNumberFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <FaIdCard fontSize="large" className="icon" />
+                <input
+                  type="text"
+                  placeholder="Passport Number"
+                  onChange={(e) => setPassportNumber(e.target.value)}
+                  onFocus={() => setPassportNumberFocus(true)}
+                  onBlur={() => setPassportNumberFocus(false)}
+                  required
+                />
+                {!validPassportNumber &&
+                  passportNumber &&
+                  !passportNumberFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      Please enter a valid Passport Number -9 Numbers-
+                    </span>
+                  )}
+              </div>
+              {/* ----------------- Birthday input ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validBirthday && birthday && !birthdayFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    onFocus={() => setBirthdayFocus(true)}
+                    onBlur={() => setBirthdayFocus(false)}
+                    value={birthday}
+                    onChange={(newValue) => setBirthday(newValue)}
+                    format={"DD/MM/YYYY"}
+                    sx={{
+                      "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                        { border: "none" },
+                      "& input": {
+                        fontWeight: 400,
+                        fontSize: "16px",
+                        color: "black",
+                      },
+                    }}
+                    slotProps={{
+                      textField: { placeholder: "Birth date" },
 
-            <div
-              className={
-                !validPhoneNumber && phoneNumber && !phoneNumberFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <LocalPhoneIcon className="icon" />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                onFocus={() => setPhoneNumberFocus(true)}
-                onBlur={() => setPhoneNumberFocus(false)}
-                required
-              />
-            </div>
-            {!validPhoneNumber && phoneNumber && !phoneNumberFocus && (
-              <div className="error-container">
-                <span className="error-msg">
-                  Invalid phone number , example:0755555555
-                </span>
+                      inputAdornment: {
+                        position: "start",
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+
+                {!validBirthday && birthday && !birthdayFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    you must be at least 18 years old
+                  </span>
+                )}
               </div>
-            )}
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- Date of passport's expiration ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validPassportExpiration &&
+                  passportExpiration &&
+                  !passportExpirationFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    onFocus={() => setPassportExpirationFocus(true)}
+                    onBlur={() => setPassportExpirationFocus(false)}
+                    value={passportExpiration}
+                    onChange={(newValue) => setPassportExpiration(newValue)}
+                    format={"DD/MM/YYYY"}
+                    minDate={dayjs()}
+                    sx={{
+                      "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                        { border: "none" },
+                      "& input": {
+                        fontWeight: 400,
+                        fontSize: "16px",
+                        color: "black",
+                      },
+                    }}
+                    slotProps={{
+                      textField: {
+                        placeholder: "Date of passport’s expiration ",
+                      },
+
+                      inputAdornment: {
+                        position: "start",
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+
+                {!validPassportExpiration &&
+                  passportExpiration &&
+                  !passportExpirationFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      Passport expires in less than 6 months
+                    </span>
+                  )}
+              </div>
+              {/* ----------------- Birth Certificate number ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validBirthCertificateNumber &&
+                  birthCertificateNumber &&
+                  !birthCertificateNumberFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <BadgeIcon className="icon" />
+                <input
+                  type="text"
+                  placeholder="Birth Certificate Number"
+                  onChange={(e) => setBirthCertificateNumber(e.target.value)}
+                  onFocus={() => setBirthCertificateNumberFocus(true)}
+                  onBlur={() => setBirthCertificateNumberFocus(false)}
+                  required
+                />
+                {!validBirthCertificateNumber &&
+                  birthCertificateNumber &&
+                  !birthCertificateNumberFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      invalid birth certificate number -5 Numbers-
+                    </span>
+                  )}
+              </div>
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- NIN ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validNin && nin && !ninFocus ? "invalid-input" : "input"
+                }
+              >
+                <FaIdCard fontSize="large" className="icon" />
+                <input
+                  type="text"
+                  placeholder="NIN"
+                  onChange={(e) => setNin(e.target.value)}
+                  onFocus={() => setNinFocus(true)}
+                  onBlur={() => setNinFocus(false)}
+                  required
+                />
+                {!validNin && nin && !ninFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Please enter a valid NIN -18 Numbers-
+                  </span>
+                )}
+              </div>
+              {/* ----------------- Adress input ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validAdress && adress && !adressFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <LocationOnIcon className="icon" />
+                <input
+                  type="text"
+                  placeholder="Adress"
+                  onChange={(e) => setAdress(e.target.value)}
+                  onFocus={() => setAdressFocus(true)}
+                  onBlur={() => setAdressFocus(false)}
+                  required
+                />
+                {!validAdress && adress && !adressFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Adress must be mentioned
+                  </span>
+                )}
+              </div>
+            </Stack>
+
+            {/*------------------- Button---------------*/}
 
             <div className="sub-but">
-              <button className="button" onClick={handleSubmit}>
+              <button
+                className="button"
+                onClick={handleSubmit}
+                style={{ width: "350px" }}
+              >
                 Confirm
               </button>
             </div>

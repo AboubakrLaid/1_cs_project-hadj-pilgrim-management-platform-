@@ -5,11 +5,14 @@ import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineDot from "@mui/lab/TimelineDot";
 import CheckIcon from "@mui/icons-material/Check";
+import { PiNumberOneBold } from "react-icons/pi";
 import { PiNumberTwoBold } from "react-icons/pi";
 import { PiNumberThreeBold } from "react-icons/pi";
 import { PiNumberFourBold } from "react-icons/pi";
 
-const Stepper = () => {
+const Stepper = (Step) => {
+  const phase = Step.Step;
+
   return (
     <Timeline
       sx={{
@@ -36,7 +39,12 @@ const Stepper = () => {
               justifyContent: "center",
             }}
           >
-            <CheckIcon sx={{ color: "#AB7595" }} />
+            {phase <= 1 && (
+              <PiNumberOneBold
+                style={{ color: "#AB7595", height: "40px", width: "40px" }}
+              />
+            )}
+            {phase > 1 && <CheckIcon sx={{ color: "#AB7595" }} />}
           </TimelineDot>
           <TimelineConnector
             sx={{ backgroundColor: "white", height: "30px" }}
@@ -48,7 +56,7 @@ const Stepper = () => {
             bottom: "10px",
             fontWeight: 600,
             fontSize: "18px",
-            color: "rgba(255, 255, 255, 0.4) ",
+            color: phase === 1 ? "white" : "rgba(255, 255, 255, 0.4) ",
           }}
         >
           Registration
@@ -66,9 +74,12 @@ const Stepper = () => {
               justifyContent: "center",
             }}
           >
-            <PiNumberTwoBold
-              style={{ color: "#AB7595", height: "40px", width: "40px" }}
-            />
+            {phase <= 2 && (
+              <PiNumberTwoBold
+                style={{ color: "#AB7595", height: "40px", width: "40px" }}
+              />
+            )}
+            {phase > 2 && <CheckIcon sx={{ color: "#AB7595" }} />}
           </TimelineDot>
           <TimelineConnector
             sx={{ backgroundColor: "white", height: "30px" }}
@@ -80,7 +91,7 @@ const Stepper = () => {
             top: "10px",
             fontWeight: 600,
             fontSize: "18px",
-            color: "white",
+            color: phase === 2 ? "white" : "rgba(255, 255, 255, 0.4) ",
           }}
         >
           Draw
@@ -98,9 +109,12 @@ const Stepper = () => {
               justifyContent: "center",
             }}
           >
-            <PiNumberThreeBold
-              style={{ color: "#AB7595", height: "40px", width: "40px" }}
-            />
+            {phase <= 3 && (
+              <PiNumberThreeBold
+                style={{ color: "#AB7595", height: "40px", width: "40px" }}
+              />
+            )}
+            {phase > 3 && <CheckIcon sx={{ color: "#AB7595" }} />}
           </TimelineDot>
           <TimelineConnector
             sx={{ backgroundColor: "white", height: "30px" }}
@@ -112,7 +126,7 @@ const Stepper = () => {
             top: "10px",
             fontWeight: 600,
             fontSize: "18px",
-            color: "rgba(255, 255, 255, 0.4) ",
+            color: phase === 3 ? "white" : "rgba(255, 255, 255, 0.4) ",
           }}
         >
           Medical Visit
@@ -130,9 +144,12 @@ const Stepper = () => {
               justifyContent: "center",
             }}
           >
-            <PiNumberFourBold
-              style={{ color: "#AB7595", height: "40px", width: "40px" }}
-            />
+            {phase <= 4 && (
+              <PiNumberFourBold
+                style={{ color: "#AB7595", height: "40px", width: "40px" }}
+              />
+            )}
+            {phase > 4 && <CheckIcon sx={{ color: "#AB7595" }} />}
           </TimelineDot>
         </TimelineSeparator>
         <TimelineContent
@@ -141,11 +158,10 @@ const Stepper = () => {
             top: "10px",
             fontWeight: 600,
             fontSize: "18px",
-            color: "rgba(255, 255, 255, 0.4) ",
+            color: phase === 4 ? "white" : "rgba(255, 255, 255, 0.4) ",
           }}
         >
           Payement
-
         </TimelineContent>
       </TimelineItem>
     </Timeline>

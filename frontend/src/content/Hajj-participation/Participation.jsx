@@ -1,19 +1,52 @@
-import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { useState, useEffect, useContext } from "react";
+import AuthContext from "../../Context/AuthProvider";
+import { Box, Stack } from "@mui/material";
 import axios from "../../Api/base";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { FaIdCard } from "react-icons/fa";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import BadgeIcon from "@mui/icons-material/Badge";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import { Link, useNavigate } from "react-router-dom";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import dayjs from "dayjs";
 
+const today = dayjs();
 const NIN = /^\d{18}$/;
-const date = /^(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
+const birthCert = /^\d{5}$/;
+const passport = /^\d{9}$/;
+//const date = /^(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/;
 const Number = /^(0)(5|6|7)([0-9]{8})$/;
 const Participation = () => {
+  const { setAuth } = useContext(AuthContext);
   const gender = localStorage.getItem("gender");
-  console.log(gender);
+
   const navigate = useNavigate();
+  //adress
+  let adress = "City wiaam";
+  //pdf file
+  const [selectedFile, setSelectedFile] = useState(null);
+  //user image
+  const [selectedImage, setSelectedImage] = useState(null);
+  //birth certificate number
+  const [birthCertificateNumber, setBirthCertificateNumber] = useState("");
+  const [validBirthCertificateNumber, setValidBirthCertificateNumber] =
+    useState(false);
+  const [birthCertificateNumberFocus, setBirthCertificateNumberFocus] =
+    useState(false);
+  //Date of passport's expiration
+  const [passportExpiration, setPassportExpiration] = useState(null);
+  const [validPassportExpiration, setValidPassportExpiration] = useState(false);
+  const [passportExpirationFocus, setPassportExpirationFocus] = useState(false);
+  let passportExp = dayjs(passportExpiration?.$d).format("YYYY-MM-DD");
+
+  //Passport Number
+  const [passportNumber, setPassportNumber] = useState("");
+  const [validPassportNumber, setValidPassportNumber] = useState(false);
+  const [passportNumberFocus, setPassportNumberFocus] = useState(false);
 
   //State  options
   const [stateOptions, setStateOptions] = useState([]);
@@ -27,9 +60,11 @@ const Participation = () => {
   const [ninFocus, setNinFocus] = useState(false);
 
   //Birthday
-  const [birthday, setBirthday] = useState("");
+  const [birthday, setBirthday] = useState(null);
   const [validBirthday, setValidBirthday] = useState(false);
   const [birthdayFocus, setBirthdayFocus] = useState(false);
+  let userBirthDate = dayjs(birthday?.$d).format("YYYY-MM-DD");
+
   //Phone Number
   const [phoneNumber, setPhoneNumber] = useState("");
   const [validPhoneNumber, setValidPhoneNumber] = useState(false);
@@ -44,12 +79,39 @@ const Participation = () => {
   const [validMunicipal, setValidMunicipal] = useState(false);
 
   useEffect(() => {
-    setValidNin(NIN.test(nin));
-  }, [nin]);
+    setValidBirthCertificateNumber(birthCert.test(birthCertificateNumber));
+  }, [birthCertificateNumber]);
 
   useEffect(() => {
-    setValidBirthday(date.test(birthday));
-  }, [birthday]);
+    setValidNin(NIN.test(nin));
+  }, [nin]);
+  useEffect(() => {
+    setValidPassportNumber(passport.test(passportNumber));
+  }, [passportNumber]);
+
+  // Age and birthday check
+  const calculateAge = (birthdate) => {
+    const birthDate = dayjs(birthdate);
+    const age = today.diff(birthDate, "year");
+
+    return age;
+  };
+
+  useEffect(() => {
+    if (calculateAge(userBirthDate) >= 18) {
+      setValidBirthday(true);
+    } else {
+      setValidBirthday(false);
+    }
+  }, [userBirthDate]);
+  //----------------------------------------------------
+
+  useEffect(() => {
+    if (passportExpiration) {
+      const differenceInMonths = passportExpiration.diff(today, "months");
+      setValidPassportExpiration(differenceInMonths >= 6);
+    }
+  }, [passportExpiration, passportExp]);
 
   useEffect(() => {
     setValidPhoneNumber(Number.test(phoneNumber));
@@ -58,13 +120,6 @@ const Participation = () => {
   useEffect(() => {
     setValidState(state);
   }, [state]);
-
-  if (parseInt(state) === 21) {
-    console.log("state is int");
-  }
-  if (parseInt(municipal) === 362) {
-    console.log("municipal is int");
-  }
 
   useEffect(() => {
     setValidMunicipal(municipal);
@@ -113,7 +168,6 @@ const Participation = () => {
     fetchData();
   }, [state]);
 
-  console.log(municipal);
   const handleWilaya = (e) => {
     setState(e.target.value);
   };
@@ -122,18 +176,22 @@ const Participation = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("entered");
     e.preventDefault();
+    console.log(selectedImage);
+
     if (
       validBirthday &&
       validNin &&
       validPhoneNumber &&
       validState &&
-      validMunicipal
+      validMunicipal &&
+      validBirthCertificateNumber &&
+      validPassportExpiration &&
+      validPassportNumber &&
+      selectedFile &&
+      selectedImage
     ) {
-
       const access = localStorage.getItem("accessToken");
-
 
       try {
         const response = await axios.post(
@@ -141,23 +199,28 @@ const Participation = () => {
           {
             nin: nin,
             phone_number: phoneNumber,
-            birth_date: birthday,
+            birth_date: userBirthDate,
             municipal: parseInt(municipal),
             wilaya: parseInt(state),
+            passport_number: passportNumber,
+            passport_expiration_date: passportExp,
+            birth_certificate_number: birthCertificateNumber,
+            files: selectedFile,
+            address: adress,
+            picture: selectedImage,
           },
           {
             headers: {
+              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${access}`,
             },
           }
         );
         console.log(response.data);
-        console.log("here");
-
 
         if (response.status === 201) {
-
-          navigate("/Home/Draw");
+          localStorage.setItem("Status", "P");
+          navigate("/home/message");
         }
       } catch (error) {
         console.error("Error:", error);
@@ -171,10 +234,18 @@ const Participation = () => {
     const data = {
       nin: nin,
       phone_number: phoneNumber,
-      birth_date: birthday,
-      municipal: municipal,
-      wilaya: state,
+      birth_date: userBirthDate,
+      municipal: parseInt(municipal),
+      wilaya: parseInt(state),
+      passport_number: passportNumber,
+      passport_expiration_date: passportExp,
+      birth_certificate_number: birthCertificateNumber,
+      files: selectedFile,
+      address: adress,
+      profile_pic: selectedImage,
     };
+    setAuth({ data });
+    console.log(data);
     localStorage.setItem("ParticipateData", data);
     navigate("/Participate/Companion");
   };
@@ -186,15 +257,17 @@ const Participation = () => {
       </Link>
       <Box
         sx={{
+          border: "1px solid black",
           position: "absolute",
           transform: "translate(-50%,-50%)",
           left: "50%",
           top: "50%",
-          maxHeight: "100vh",
-          width: 500,
+          maxHeight: "100%",
+          width: 1000, //changes also in col direction
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          gap: 2,
           //mt: 10,
           p: 5,
           borderRadius: 10,
@@ -217,129 +290,293 @@ const Participation = () => {
 
         <Box
           sx={{
+            gap: 2,
             p: 2,
-            width: 400,
+            width: 800, //400 in the column direction
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            alignItems: "center ",
           }}
         >
           <form className="auth-form Login-form" onSubmit={handleSubmit}>
-            <div
-              className={
-                !validNin && nin && !ninFocus ? "invalid-input" : "input"
-              }
-            >
-              <FaIdCard fontSize="medium" className="icon" />
-              <input
-                type="text"
-                placeholder="NIN"
-                onChange={(e) => setNin(e.target.value)}
-                onFocus={() => setNinFocus(true)}
-                onBlur={() => setNinFocus(false)}
-                required
-              />
-            </div>
-            {!validNin && nin && !ninFocus && (
-              <div className="error-container">
-                <span className="error-msg">
-                  Please enter a valid NIN -18 Numbers-
-                </span>
-              </div>
-            )}
-            <div
-              className={
-                !validBirthday && birthday && !birthdayFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <CalendarMonthIcon className="icon" />
-              <input
-                type="text"
-                placeholder="Birthday (YYYY-MM-DD)"
-                onChange={(e) => setBirthday(e.target.value)}
-                onFocus={() => setBirthdayFocus(true)}
-                onBlur={() => setBirthdayFocus(false)}
-                required
-              />
-            </div>
-            {!validBirthday && birthday && !birthdayFocus && (
-              <div className="error-container">
-                <span className="error-msg">invalid date : YYYY-MM-DD </span>
-              </div>
-            )}
-
-            <div
-              className={
-                !validPhoneNumber && phoneNumber && !phoneNumberFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-            >
-              <LocalPhoneIcon className="icon" />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                onFocus={() => setPhoneNumberFocus(true)}
-                onBlur={() => setPhoneNumberFocus(false)}
-                required
-              />
-            </div>
-            {!validPhoneNumber && phoneNumber && !phoneNumberFocus && (
-              <div className="error-container">
-                <span className="error-msg">
-                  Invalid phone number , example:0755555555
-                </span>
-              </div>
-            )}
-
-            {/* --------------- State selection ------------- */}
-
-            <div className={!validState && state ? "invalid-input" : "input"}>
-              <select
-                required
-                className="custom-select"
-                onChange={handleWilaya}
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- Passport Number ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validPassportNumber && passportNumber && !passportNumberFocus
+                    ? "invalid-input"
+                    : "input"
+                }
               >
-                <option value="">Select Wilaya</option>
-                {stateOptions.map((option) => (
-                  <option key={option.label} value={option.label}>
-                    {option.value}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/*------------------- State selection end---------------*/}
-
-            {/* --------------- Municipal selection ------------- */}
-
-            <div
-              className={
-                !validMunicipal && municipal ? "invalid-input" : "input"
-              }
-            >
-              <select
-                required
-                className="custom-select"
-                onChange={handleMunicipal}
+                <FaIdCard fontSize="large" className="icon" />
+                <input
+                  type="text"
+                  placeholder="Passport Number"
+                  onChange={(e) => setPassportNumber(e.target.value)}
+                  onFocus={() => setPassportNumberFocus(true)}
+                  onBlur={() => setPassportNumberFocus(false)}
+                  required
+                />
+                {!validPassportNumber &&
+                  passportNumber &&
+                  !passportNumberFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      Please enter a valid Passport Number -9 Numbers-
+                    </span>
+                  )}
+              </div>
+              {/* ----------------- Birthday input ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validBirthday && birthday && !birthdayFocus
+                    ? "invalid-input"
+                    : "input"
+                }
               >
-                <option value="">Select Municipal</option>
-                {municipalOptions.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {option.value}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    onFocus={() => setBirthdayFocus(true)}
+                    onBlur={() => setBirthdayFocus(false)}
+                    value={birthday}
+                    onChange={(newValue) => setBirthday(newValue)}
+                    format={"DD/MM/YYYY"}
+                    sx={{
+                      "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                        { border: "none" },
+                      "& input": {
+                        fontWeight: 400,
+                        fontSize: "16px",
+                        color: "black",
+                      },
+                    }}
+                    slotProps={{
+                      textField: { placeholder: "Birth date" },
 
-            {/*------------------- Municipal selection end---------------*/}
+                      inputAdornment: {
+                        position: "start",
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+
+                {!validBirthday && birthday && !birthdayFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    you must be at least 18 years old
+                  </span>
+                )}
+              </div>
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- Date of passport's expiration ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validPassportExpiration &&
+                  passportExpiration &&
+                  !passportExpirationFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    onFocus={() => setPassportExpirationFocus(true)}
+                    onBlur={() => setPassportExpirationFocus(false)}
+                    value={passportExpiration}
+                    onChange={(newValue) => setPassportExpiration(newValue)}
+                    format={"DD/MM/YYYY"}
+                    minDate={dayjs()}
+                    sx={{
+                      "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                        { border: "none" },
+                      "& input": {
+                        fontWeight: 400,
+                        fontSize: "16px",
+                        color: "black",
+                      },
+                    }}
+                    slotProps={{
+                      textField: {
+                        placeholder: "Date of passport’s expiration ",
+                      },
+
+                      inputAdornment: {
+                        position: "start",
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+
+                {!validPassportExpiration &&
+                  passportExpiration &&
+                  !passportExpirationFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      Passport expires in less than 6 months
+                    </span>
+                  )}
+              </div>
+              {/* ----------------- Birth Certificate number ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validBirthCertificateNumber &&
+                  birthCertificateNumber &&
+                  !birthCertificateNumberFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <BadgeIcon className="icon" />
+                <input
+                  type="text"
+                  placeholder="Birth Certificate Number"
+                  onChange={(e) => setBirthCertificateNumber(e.target.value)}
+                  onFocus={() => setBirthCertificateNumberFocus(true)}
+                  onBlur={() => setBirthCertificateNumberFocus(false)}
+                  required
+                />
+                {!validBirthCertificateNumber &&
+                  birthCertificateNumber &&
+                  !birthCertificateNumberFocus && (
+                    <span style={{ top: "45px" }} className="error-msg">
+                      invalid birth certificate number -5 Numbers-
+                    </span>
+                  )}
+              </div>
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* ----------------- NIN ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validNin && nin && !ninFocus ? "invalid-input" : "input"
+                }
+              >
+                <FaIdCard fontSize="large" className="icon" />
+                <input
+                  type="text"
+                  placeholder="NIN"
+                  onChange={(e) => setNin(e.target.value)}
+                  onFocus={() => setNinFocus(true)}
+                  onBlur={() => setNinFocus(false)}
+                  required
+                />
+                {!validNin && nin && !ninFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Please enter a valid NIN -18 Numbers-
+                  </span>
+                )}
+              </div>
+              {/* ----------------- Phone Number input ----------------- */}
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validPhoneNumber && phoneNumber && !phoneNumberFocus
+                    ? "invalid-input"
+                    : "input"
+                }
+              >
+                <LocalPhoneIcon className="icon" />
+                <input
+                  type="text"
+                  placeholder="Phone Number"
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onFocus={() => setPhoneNumberFocus(true)}
+                  onBlur={() => setPhoneNumberFocus(false)}
+                  required
+                />
+                {!validPhoneNumber && phoneNumber && !phoneNumberFocus && (
+                  <span style={{ top: "45px" }} className="error-msg">
+                    Invalid phone number , example:0755555555
+                  </span>
+                )}
+              </div>
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* --------------- State selection ------------- */}
+
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={!validState && state ? "invalid-input" : "input"}
+              >
+                <select
+                  required
+                  className="custom-select"
+                  onChange={handleWilaya}
+                >
+                  <option value="">Select Wilaya</option>
+                  {stateOptions.map((option) => (
+                    <option key={option.label} value={option.label}>
+                      {option.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/* --------------- Municipal selection ------------- */}
+
+              <div
+                style={{ position: "relative", width: "350px" }}
+                className={
+                  !validMunicipal && municipal ? "invalid-input" : "input"
+                }
+              >
+                <select
+                  required
+                  className="custom-select"
+                  onChange={handleMunicipal}
+                >
+                  <option value="">Select Municipal</option>
+                  {municipalOptions.map((option) => (
+                    <option key={option.key} value={option.key}>
+                      {option.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </Stack>
+            <Stack direction={"row"} spacing={2} sx={{ mb: 3 }}>
+              {/* -----------------USER image ----------------- */}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setSelectedImage(e.target.files[0])}
+                  id="uploadButton"
+                />
+                <label htmlFor="uploadButton">
+                  <AccountBoxIcon sx={{ mr: 2, color: "rgb(0, 0, 0, 0.7)" }} />
+                  User image
+                </label>
+              </div>
+
+              {/* --------------- PDF proof images ------------- */}
+              <div>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  required
+                  id="PDFbutton"
+                />
+                <label htmlFor="PDFbutton">
+                  <UploadFileIcon sx={{ mr: 2, color: "rgb(0, 0, 0, 0.7)" }} />
+                  Upload PDF Proof images
+                </label>
+              </div>
+            </Stack>
+
+            {/*------------------- Button---------------*/}
 
             {gender === "M" && (
               <div className="sub-but">
-                <button className="button" onClick={handleSubmit}>
+                <button
+                  className="button"
+                  onClick={handleSubmit}
+                  style={{ width: "350px" }}
+                >
                   Confirm
                 </button>
               </div>

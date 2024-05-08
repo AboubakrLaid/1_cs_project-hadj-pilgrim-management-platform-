@@ -10,6 +10,17 @@ const Home = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const name = localStorage.getItem("name");
+  let phase = localStorage.getItem("process");
+
+  if (phase === "I") {
+    phase = 1;
+  } else if (phase === "L") {
+    phase = 2;
+  } else if (phase === "v") {
+    phase = 3;
+  } else if (phase === "p") {
+    phase = 4;
+  }
 
   const handleclick = () => {
     navigate("Draw");
@@ -57,18 +68,25 @@ const Home = () => {
             onClick={handleclick}
             src="/broken-image.jpg"
             sx={{
-              width: { xs: "70px", sm: "90px", md: "110px" },
-              height: { xs: "70px", sm: "90px", md: "110px" },
+              width: { xs: "70px", sm: "90px" },
+              height: { xs: "70px", sm: "90px" },
             }}
           />
-          <div style={{ color: "white", fontWeight: "600", marginTop: "10px" }}>
+          <div
+            style={{
+              color: "white",
+              fontWeight: "600",
+              marginTop: "10px",
+              fontSize: "16px",
+            }}
+          >
             {name}
           </div>
           <Box sx={{ mt: 1 }}>
             <button
               style={{
                 width: "110px",
-                height: "35px",
+                height: "30px",
                 borderRadius: "20px",
                 fontWeight: "600",
                 fontSize: "16px",
@@ -84,9 +102,7 @@ const Home = () => {
         <Box
           sx={{
             position: "relative",
-            border: "2px solid black",
             paddingTop: "20px",
-
             height: { xs: "100%", md: "70%" },
             background: "rgba(153, 105, 134, 0.95)",
             width: "100%",
@@ -94,15 +110,7 @@ const Home = () => {
             justifyContent: "center",
           }}
         >
-
-          <Box
-            sx={{
-              border: "2px solid red",
-            }}
-          >
-            {isXsMd ? <HorStepper /> : <Stepper />}
-          </Box>
-
+          <Box>{isXsMd ? <HorStepper /> : <Stepper Step={phase} />}</Box>
         </Box>
       </Box>
       <Box sx={{ width: "100%", overflow: "auto" }}>

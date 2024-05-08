@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import { Box } from "@mui/material";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
+import { Box, Checkbox, Stack } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import AuthContext from "../Context/AuthProvider";
 import { Link } from "react-router-dom";
 import axios from "../Api/base";
@@ -39,6 +40,7 @@ const Login = () => {
         const response = await axios.post("/auth/log-in", data);
         if (response.status === 200) {
           console.log(response);
+
           const responseData = response.data;
           const accessToken = responseData?.access;
           const refreshToken = responseData?.refresh;
@@ -50,14 +52,23 @@ const Login = () => {
           localStorage.setItem("role", responseData?.role);
           localStorage.setItem("name", name);
           localStorage.setItem("gender", gender);
-          localStorage.setItem("Status", responseData?.user_status);
+          localStorage.setItem(
+            "Status",
+            response?.data?.user_status?.status?.status
+          );
+          localStorage.setItem(
+            "process",
+            response?.data?.user_status?.status?.process
+          );
           localStorage.setItem("email", email);
           setAuth({ name, role, accessToken, refreshToken });
           if (role === "Admin" || role === "GeneralAdmin") {
             navigate("/Admin");
+            localStorage.setItem("wilaya", response?.data?.wilaya?.name);
+            localStorage.setItem("wilaya_id", response?.data?.wilaya?.id);
           }
           if (role === "Candidate") {
-            if (!responseData?.user_status) {
+            if (responseData?.user_status?.pahse == null) {
               navigate("/");
             } else {
               navigate("/Home");
@@ -68,6 +79,7 @@ const Login = () => {
         }
       } catch (error) {
         console.error("Error:", error);
+
         alert("Request failed : Invalid cardenalities");
       }
     } else {
@@ -96,7 +108,7 @@ const Login = () => {
         <h5
           style={{
             color: "#000000",
-            fontWeight: "bold",
+            fontWeight: 500,
             fontSize: "30px",
             height: 51,
           }}
@@ -123,7 +135,7 @@ const Login = () => {
                 !validEmail && email && !emailFocus ? "invalid-input" : "input"
               }
             >
-              <EmailIcon fontSize="medium" className="icon" />
+              <EmailOutlinedIcon fontSize="medium" className="icon" />
               <input
                 type="text"
                 placeholder="Email"
@@ -145,7 +157,7 @@ const Login = () => {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <LockOutlinedIcon className="icon" />
               <input
                 type="password"
                 placeholder="Password"
@@ -160,9 +172,39 @@ const Login = () => {
                 <span className="error-msg">invalid password </span>
               </div>
             )}
-            <Link to="/Forget-Password" className="Forgot-pass">
-              Forgot password?
-            </Link>
+            <Stack
+              direction={"row"}
+              sx={{
+                position: "relative",
+                height: "30px",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <FormControlLabel
+                sx={{
+                  height: "30px",
+                  width: "50%",
+                  color: "rgba(0, 0, 0, 0.5)",
+                }}
+                control={<Checkbox />}
+                label="Remember me"
+              />
+
+              <Link
+                to="/Forget-Password"
+                className="Forgot-pass"
+                style={{
+                  height: "30px",
+                  display: "inline-block",
+                  position: "relative",
+                  top: 0,
+                  width: "50%",
+                }}
+              >
+                Forgot password?
+              </Link>
+            </Stack>
 
             <div className="sub-but">
               <button className="button" onClick={handleSubmit}>
