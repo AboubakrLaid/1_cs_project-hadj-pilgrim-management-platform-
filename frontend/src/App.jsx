@@ -14,6 +14,15 @@ import Method from "./content/Admin/Method";
 import Participation from "./content/Hajj-participation/Participation";
 import Companion from "./content/Hajj-participation/Companion";
 import Draw from "./content/Candidate/Draw";
+import Members from "./content/Admin/Members";
+import NewDoctor from "./content/Admin/NewDoctor";
+import Doctors from "./content/Admin/Doctors";
+import Message from "./content/Candidate/Message";
+import Lottery from "./content/Admin/Lottery";
+import Admins from "./content/Admin/Admins";
+import DrawType from "./Components/DrawType";
+import Grouping from "./Components/Grouping";
+import VisitMed from "./content/Candidate/VisitMed";
 
 function App() {
   return (
@@ -21,9 +30,11 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
-
+          <Route path="/NewDoctor" element={<NewDoctor />} />
           <Route path="/Home" element={<Home />}>
             <Route path="Draw" element={<Draw />} />
+            <Route path="Message" element={<Message />} />
+            <Route path="VisitMed" element={<VisitMed />} />
           </Route>
           <Route exact path="/Login" element={<Login />} />
           <Route path="/Register" element={<Signup />} />
@@ -35,6 +46,12 @@ function App() {
             <Route path="Season" element={<Season />} />
             <Route path="NewSeason" element={<NewSeason />} />
             <Route path="Method" element={<Method />} />
+            <Route path="Members" element={<Members />} />
+            <Route path="Doctors" element={<Doctors />} />
+            <Route path="Lottery" element={<Lottery />} />
+            <Route path="Admins" element={<Admins />} />
+            <Route path="DrawType" element={<DrawType />} />
+            <Route path="Grouping" element={<Grouping />} />
           </Route>
           <Route path="/Participate" element={<Participation />} />
           <Route path="/Participate/Companion" element={<Companion />} />

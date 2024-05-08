@@ -111,7 +111,7 @@ const Content3 = () => {
         <div className="Content3-Img2">
           <div className="image-wrapper2" />
         </div>
-        <div className="Content3-Img2">
+        <div className="Content3-Img3">
           <div className="image-wrapper3" />
         </div>
       </Box>

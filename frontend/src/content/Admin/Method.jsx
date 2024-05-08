@@ -3,25 +3,44 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { Box, Stack, Alert } from "@mui/material";
 import { useEffect, useState } from "react";
 
-const data = [
-  { id: 0, value: 1, label: "one time" },
-  { id: 1, value: 1, label: "from 2 to 4" },
-  { id: 2, value: 1, label: "more than 4" },
-];
-
-const data2 = [
-  { id: 0, value: 1, label: "< 50" },
-  { id: 1, value: 1, label: "50-70" },
-  { id: 2, value: 1, label: ">70" },
-];
-
 const Method = () => {
-  const [stats, setStats] = useState([]);
+  const [algoExists, setAlgoExists] = useState(null);
+  const [statsParticipation, setStatsParticipation] = useState([]);
+  const [statsAge, setStatsAge] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [alertsuc, setAlertSuc] = useState(false);
   const [alertErr, setAlertErr] = useState(false);
   const [alertInfo, setAlertInfo] = useState(false);
   const [err, setErr] = useState("");
+  //categories inputs
+  const [elderlyMinAge, setElderlyMinAge] = useState("");
+  const [elderlyPercentage, setElderlyPercentage] = useState("");
+  const [category1MinAge, setCategory1MinAge] = useState("");
+  const [category1Percentage, setCategory1Percentage] = useState("");
+  const [category2MinAge, setCategory2MinAge] = useState("");
+  const [category2Percentage, setCategory2Percentage] = useState("");
+  const [category3MinAge, setCategory3MinAge] = useState("");
+  const [category3Percentage, setCategory3Percentage] = useState("");
+
+  const isConfirmEnabled = () => {
+    switch (selectedMethod) {
+      case "Age Priority & Registration Priority":
+        return elderlyMinAge !== "" && elderlyPercentage !== "";
+      case "Age Priority":
+        return (
+          category1MinAge !== "" &&
+          category1Percentage !== "" &&
+          category2MinAge !== "" &&
+          category2Percentage !== "" &&
+          category3MinAge !== "" &&
+          category3Percentage !== ""
+        );
+      case "Registration Priority":
+        return true;
+      default:
+        return false;
+    }
+  };
 
   const hideAlert = () => {
     setTimeout(() => {
@@ -32,8 +51,9 @@ const Method = () => {
   };
 
   const handleCheckboxChange = (method) => {
-    setSelectedMethod((prevMethod) => (prevMethod === method ? null : method));
+    setSelectedMethod(method);
   };
+  console.log(selectedMethod);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,8 +64,47 @@ const Method = () => {
             Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
           },
         });
+        if (response.status === 200) {
+          console.log(response);
+          const totalParticipants = response.data.total_participants;
+          const numberOfParticipationData = Object.entries(
+            response?.data.participation_counts_pourcentages
+          ).map(([label, percentage], index) => ({
+            id: index,
+            value: Math.round((percentage / 100) * totalParticipants),
+            label: label === "more_than_four" ? ">4" : label.replace(/_/g, " "),
+          }));
+          const ageStats = Object.entries(
+            response.data.age_groups_pourcentages
+          ).map(([label, percentage], index) => {
+            let formattedLabel;
 
-        setStats(response?.data);
+            if (label === "under_30") {
+              formattedLabel = "<30";
+            } else if (label === "between_31_40") {
+              formattedLabel = "31-40";
+            } else if (label === "between_41_50") {
+              formattedLabel = "41-50";
+            } else if (label === "between_51_60") {
+              formattedLabel = "51-60";
+            } else if (label === "between_61_70") {
+              formattedLabel = "61-70";
+            } else if (label === "above_71") {
+              formattedLabel = ">71";
+            } else {
+              formattedLabel = label.replace(/_/g, " ");
+            }
+
+            return {
+              id: index,
+              value: Math.round((percentage / 100) * totalParticipants),
+              label: formattedLabel,
+            };
+          });
+          setStatsParticipation(numberOfParticipationData);
+          setStatsAge(ageStats);
+          console.log(statsParticipation);
+        }
       } catch (error) {
         // Handle network errors or Axios request errors
         console.error("Error:", error);
@@ -54,26 +113,63 @@ const Method = () => {
 
     fetchData(); // Call the async function to execute it
   }, []);
+  console.log(statsParticipation);
 
-  const handleSubmit = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!selectedMethod) {
       return;
     }
 
     // Get the access token from localStorage
-    const accessToken = localStorage.getItem("accessToken");
 
     // Prepare the request body
-    const requestBody = {
-      algorithm:
-        selectedMethod === "Random"
-          ? "RND"
-          : selectedMethod === "Age Priority"
-          ? "PRT"
-          : selectedMethod === "Registration Priority"
-          ? "WTD"
-          : "HYB",
-    };
+    let requestBody = {};
+    switch (selectedMethod) {
+      case "Age Priority & Registration Priority":
+        requestBody = {
+          algorithm: "AR",
+          values: {
+            threshold: parseInt(elderlyMinAge), // Assuming category1MinAge is available in your state
+            percentage: parseFloat(elderlyPercentage), // Assuming category1Percentage is available in your state
+          },
+        };
+        break;
+      case "Age Priority":
+        requestBody = {
+          algorithm: "A",
+          values: {
+            categories: [
+              {
+                min: parseInt(category1MinAge),
+                max: parseInt(category2MinAge) - 1, // Assuming category1MinAge is available in your state
+                percentage: parseFloat(category1Percentage), // Assuming category1Percentage is available in your state
+              },
+              {
+                min: parseInt(category2MinAge), // Incrementing by 1 from the previous max value
+                max: parseInt(category3MinAge) - 1, // Assuming category2MinAge is available in your state
+                percentage: parseFloat(category2Percentage), // Assuming category2Percentage is available in your state
+              },
+              {
+                min: parseInt(category3MinAge), // Incrementing by 1 from the previous max value
+                max: 1000, // Assuming category2MinAge is available in your state
+                percentage: parseFloat(category3Percentage), // Assuming category2Percentage is available in your state
+              },
+            ],
+          },
+        };
+        break;
+      case "Registration Priority":
+        requestBody = {
+          algorithm: "R",
+        };
+        break;
+      default:
+        return;
+    }
+    console.log(requestBody);
 
     try {
       const response = await axios.post("/lottery/algorithm", requestBody, {
@@ -85,6 +181,7 @@ const Method = () => {
         setAlertSuc(true);
         setErr("Algorithme is now registred");
         hideAlert();
+        setSelectedMethod(null);
       } else {
         setAlertErr(true);
         setErr("There is no active season at the moment");
@@ -98,6 +195,33 @@ const Method = () => {
     }
   };
 
+  //-----Get if there is an algorithm
+
+  useEffect(() => {
+    const fetchAlgo = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const response = await axios.get("/lottery/algorithm", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
+          },
+        });
+        if (response.status === 200) {
+          console.log(response);
+          if (response.data.algorithm) {
+            console.log("response data ", response.data);
+            setAlgoExists(response.data);
+            console.log("algo ", algoExists);
+          }
+        }
+      } catch (error) {
+        // Handle network errors or Axios request errors
+        console.error("Error:", error);
+      }
+    };
+
+    fetchAlgo(); // Call the async function to execute it
+  }, []);
   return (
     <Box
       sx={{
@@ -170,7 +294,7 @@ const Method = () => {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          width: "50%",
+          width: "40%",
         }}
       >
         <span style={{ fontWeight: 500, fontSize: "30px" }}>statistics</span>
@@ -191,7 +315,7 @@ const Method = () => {
           <PieChart
             series={[
               {
-                data,
+                data: statsParticipation,
                 highlightScope: { faded: "global", highlighted: "item" },
                 faded: { innerRadius: 30, additionalRadius: -5, color: "gray" },
                 innerRadius: 30,
@@ -230,7 +354,7 @@ const Method = () => {
           <PieChart
             series={[
               {
-                data: data2,
+                data: statsAge,
                 highlightScope: { faded: "global", highlighted: "item" },
                 faded: { innerRadius: 30, additionalRadius: -5, color: "gray" },
                 innerRadius: 30,
@@ -260,79 +384,145 @@ const Method = () => {
         sx={{
           position: "relative",
           height: "100%",
-          alignItems: "center",
+
           justifyContent: "center",
-          width: "50%",
+          width: "60%",
         }}
       >
-        <span style={{ fontWeight: 500, fontSize: "16px" }}>
-          Explore the different draw algorithm options and select the one that
-          ligns with the overview depicted in the circle diagrams
-        </span>
+        <Stack
+          direction={"row"}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "90%",
+            padding: "10px",
+          }}
+        >
+          <span style={{ fontWeight: 500, fontSize: "36px" }}>Algorithm</span>
+          {selectedMethod && (
+            <button
+              className="button"
+              style={{ width: "25%", height: "50px", borderRadius: "15px" }}
+              onClick={handleSubmit}
+              disabled={!isConfirmEnabled()}
+            >
+              Confirm
+            </button>
+          )}
+        </Stack>
         <div className="Lottery-methods">
           <div className="Methods-box">
             <input
               type="checkbox"
-              checked={selectedMethod === "Random"}
-              onChange={() => handleCheckboxChange("Random")}
-            />
-            <label>Random</label>
-          </div>
-          <p>
-            Providing each candidate an equal chance of being chosen, regardless
-            of external factors
-          </p>
-          <div className="Methods-box">
-            <input
-              type="checkbox"
-              checked={selectedMethod === "Age Priority"}
-              onChange={() => handleCheckboxChange("Age Priority")}
-            />
-            <label>Age Priority</label>
-          </div>
-          <p>
-            Considering the age of participants as a key factor in the selection
-            process
-          </p>
-          <div className="Methods-box">
-            <input
-              type="checkbox"
-              checked={selectedMethod === "Registration Priority"}
-              onChange={() => handleCheckboxChange("Registration Priority")}
-            />
-            <label>Registration Priority</label>
-          </div>
-          <p>
-            Considering the frequency of a candidate's participation in the Hajj
-            draw
-          </p>
-          <div className="Methods-box">
-            <input
-              type="checkbox"
               checked={
-                selectedMethod === "Age Priority & Registration Priority"
+                selectedMethod === "Age Priority & Registration Priority" ||
+                algoExists?.algorithm === "AR"
               }
               onChange={() =>
                 handleCheckboxChange("Age Priority & Registration Priority")
               }
+              disabled={algoExists ? true : false}
             />
-            <label>Age Priority & Registration Priority</label>
+            <label>Age & Registration priority</label>
           </div>
-          <p>Considering the 2 options in one algorithm</p>
+          <div className="options">
+            <label>Min age for elderly [2nd draw]</label>
+            <input
+              disabled={algoExists ? true : false}
+              defaultValue={algoExists ? algoExists?.values?.threshold : ""}
+              onChange={(e) => setElderlyMinAge(e.target.value)}
+              type="text"
+            />
+            <label>Percentage</label>
+            <input
+              defaultValue={algoExists ? algoExists?.values?.percentage : ""}
+              disabled={algoExists ? true : false}
+              onChange={(e) => setElderlyPercentage(e.target.value)}
+              type="text"
+            />
+          </div>
+          <div className="Methods-box">
+            <input
+              type="checkbox"
+              checked={
+                selectedMethod === "Age Priority" ||
+                algoExists?.algorithm === "A"
+              }
+              onChange={() => handleCheckboxChange("Age Priority")}
+              disabled={algoExists ? true : false}
+            />
+            <label>Age Category</label>
+          </div>
+          <div>
+            <div className="options">
+              <label>Min age for 1st category</label>
+              <input
+                defaultValue={algoExists?.values?.categories?.[0]?.min ?? ""}
+                onChange={(e) => setCategory1MinAge(e.target.value)}
+                type="text"
+                disabled={algoExists ? true : false}
+              />
+              <label>Percentage</label>
+              <input
+                defaultValue={
+                  algoExists?.values?.categories?.[0]?.percentage ?? ""
+                }
+                onChange={(e) => setCategory1Percentage(e.target.value)}
+                type="text"
+                disabled={algoExists ? true : false}
+              />
+            </div>
+            <div className="options">
+              <label> Min age for 2nd category</label>
+              <input
+                defaultValue={algoExists?.values?.categories?.[1]?.min ?? ""}
+                onChange={(e) => setCategory2MinAge(e.target.value)}
+                type="text"
+                disabled={algoExists ? true : false}
+              />
+              <label>Percentage</label>
+              <input
+                defaultValue={
+                  algoExists?.values?.categories?.[1]?.percentage ?? ""
+                }
+                onChange={(e) => setCategory2Percentage(e.target.value)}
+                type="text"
+                disabled={algoExists ? true : false}
+              />
+            </div>
+            <div className="options">
+              <label>Min age for 3rd category</label>
+              <input
+                defaultValue={algoExists?.values?.categories?.[2]?.min ?? ""}
+                onChange={(e) => setCategory3MinAge(e.target.value)}
+                type="text"
+                disabled={algoExists ? true : false}
+              />
+              <label>Percentage</label>
+              <input
+                onChange={(e) => setCategory3Percentage(e.target.value)}
+                type="text"
+                defaultValue={
+                  algoExists?.values?.categories?.[2]?.percentage ?? ""
+                }
+                disabled={algoExists ? true : false}
+              />
+            </div>
+          </div>
+          <div className="Methods-box">
+            <input
+              type="checkbox"
+              checked={
+                selectedMethod === "Registration Priority" ||
+                algoExists?.algorithm === "R"
+              }
+              onChange={() => handleCheckboxChange("Registration Priority")}
+              disabled={algoExists ? true : false}
+            />
+            <label>Registration Priority</label>
+          </div>
         </div>
-
-        {selectedMethod && (
-          <button
-            onClick={handleSubmit}
-            className="button"
-            style={{
-              width: "150px",
-              height: "50px",
-            }}
-          >
-            Confirm
-          </button>
-        )}
       </Stack>
     </Box>
   );
