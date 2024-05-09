@@ -5,7 +5,8 @@ from .views import (
     statistics,
     launch_lottery,
     reset_lottery,
-    is_lottery_done
+    is_lottery_done,
+    lotter_participants
 )
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
     path('algorithm', lottery_algorithm),
     path('statistics', statistics),
     path('result', launch_lottery),
+    path("participants", lotter_participants, name=""),
     path('reset', reset_lottery),
     
     # path('v2/statistics', optimized_statistics),
