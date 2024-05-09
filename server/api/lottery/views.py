@@ -159,7 +159,7 @@ def statistics(_):
 
 
 @api_view(['GET'])
-# @permission_classes([IsAdminUser])
+@permission_classes([IsAdminUser])
 def is_lottery_done(request):
     user = request.user
     wilaya = user.admin_profile.object_id
@@ -172,7 +172,94 @@ def is_lottery_done(request):
         
     return Response({"done": done, "all": alll}, status=status.HTTP_200_OK)
 
-@api_view(["POST", "GET"])
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def lotter_participants(request):
+    data = request.data
+    municipals = data.get("municipals")
+    if municipals is None:
+        return Response(
+            {"success": False, "msg": "Please provide the municipals"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    
+    result = []
+    response = {}
+    response["total"] = 0
+
+    try:
+        participants_ids = list(
+            ParticipantStatusPhase.objects.filter(
+                participant__personal_profile__municipal__in=municipals
+            ).values_list("participant", flat=True)
+        )
+    except ParticipantStatusPhase.DoesNotExist:
+        return Response(
+            {"success": False, "msg": "No participants found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    try:
+        # users will be like {id: user_object}
+        users = User.objects.filter(id__in=participants_ids).in_bulk()
+    except User.DoesNotExist:
+        return Response(
+            {"success": False, "msg": "No users found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+        
+    try:    
+        # specify user_id as field_name to use it as the key in the dictionary
+        users_inscription = UserInscriptionHistory.objects.filter(
+            user__id__in=participants_ids
+        ).in_bulk(field_name="user_id")
+        users_personal_profile = PersonalProfile.objects.filter(
+            user__id__in=participants_ids
+        ).in_bulk(field_name="user_id")
+    except UserInscriptionHistory.DoesNotExist:
+        return Response(
+            {"success": False, "msg": "No users inscription found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    except PersonalProfile.DoesNotExist:
+        return Response(
+            {"success": False, "msg": "No personal profiles found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    for user_id in participants_ids:
+        user = users.get(user_id)
+        profile = users_personal_profile.get(user_id)
+        inscription = users_inscription.get(user_id)
+        if user:
+            gender = user.gender
+            try:
+                companion = user.companion
+            except:
+                companion = None
+
+            result.append(
+                {
+                    "nin": profile.nin if profile else None,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "gender": gender,
+                    "inscription_count": (
+                        inscription.inscription_count if inscription else 0
+                    ),
+                    "c_first_name": companion.first_name if companion else None,
+                    "c_last_name": companion.last_name if companion else None,
+                }
+            )
+
+            response["total"] = len(participants_ids)
+            response["participants"] = result
+
+    return Response(response, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
 @permission_classes([IsAdminUser])
 def launch_lottery(request):
     data = request.data
@@ -183,70 +270,27 @@ def launch_lottery(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    else:
-        if request.method == "GET":
+    
 
-            result = []
-            response = {}
-            response["total"] = 0
-
-            participants_ids = list(
-                ParticipantStatusPhase.objects.filter(
-                    participant__personal_profile__municipal__in=municipals
-                ).values_list("participant", flat=True)
-            )
-
-            # users will be like {id: user_object}
-            users = User.objects.filter(id__in=participants_ids).in_bulk()
-
-            # specify user_id as field_name to use it as the key in the dictionary
-            users_inscription = UserInscriptionHistory.objects.filter(
-                user__id__in=participants_ids
-            ).in_bulk(field_name="user_id")
-            users_personal_profile = PersonalProfile.objects.filter(
-                user__id__in=participants_ids
-            ).in_bulk(field_name="user_id")
-
-            for user_id in participants_ids:
-                user = users.get(user_id)
-                profile = users_personal_profile.get(user_id)
-                inscription = users_inscription.get(user_id)
-                if user:
-                    gender = user.gender
-
-                    result.append(
-                        {
-                            "nin": profile.nin if profile else None,
-                            "first_name": user.first_name,
-                            "last_name": user.last_name,
-                            "gender": gender,
-                            "inscription_count": (
-                                inscription.inscription_count if inscription else 0
-                            ),
-                        }
-                    )
-
-                    response["total"] = len(participants_ids)
-                    response["participants"] = result
-
-            return Response(response, status=status.HTTP_200_OK)
-
-        # for the POST method
-        algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
-        user = request.user
-        wilaya = user.admin_profile.object_id
-        algorithm_functions = {
-            LotteryAlgorithm.Algorithms.AGE_CATEGORIES: _age_category,
-            LotteryAlgorithm.Algorithms.AGE_REGISTRATION_PRIORITY: _age_registrations_priority,
-            LotteryAlgorithm.Algorithms.REGISTRATION_PRIORITY: _registration_priority,
-        }
+    algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
+    user = request.user
+    wilaya = user.admin_profile.object_id
+    algorithm_functions = {
+        LotteryAlgorithm.Algorithms.AGE_CATEGORIES: _age_category,
+        LotteryAlgorithm.Algorithms.AGE_REGISTRATION_PRIORITY: _age_registrations_priority,
+        LotteryAlgorithm.Algorithms.REGISTRATION_PRIORITY: _registration_priority,
+    }
+    try:
         result = algorithm_functions[algorithm.algorithm](municipals, wilaya, algorithm)
+    except KeyError:
+        return Response(
+            {"success": False, "msg": "Algorithm failed"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    for municipal in municipals:
+        Municipal.objects.filter(id=municipal).update(is_lottery_done=True)
 
-        for municipal in municipals:
-            Municipal.objects.filter(id=municipal).update(is_lottery_done=True)
-
-        return Response(result, status=status.HTTP_200_OK)
-
+    return Response(result, status=status.HTTP_200_OK)
 
 from users.models import UserStatus
 
