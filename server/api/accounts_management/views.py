@@ -1,10 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from roles.roles import IsAdminUser ,IsGeneralAdminUser
+from roles.roles import IsAdminUser ,IsCandidateUser
 from users.models import User
 from rest_framework.decorators import (api_view,permission_classes)
-from .models import MedicalAdminProfile
+from .models import MedicalAdminProfile , PatientHealthReview
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework import status
@@ -14,10 +14,15 @@ from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
 from django.db.models import Q
 from users.models import User, UserInscriptionHistory, UserStatus
 from personal_profile.models import PersonalProfile
-from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer ,HospitalsAdminSerializer
+from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer ,HospitalsAdminSerializer,HospitalScheduleSerializer
 from users.serializers import UserSerializer
 from municipal_wilaya.models import Wilaya, Hospital
 
+from rest_framework.decorators import api_view, permission_classes
+from collections import defaultdict
+
+from .models import PatientHealthReview
+from .serializers import PatientHealthReviewSerializer
 
 
 @api_view(["GET"])
@@ -275,3 +280,183 @@ def get_hospitals_in_wilaya(request):
         return Response({'error': 'Admin not found'}, status=status.HTTP_404_NOT_FOUND)
     except Hospital.DoesNotExist:
         return Response({'error': 'Hospitals not found for this wilaya'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsCandidateUser])
+def get_hospitals_in_wilaya_with_schedule(request):
+    try:
+        user_id = request.user.id
+        personal_profile = PersonalProfile.objects.get(user_id=user_id)
+        wilaya_id = personal_profile.wilaya_id
+        hospital_ids = list(Hospital.objects.filter(wilaya_id=wilaya_id).values_list('id', flat=True))
+        hospital_schedules = MedicalAdminProfile.objects.filter(object_id__in=hospital_ids)
+        serializer = HospitalScheduleSerializer(hospital_schedules, many=True)
+        schedules_by_hospital_day = defaultdict(lambda: defaultdict(list))
+        for schedule in serializer.data:
+            hospital_id = schedule['object_id']
+            hospital_name = Hospital.objects.get(id=hospital_id).name
+            for day_schedule in schedule['work_schedule']:
+                day = day_schedule['day']
+                times = day_schedule['times']
+                schedules_by_hospital_day[hospital_name][day].extend(times)
+        
+        hospitals_with_schedule = []
+            # Merge overlapping time ranges for each day in each hospital
+        for hospital_name, day_schedules in schedules_by_hospital_day.items():
+            for day, times in day_schedules.items():
+                day_schedules[day] = merge_time_ranges(day, times)
+
+            hospital_data = {
+                'hospital_name': hospital_name,
+                'work_schedule': [{'day': day, 'times': times} for day, times in day_schedules.items()]
+            }
+            hospitals_with_schedule.append(hospital_data)
+
+        return Response(hospitals_with_schedule)
+    except PersonalProfile.DoesNotExist:
+        return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Hospital.DoesNotExist:
+        return Response({'error': 'Hospitals not found for this wilaya'}, status=status.HTTP_404_NOT_FOUND)
+    
+def merge_time_ranges(day, times):
+    sorted_times = sorted(times)
+    merged_ranges = []
+    current_range_start = None
+    current_range_end = None
+
+    for time_range in sorted_times:
+        start, end = time_range.split('-')
+        start_hour, start_minute = start.split(':')
+        end_hour, end_minute = end.split(':')
+        start_time = int(start_hour) * 60 + int(start_minute)
+        end_time = int(end_hour) * 60 + int(end_minute)
+
+        if current_range_start is None:
+            current_range_start = start_time
+            current_range_end = end_time
+        elif start_time <= current_range_end:
+            current_range_end = max(current_range_end, end_time)
+        else:
+            merged_ranges.append((current_range_start, current_range_end))
+            current_range_start = start_time
+            current_range_end = end_time
+
+    if current_range_start is not None:
+        merged_ranges.append((current_range_start, current_range_end))
+
+    return [{ f"{start // 60:02d}:{start % 60:02d}-{end // 60:02d}:{end % 60:02d}" for start, end in merged_ranges}]
+
+# # Example usage
+# times = ["08:00-12:00", "14:00-16:00"]
+# result = merge_time_ranges("Monday", times)
+# print(result)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def add_patient_health_review(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if PatientHealthReview.objects.filter(user=user).exists():
+        return Response({'error': 'Patient review already exists for this user'}, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data.copy()
+    data['user'] = user.id
+
+    serializer = PatientHealthReviewSerializer(data=data)
+    if serializer.is_valid():
+        is_sick = serializer.validated_data.get('is_sick', False)
+        is_healthy = serializer.validated_data.get('is_healthy', False)
+        
+        if is_sick and not is_healthy:
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'is_sick': 'Patient must be sick to add diseases or treatments.'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def add_disease_to_review(request, pk):
+    patient_review = PatientHealthReview.objects.get(pk=pk)
+    new_disease = request.data.get('disease')
+    if not new_disease:
+        return Response({'error': 'Disease not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if new_disease not in patient_review.diseases.split(','):
+        if patient_review.diseases:
+            patient_review.diseases += ',' + new_disease
+        else:
+            patient_review.diseases = new_disease
+        patient_review.save()
+        return Response({'message': 'Disease added successfully'})
+    else:
+        return Response({'error': 'Disease already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def delete_disease_from_review(request, pk):
+    try:
+        patient = PatientHealthReview.objects.get(pk=pk)
+    except PatientHealthReview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    disease_to_delete = request.data.get('disease')
+    if not disease_to_delete:
+        return Response({'detail': 'Disease data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if disease_to_delete in patient.diseases:
+        patient.diseases = patient.diseases.replace(disease_to_delete, '').replace(',,', ',').strip(',')
+        patient.save()
+        return Response({'message': 'Disease deleted successfully'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'detail': 'Disease not found in patient\'s record'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def add_treatment_to_review(request, pk):
+    patient_review = PatientHealthReview.objects.get(pk=pk)
+    new_treatment = request.data.get('treatment')
+    if not new_treatment:
+        return Response({'error': 'Treatment not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if new_treatment not in patient_review.treatments.split(','):
+        if patient_review.treatments:
+            patient_review.treatments += ',' + new_treatment
+        else:
+            patient_review.treatments = new_treatment
+        patient_review.save()
+        return Response({'message': 'Treatment added successfully'})
+    else:
+        return Response({'error': 'Treatment already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def delete_treatment_from_review(request, pk):
+    try:
+        patient = PatientHealthReview.objects.get(pk=pk)
+    except PatientHealthReview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    treatment_to_delete = request.data.get('treatment')
+    if not treatment_to_delete:
+        return Response({'detail': 'Treatment data is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    treatments_list = patient.treatments.split(',')
+    if treatment_to_delete in treatments_list:
+        treatments_list.remove(treatment_to_delete)
+        patient.treatments = ','.join(treatments_list)
+        patient.save()
+        return Response({'message': 'Treatment deleted successfully'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'detail': 'Treatment not found in patient\'s record'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+

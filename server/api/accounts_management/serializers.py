@@ -1,10 +1,12 @@
 from rest_framework import serializers
+from municipal_wilaya.models import Hospital
 from django.contrib.contenttypes.models import ContentType
 from users.serializers import UserSerializer,validators
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from .models import MedicalAdminProfile  , User, AdminProfile
 from municipal_wilaya.models import Wilaya, Hospital
+from .models import PatientHealthReview
 
 
 class UserMedicalAdminProfileSerializer(serializers.ModelSerializer):
@@ -163,13 +165,54 @@ class AdminProfileSerializer(serializers.ModelSerializer):
     
     
 
+
+class HospitalScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalAdminProfile
+        fields = ['object_id', 'work_schedule']
+
+    work_schedule = serializers.SerializerMethodField()
+
+    def get_work_schedule(self, obj):
+        return obj.work_schedule
+    
+
+
+class HospitalWithScheduleSerializer(serializers.Serializer):
+    hospital_name = serializers.CharField()
+    work_schedule = serializers.ListField(child=serializers.DictField())
+
+
 class HospitalsAdminSerializer(serializers.ModelSerializer):
+    work_schedules = serializers.SerializerMethodField()
+
     class Meta:
         model = Hospital
-        fields = '__all__'  # Include all fields of the Hospital model
+        fields = '__all__'
 
+class PatientHealthReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientHealthReview
+        fields = '__all__'
 
+    def validate(self, data):
+        if data.get('is_sick') and not data.get('is_healthy'):
+            if not data.get('diseases'):
+                raise serializers.ValidationError({'diseases': 'Diseases are required for a sick patient.'})
+            
+        return data
 
+    def create(self, validated_data):
+        if validated_data.get('is_sick') and not validated_data.get('is_healthy'):
+            return super().create(validated_data)
+        else:
+            raise serializers.ValidationError({'is_sick': 'Patient must be sick to add diseases or treatments.'})
+
+    def update(self, instance, validated_data):
+        if validated_data.get('is_sick') and not validated_data.get('is_healthy'):
+            return super().update(instance, validated_data)
+        else:
+            raise serializers.ValidationError({'is_sick': 'Patient must be sick to add diseases or treatments.'})
 
 
 
@@ -184,3 +227,4 @@ class HospitalsAdminSerializer(serializers.ModelSerializer):
 #         model = UserInscriptionHistory
 #         fields = '__all__'
 # """
+
