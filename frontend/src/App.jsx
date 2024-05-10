@@ -15,7 +15,6 @@ import Participation from "./content/Hajj-participation/Participation";
 import Companion from "./content/Hajj-participation/Companion";
 import Draw from "./content/Candidate/Draw";
 import Members from "./content/Admin/Members";
-import NewDoctor from "./content/Admin/NewDoctor";
 import Doctors from "./content/Admin/Doctors";
 import Message from "./content/Candidate/Message";
 import Lottery from "./content/Admin/Lottery";
@@ -23,6 +22,8 @@ import Admins from "./content/Admin/Admins";
 import DrawType from "./Components/DrawType";
 import Grouping from "./Components/Grouping";
 import VisitMed from "./content/Candidate/VisitMed";
+import DoctorInterface from "./Pages/DoctorInterface";
+import DashboardD from "./content/Doctor/DashboardD";
 
 function App() {
   return (
@@ -30,7 +31,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
-          <Route path="/NewDoctor" element={<NewDoctor />} />
           <Route path="/Home" element={<Home />}>
             <Route path="Draw" element={<Draw />} />
             <Route path="Message" element={<Message />} />
@@ -52,6 +52,9 @@ function App() {
             <Route path="Admins" element={<Admins />} />
             <Route path="DrawType" element={<DrawType />} />
             <Route path="Grouping" element={<Grouping />} />
+          </Route>
+          <Route path="/Doctor" element={<DoctorInterface />}>
+            <Route index element={<DashboardD />} />
           </Route>
           <Route path="/Participate" element={<Participation />} />
           <Route path="/Participate/Companion" element={<Companion />} />

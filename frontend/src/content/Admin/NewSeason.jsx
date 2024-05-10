@@ -7,14 +7,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/base";
-import useAuth from "../../Context/useAuth";
+//import useAuth from "../../Context/useAuth";
+import PropTypes from "prop-types";
 
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-const validDate = /^\d{4}\-(0?[1-9]|1[0-2])\-(0?[1-9]|[12]\d|3[01])$/;
+const validDate = /^\d{4}-(0?[1-9]|1[0-2])-(0?[1-9]|[12]\d|3[01])$/;
 
 const NewSeason = ({ onClose }) => {
-  const { auth } = useAuth();
+  NewSeason.propTypes = {
+    onClose: PropTypes.func.isRequired,
+  };
+  //const { auth } = useAuth();
 
   const navigate = useNavigate();
 

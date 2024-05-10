@@ -650,7 +650,7 @@ select {
   background-color: #ac5f82;
   border-radius: 5px;
 }
-/*.new-form input,
+.new-form input,
 select {
   background: transparent;
   outline: none;
@@ -661,7 +661,7 @@ select {
   padding-left: 10px;
   width: 200px;
   border: none;
-}*/
+}
 .new-form select:hover {
   cursor: pointer;
 }
