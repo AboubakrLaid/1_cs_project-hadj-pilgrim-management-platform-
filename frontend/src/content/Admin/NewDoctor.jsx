@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
+import { useState } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -8,7 +9,6 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckIcon from "@mui/icons-material/Check";
-import AddIcon from "@mui/icons-material/Add";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -16,28 +16,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import PropTypes from "prop-types";
 
-function NewDoctor() {
-  const [selectedCells, setSelectedCells] = useState([]);
-
-  const handleClick = (day, time) => {
-    const cellIndex = selectedCells.findIndex(
-      (cell) => cell.day === day && cell.time === time
-    );
-    if (cellIndex === -1) {
-      // Cell not found, add it to selectedCells
-      setSelectedCells([...selectedCells, { day, time }]);
-    } else {
-      // Cell found, remove it from selectedCells
-      setSelectedCells(selectedCells.filter((_, index) => index !== cellIndex));
-    }
+function NewDoctor({ onClose }) {
+  NewDoctor.propTypes = {
+    onClose: PropTypes.func.isRequired,
   };
-
-  const isSelected = (day, time) => {
-    return selectedCells.some((cell) => cell.day === day && cell.time === time);
-  };
-  console.log(selectedCells);
   const [doctors, setDoctors] = useState([
     {
       firstName: "",
@@ -51,6 +36,10 @@ function NewDoctor() {
       hospitalName: "",
       roomId: "",
       image: null,
+      availability: [
+        { time: "8:00-12:00", days: ["", "", "", "", "", "", ""] },
+        { time: "14:00-16:00", days: ["", "", "", "", "", "", ""] },
+      ],
     },
   ]);
 
@@ -73,7 +62,16 @@ function NewDoctor() {
     setDoctors(updatedDoctors);
   };
 
-  const handleAddAnother = () => {
+  const handleAvailabilityClick = (rowIndex, colIndex, index) => {
+    const updatedDoctors = [...doctors];
+    updatedDoctors[index].availability[rowIndex].days[colIndex] =
+      updatedDoctors[index].availability[rowIndex].days[colIndex] === "checked"
+        ? ""
+        : "checked";
+    setDoctors(updatedDoctors);
+  };
+
+  /*const handleAddAnother = () => {
     setDoctors((prevDoctors) => [
       ...prevDoctors,
       {
@@ -88,9 +86,13 @@ function NewDoctor() {
         hospitalName: "",
         roomId: "",
         image: null,
+        availability: [
+          { time: "8:00-12:00", days: ["", "", "", "", "", "", ""] },
+          { time: "14:00-16:00", days: ["", "", "", "", "", "", ""] },
+        ],
       },
     ]);
-  };
+  };*/
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,6 +124,24 @@ function NewDoctor() {
             backgroundColor: "#ffffff",
           }}
         >
+          <Button
+            onClick={() => {
+              // Handle exit action
+            }}
+            sx={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              backgroundColor: "transparent",
+              color: "#000000",
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+            }}
+          >
+            <CloseIcon onClick={onClose} />
+          </Button>
+
           <Typography
             variant="h5"
             fontWeight="bold"
@@ -129,21 +149,6 @@ function NewDoctor() {
           >
             New Doctor
           </Typography>
-          {index === 0 && (
-            <Button
-              variant="contained"
-              sx={{
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-                color: "#121843",
-                borderRadius: "20px",
-              }}
-              onClick={handleAddAnother}
-            >
-              Add ANOTHER <AddIcon fontSize="medium" className="icon" />
-            </Button>
-          )}
 
           <Typography
             variant="body1"
@@ -154,7 +159,7 @@ function NewDoctor() {
               marginTop: "1px",
             }}
           >
-            Enter doctor's information to add it to our hajj management
+            Enter doctor&apos;s information to add it to our hajj management
           </Typography>
 
           <form className="new-form" onSubmit={handleSubmit}>
@@ -320,8 +325,8 @@ function NewDoctor() {
               component={Paper}
               sx={{
                 border: "2px solid #ab7595",
-                height: "210px",
-                width: "740px",
+                height: "190px",
+                width: "720px",
                 marginBottom: "1px",
               }}
             >
@@ -339,48 +344,26 @@ function NewDoctor() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow sx={{ height: "70px" }}>
-                    <TableCell>8:00-12:00</TableCell>
-                    {[
-                      "Saturday",
-                      "Sunday",
-                      "Monday",
-                      "Tuesday",
-                      "Wednesday",
-                      "Thursday",
-                      "Friday",
-                    ].map((day) => (
-                      <TableCell
-                        key={day}
-                        onClick={() => handleClick(day, "8:00-12:00")}
-                      >
-                        {isSelected(day, "8:00-12:00") && (
-                          <CheckIcon fontSize="medium" className="icon" />
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                  <TableRow sx={{ height: "70px" }}>
-                    <TableCell>14:00-16:00</TableCell>
-                    {[
-                      "Saturday",
-                      "Sunday",
-                      "Monday",
-                      "Tuesday",
-                      "Wednesday",
-                      "Thursday",
-                      "Friday",
-                    ].map((day) => (
-                      <TableCell
-                        key={day}
-                        onClick={() => handleClick(day, "14:00-16:00")}
-                      >
-                        {isSelected(day, "14:00-16:00") && (
-                          <CheckIcon fontSize="medium" className="icon" />
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                  {doctor.availability.map((timeSlot, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      <TableCell>{timeSlot.time}</TableCell>
+                      {timeSlot.days.map((day, colIndex) => (
+                        <TableCell
+                          key={colIndex}
+                          onClick={() =>
+                            handleAvailabilityClick(rowIndex, colIndex, index)
+                          }
+                          style={{ cursor: "pointer" }}
+                        >
+                          {day === "checked" ? (
+                            <CheckIcon fontSize="medium" className="icon" />
+                          ) : (
+                            ""
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>

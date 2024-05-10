@@ -19,6 +19,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 const Members = () => {
   const [data, setData] = useState([]);
+
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
 

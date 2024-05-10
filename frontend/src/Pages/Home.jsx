@@ -5,22 +5,37 @@ import { Box, Avatar } from "@mui/material";
 import Stepper from "../Components/Stepper";
 import { useTheme, useMediaQuery } from "@mui/material";
 import HorStepper from "../Components/HorStepper";
+import { useEffect } from "react";
 
 const Home = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const name = localStorage.getItem("name");
-  let phase = localStorage.getItem("process");
+  const phase = localStorage.getItem("process");
+  let step = 1;
+  const status = localStorage.getItem("Status");
 
   if (phase === "I") {
-    phase = 1;
+    step = 1;
   } else if (phase === "L") {
-    phase = 2;
+    step = 2;
   } else if (phase === "v") {
-    phase = 3;
+    step = 3;
   } else if (phase === "p") {
-    phase = 4;
+    step = 4;
   }
+
+  useEffect(() => {
+    if (phase === "L" && status === "P") {
+      navigate("Draw");
+    }
+    if (phase === "v" && status === "P") {
+      navigate("VisitMed");
+    }
+    if (status === "R" || status === "C") {
+      navigate("Message");
+    }
+  }, []);
 
   const handleclick = () => {
     navigate("Draw");
@@ -110,7 +125,7 @@ const Home = () => {
             justifyContent: "center",
           }}
         >
-          <Box>{isXsMd ? <HorStepper /> : <Stepper Step={phase} />}</Box>
+          <Box>{isXsMd ? <HorStepper /> : <Stepper Step={step} />}</Box>
         </Box>
       </Box>
       <Box sx={{ width: "100%", overflow: "auto" }}>

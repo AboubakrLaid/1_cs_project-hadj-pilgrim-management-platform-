@@ -60,6 +60,10 @@ const Login = () => {
             "process",
             response?.data?.user_status?.status?.process
           );
+          localStorage.setItem(
+            "lotteryDate",
+            response?.data?.user_status?.phase?.start_date
+          );
           localStorage.setItem("email", email);
           setAuth({ name, role, accessToken, refreshToken });
           if (role === "Admin" || role === "GeneralAdmin") {
@@ -68,7 +72,8 @@ const Login = () => {
             localStorage.setItem("wilaya_id", response?.data?.wilaya?.id);
           }
           if (role === "Candidate") {
-            if (responseData?.user_status?.pahse == null) {
+            if (responseData?.user_status?.pahse === null) {
+              console.log("in login navigated to /");
               navigate("/");
             } else {
               navigate("/Home");

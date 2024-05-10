@@ -9,7 +9,6 @@ import Calendar from "../../Components/Calendar";
 
 const Draw = () => {
   const [arrow, setArrow] = useState(0);
-  console.log(arrow);
   const navigate = useNavigate();
   const handleLogOut = () => {
     localStorage.clear();
