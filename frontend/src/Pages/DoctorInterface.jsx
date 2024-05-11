@@ -8,11 +8,17 @@ import PersonIcon from "@mui/icons-material/Person";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaUserCog } from "react-icons/fa";
 import Photo from "../assets/AdminImg.png";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Sidebar = [
   {
     title: "Dashboard",
     path: "/Doctor",
+    icon: <HomeIcon />,
+  },
+  {
+    title: "Patients",
+    path: "/Doctor/Patients",
     icon: <HomeIcon />,
   },
 ];
@@ -29,6 +35,8 @@ const DoctorInterface = () => {
 
     if (lastPathSegment === "Doctor") {
       setSelectedItem("Dashboard");
+    } else {
+      setSelectedItem(lastPathSegment);
     }
   }, [location.pathname]);
 

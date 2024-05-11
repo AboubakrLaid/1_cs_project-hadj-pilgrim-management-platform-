@@ -24,6 +24,8 @@ import Grouping from "./Components/Grouping";
 import VisitMed from "./content/Candidate/VisitMed";
 import DoctorInterface from "./Pages/DoctorInterface";
 import DashboardD from "./content/Doctor/DashboardD";
+import Patients from "./content/Doctor/Patients";
+import Payement from "./content/Candidate/Payement";
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
             <Route path="Draw" element={<Draw />} />
             <Route path="Message" element={<Message />} />
             <Route path="VisitMed" element={<VisitMed />} />
+            <Route path="Payement" element={<Payement />} />
           </Route>
           <Route exact path="/Login" element={<Login />} />
           <Route path="/Register" element={<Signup />} />
@@ -55,6 +58,7 @@ function App() {
           </Route>
           <Route path="/Doctor" element={<DoctorInterface />}>
             <Route index element={<DashboardD />} />
+            <Route path="Patients" element={<Patients />} />
           </Route>
           <Route path="/Participate" element={<Participation />} />
           <Route path="/Participate/Companion" element={<Companion />} />
