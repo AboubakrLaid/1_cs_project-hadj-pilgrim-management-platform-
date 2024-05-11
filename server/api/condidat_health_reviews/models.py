@@ -1,8 +1,6 @@
 from django.db import models
 from users.models import User
-from django.db.models import JSONField
-
-#from django_extensions.db.fields import ListField
+from django.contrib.postgres.fields import ArrayField
 
 class PatientHealthReview(models.Model):
     BLOOD_TYPE_CHOICES = [
@@ -18,8 +16,8 @@ class PatientHealthReview(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='health_reviews')
     blood_type = models.CharField(max_length=3, choices=BLOOD_TYPE_CHOICES, blank=False)
 
-    treatments = JSONField(default=list)
-    diseases = JSONField(default=list)
+    treatments = ArrayField(models.CharField(max_length=255), default=list, blank=True)
+    diseases = ArrayField(models.CharField(max_length=255), default=list, blank=True)
 
     files = models.FileField(upload_to='patient_files/', blank=True)
     medical_opinion = models.TextField(blank=False)
