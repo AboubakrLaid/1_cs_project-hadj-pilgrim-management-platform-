@@ -10,7 +10,7 @@ from .util import winner_data
 from users.models import UserInscriptionHistory
 
 
-def _age_category(municipals, wilaya, algorithm):
+def _age_category(municipals, wilaya, algorithm, used_seats):
     season = PilgrimageSeasonInfo.objects.get(is_active=True)
     winners = []
     backup = []
@@ -59,6 +59,7 @@ def _age_category(municipals, wilaya, algorithm):
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
     )
+    seats += used_seats
 
     # starting from the last category
     # cuz it has the heighest percentage

@@ -9,7 +9,7 @@ from municipal_wilaya.models import Seats
 
 
 # this algorithm does not take into account the age of the participants
-def _registration_priority(municipals, wilaya, _):
+def _registration_priority(municipals, wilaya, _, used_seats):
     season = PilgrimageSeasonInfo.objects.get(is_active=True)
     # ratio = season.ratio
     winners = []
@@ -50,11 +50,13 @@ def _registration_priority(municipals, wilaya, _):
 
     wilaya_seats = Seats.objects.get(wilaya=wilaya, season=season)
 
-    seats = int(
+    seats = round(
         wilaya_seats.available_seats
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
     )
+    
+    seats+=used_seats
 
     select_winners(
         non_duplicate_list=participants_ids,

@@ -17,6 +17,7 @@ from .algorithms.AR import _age_registrations_priority
 from .algorithms.R import _registration_priority
 from .algorithms.A import _age_category
 from municipal_wilaya.models import Municipal
+from municipal_wilaya.models import Seats
 
 
 # @api_view(["POST"])
@@ -174,6 +175,45 @@ def is_lottery_done(request):
 
 
 
+def calculate_seats(wilaya_id, municipal_population, season):
+    wilaya_population = sum(
+        list(
+            Municipal.objects.filter(wilaya=wilaya_id).values_list("population", flat=True)
+        )
+    )
+    wilaya_seats = Seats.objects.get(wilaya=wilaya_id, season=season)
+    seats = round(
+        wilaya_seats.available_seats
+        * 0.01
+        * ((100 * municipal_population) / wilaya_population)
+    )
+    return seats
+    
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def get_municipals_data(request):
+    user = request.user
+    wilaya = user.admin_profile.object_id
+    municipals = Municipal.objects.filter(wilaya=wilaya)
+    municipals_data = []
+    season = PilgrimageSeasonInfo.objects.get(is_active=True)
+    for municipal in municipals:
+        municipals_data.append(
+            {
+                "id": municipal.id,
+                "name": municipal.name,
+                "population": municipal.population,
+                "seats": calculate_seats(wilaya, municipal.population, season),
+                "is_lottery_done": municipal.is_lottery_done,
+            }
+        )
+    response = {
+        "extra_seats": Seats.objects.get(wilaya=wilaya, season=season).extra_seats,
+        "municipals": municipals_data,
+    }
+    return Response(response, status=status.HTTP_200_OK)
+
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
 def lotter_participants(request):
@@ -269,19 +309,30 @@ def launch_lottery(request):
             {"success": False, "msg": "Please provide the municipals"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    used_seats = data.get("used_seats")
+    if used_seats is None:
+        return Response(
+            {"success": False, "msg": "Please provide the used seats"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     
 
     algorithm = LotteryAlgorithm.objects.get(season__is_active=True)
     user = request.user
     wilaya = user.admin_profile.object_id
+    
+    wilaya_seats = Seats.objects.get(wilaya=wilaya, season__is_active=True)
+    wilaya_seats.extra_seats -=  used_seats
+    wilaya_seats.save()
+    
     algorithm_functions = {
         LotteryAlgorithm.Algorithms.AGE_CATEGORIES: _age_category,
         LotteryAlgorithm.Algorithms.AGE_REGISTRATION_PRIORITY: _age_registrations_priority,
         LotteryAlgorithm.Algorithms.REGISTRATION_PRIORITY: _registration_priority,
     }
     try:
-        result = algorithm_functions[algorithm.algorithm](municipals, wilaya, algorithm)
+        result = algorithm_functions[algorithm.algorithm](municipals, wilaya, algorithm, used_seats)
     except KeyError:
         return Response(
             {"success": False, "msg": "Algorithm failed"},
