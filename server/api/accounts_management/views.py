@@ -3,16 +3,18 @@ from base64 import b64encode
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
-from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser
+from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser, IsMedicalAdminUser
 from django.db.models import Q
 from .models import MedicalAdminProfile
 from users.models import User, UserInscriptionHistory, UserStatus
 from personal_profile.models import PersonalProfile
-from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer 
+from .serializers import (
+    MedicalAdminProfileSerializer,
+    CandidateSerializer,
+    AdminProfileSerializer,
+)
 from rest_framework import status
 from users.serializers import UserSerializer
-
 
 
 @api_view(["GET"])
@@ -82,62 +84,133 @@ def edit_candidate_info(request, candidate_id):
         return Response(serializer.errors, status=400)
 
 
-@api_view(["GET"])
-@permission_classes([IsAdminUser])
-def search_users(request):
-    user = request.user
-    wilaya = user.admin_profile.object_id
-    users = User.objects.filter(personal_profile__wilaya=wilaya)
-    users_data = UserSerializer(users, many=True).data
-    status_Dictionary= {'P': 'Pending', 'R': 'Rejected', 'C': 'Confirmed', 'I': 'In reserve'}
-    process_Dictionary= {'I': 'Inscription', 'L': 'Lottery', 'V': 'Med visit', 'P': 'Payment', 'R': 'Reservation'}
-    gender_dictionary = {"M":"Male", "F":"Female"}
+def get_user_data(users_data):
+    status_Dictionary = {
+        "P": "Pending",
+        "R": "Rejected",
+        "C": "Confirmed",
+        "I": "In reserve",
+    }
+    process_Dictionary = {
+        "I": "Inscription",
+        "L": "Lottery",
+        "V": "Med visit",
+        "P": "Payment",
+        "R": "Reservation",
+    }
+    gender_dictionary = {"M": "Male", "F": "Female"}
     for i in range(len(users_data)):
         email = users_data[i]["email"]
         personal_profile = PersonalProfile.objects.get(user__email=email)
 
         users_data[i]["gender"] = gender_dictionary[users_data[i]["gender"]]
-        
-        users_data[i]["nin"]= personal_profile.nin
 
-        picture_data = personal_profile.picture.read() if personal_profile.picture else None
+        users_data[i]["nin"] = personal_profile.nin
+
+        picture_data = (
+            personal_profile.picture.read() if personal_profile.picture else None
+        )
         files_data = personal_profile.files.read() if personal_profile.files else None
 
-        users_data[i]["profile_pic"] = b64encode(picture_data).decode('utf-8') if picture_data else None
-        users_data[i]["file"] = b64encode(files_data).decode('utf-8') if files_data else None
+        users_data[i]["profile_pic"] = (
+            b64encode(picture_data).decode("utf-8") if picture_data else None
+        )
+        users_data[i]["file"] = (
+            b64encode(files_data).decode("utf-8") if files_data else None
+        )
 
-        users_data[i]["birth_date"]= personal_profile.birth_date
-        users_data[i]["municipal"]= personal_profile.municipal.name
-        users_data[i]["phase"]=process_Dictionary[UserStatus.objects.get(user__email=email).process]
-        users_data[i]["phase_status"]=status_Dictionary[UserStatus.objects.get(user__email=email).status]
+        users_data[i]["birth_date"] = personal_profile.birth_date
+        users_data[i]["municipal"] = personal_profile.municipal.name
+        users_data[i]["phase"] = process_Dictionary[
+            UserStatus.objects.get(user__email=email).process
+        ]
+        users_data[i]["phase_status"] = status_Dictionary[
+            UserStatus.objects.get(user__email=email).status
+        ]
         users_data[i]["contact"] = personal_profile.phone_number
         try:
             x = UserInscriptionHistory.objects.get(user__email=email)
         except UserInscriptionHistory.DoesNotExist:
             pass
         users_data[i]["participation_number"] = x.inscription_count if x else -1
-        
-        
-    return Response(users_data, status=status.HTTP_200_OK)
- 
- 
+
+    return users_data
+
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def get_all_users(request):
+    user = request.user
+    wilaya = user.admin_profile.object_id
+    users = User.objects.filter(personal_profile__wilaya=wilaya)
+    users_data = UserSerializer(users, many=True).data
+    # status_Dictionary= {'P': 'Pending', 'R': 'Rejected', 'C': 'Confirmed', 'I': 'In reserve'}
+    # process_Dictionary= {'I': 'Inscription', 'L': 'Lottery', 'V': 'Med visit', 'P': 'Payment', 'R': 'Reservation'}
+    # gender_dictionary = {"M":"Male", "F":"Female"}
+    # for i in range(len(users_data)):
+    #     email = users_data[i]["email"]
+    #     personal_profile = PersonalProfile.objects.get(user__email=email)
+
+    #     users_data[i]["gender"] = gender_dictionary[users_data[i]["gender"]]
+
+    #     users_data[i]["nin"]= personal_profile.nin
+
+    #     picture_data = personal_profile.picture.read() if personal_profile.picture else None
+    #     files_data = personal_profile.files.read() if personal_profile.files else None
+
+    #     users_data[i]["profile_pic"] = b64encode(picture_data).decode('utf-8') if picture_data else None
+    #     users_data[i]["file"] = b64encode(files_data).decode('utf-8') if files_data else None
+
+    #     users_data[i]["birth_date"]= personal_profile.birth_date
+    #     users_data[i]["municipal"]= personal_profile.municipal.name
+    #     users_data[i]["phase"]=process_Dictionary[UserStatus.objects.get(user__email=email).process]
+    #     users_data[i]["phase_status"]=status_Dictionary[UserStatus.objects.get(user__email=email).status]
+    #     users_data[i]["contact"] = personal_profile.phone_number
+    #     try:
+    #         x = UserInscriptionHistory.objects.get(user__email=email)
+    #     except UserInscriptionHistory.DoesNotExist:
+    #         pass
+    #     users_data[i]["participation_number"] = x.inscription_count if x else -1
+
+    return Response(get_user_data(users_data), status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+# @permission_classes([IsMedicalAdminUser])
+def search_user(request):
+    # by nin or first name or last name
+    q = request.query_params.get("q")
+    if not q:
+        return Response(
+            {"message": "Missing query parameter"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    users = User.objects.filter(
+        Q(personal_profile__nin__startswith=q)
+        | Q(first_name__istartswith=q)
+        | Q(last_name__istartswith=q)
+    )
+    users_data = UserSerializer(users, many=True).data
+    return Response(get_user_data(users_data), status=status.HTTP_200_OK)
+
+
 @api_view(["GET"])
 @permission_classes([IsGeneralAdminOrAdminUser])
 def get_all_admins(_):
     admins = User.objects.filter(role=User.IS_ADMIN)
     serializer = AdminProfileSerializer(admins, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
- 
+
+
 @api_view(["POST"])
 @permission_classes([IsGeneralAdminOrAdminUser])
 def create_new_admin(request):
-    
+
     data = request.data
     print(data)
     serializer = AdminProfileSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
-        return Response({"success":True}, status=status.HTTP_201_CREATED)
+        return Response({"success": True}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -147,7 +220,10 @@ def update_delete_admin(request, admin_id):
     try:
         admin = User.objects.get(id=admin_id)
     except User.DoesNotExist:
-        return Response({"success":False,"message": "Admin not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"success": False, "message": "Admin not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
     if request.method == "PATCH":
 
         serializer = AdminProfileSerializer(admin, data=request.data, partial=True)
@@ -155,20 +231,10 @@ def update_delete_admin(request, admin_id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    else: # DELETE
+
+    else:  # DELETE
         admin.delete()
-        return Response({"success":True}, status=status.HTTP_200_OK)
-    
-    
-        
-        
-        
-     
-        
-
-
-
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
 
 # guide
