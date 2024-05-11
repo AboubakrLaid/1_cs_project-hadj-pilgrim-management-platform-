@@ -15,6 +15,7 @@ from .serializers import (
 )
 from rest_framework import status
 from users.serializers import UserSerializer
+from municipal_wilaya.models import Wilaya, Hospital
 
 
 @api_view(["GET"])
@@ -178,17 +179,10 @@ def get_all_users(request):
 @api_view(["GET"])
 @permission_classes([IsMedicalAdminUser])
 def search_user(request):
-    # by nin or first name or last name
-    q = request.query_params.get("q")
-    if not q:
-        return Response(
-            {"message": "Missing query parameter"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    users = User.objects.filter(
-        Q(personal_profile__nin__startswith=q)
-        | Q(first_name__istartswith=q)
-        | Q(last_name__istartswith=q)
-    )
+    user = request.user
+    hospital = user.medical_admin_profile.object_id
+    wilaya_id = Hospital.objects.get(id=hospital).wilaya
+    users = User.objects.filter(personal_profile__wilaya=wilaya_id)
     users_data = UserSerializer(users, many=True).data
     return Response(get_user_data(users_data), status=status.HTTP_200_OK)
 
