@@ -176,7 +176,7 @@ def get_all_users(request):
 
 
 @api_view(["GET"])
-# @permission_classes([IsMedicalAdminUser])
+@permission_classes([IsMedicalAdminUser])
 def search_user(request):
     # by nin or first name or last name
     q = request.query_params.get("q")

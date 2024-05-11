@@ -11,13 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(max_length=15, default=User.IS_CANDIDATE)
     class Meta:
         model = User
-        fields = ['first_name','last_name','email','password','gender','role']
+        fields = ['id','first_name','last_name','email','password','gender','role']
         extra_kwargs = {
             'password': {'write_only': True},
             'first_name': {'required': True},
             'last_name': {'required': True},
             'gender': {'required': True},
-            'role'  : {'read_only': True}
+            'role'  : {'read_only': True},
+            'id' : {'read_only': True},
         }
         
     def create(self, validated_data):
