@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'personal_profile',
     'pilgrimage_info',
     'lottery',
-    'accounts_management'
+    'accounts_management',
+    'condidat_health_reviews'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
