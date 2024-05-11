@@ -10,7 +10,7 @@ from .util import winner_data
 from users.models import UserInscriptionHistory
 
 
-def _age_registrations_priority(municipals, wilaya, algorithm):
+def _age_registrations_priority(municipals, wilaya, algorithm, used_seats):
     season = PilgrimageSeasonInfo.objects.get(is_active=True)
     extra_seats = Seats.objects.get(wilaya=wilaya, season=season).extra_seats
     winners = []
@@ -64,6 +64,8 @@ def _age_registrations_priority(municipals, wilaya, algorithm):
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
     )
+    
+    seats += used_seats
 
     # starting from the last category
     # givimg it extra seats
