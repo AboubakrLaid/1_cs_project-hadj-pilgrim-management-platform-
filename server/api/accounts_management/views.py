@@ -182,7 +182,7 @@ def search_user(request):
     user = request.user
     hospital = user.medical_admin_profile.object_id
     wilaya_id = Hospital.objects.get(id=hospital).wilaya
-    users = User.objects.filter(personal_profile__wilaya=wilaya_id)
+    users = User.objects.filter(personal_profile__wilaya=wilaya_id, status__process = UserStatus.Process.VISIT)
     users_data = UserSerializer(users, many=True).data
     return Response(get_user_data(users_data), status=status.HTTP_200_OK)
 
