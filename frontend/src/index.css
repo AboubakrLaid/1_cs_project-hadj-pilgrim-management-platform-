@@ -714,3 +714,10 @@ select {
   justify-content: center;
   align-items: center;
 }
+
+.RowColor1 {
+  background-color: #e7d9ca;
+}
+.RowColor2 {
+  background-color: rgba(0, 0, 0, 0.1);
+}

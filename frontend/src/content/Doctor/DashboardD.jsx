@@ -1,49 +1,18 @@
 import { Box, Stack } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useNavigate } from "react-router-dom";
 import { FaUserDoctor } from "react-icons/fa6";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DoctorImg from "../../assets/DoctorImg.svg";
 
 const DashboardD = () => {
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const isUnder500pxHeight = useMediaQuery("(max-height: 500px)");
-  const navigate = useNavigate();
-  const handleLogOut = () => {
-    localStorage.clear();
-    navigate("/");
-  };
 
   return (
     <Box sx={{ height: { xs: "800px", md: "100%" } }}>
-      <div
-        style={{
-          height: "100px",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <button
-          onClick={handleLogOut}
-          className="button"
-          style={{
-            marginRight: isSmallScreen ? "10px" : "30px",
-            height: "46px",
-            width: isSmallScreen ? "110px" : "140px",
-            fontSize: isSmallScreen ? "10px" : "18px",
-            borderRadius: 30,
-          }}
-        >
-          Log Out
-        </button>
-      </div>
+      <Box sx={{ height: "100px" }} />
       <Box
         sx={{
-          height: "85%",
+          height: "80%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "center", // Center the content horizontally
@@ -61,7 +30,6 @@ const DashboardD = () => {
         >
           <Box
             sx={{
-              textAlign: "center",
               fontWeight: 600,
               height: "15%",
               width: "100%",
@@ -128,11 +96,7 @@ const DashboardD = () => {
                   mb: 1,
                 }}
               >
-                <UploadFileIcon
-                  fontSize="medium"
-                  className="icon"
-                  style={{ color: "#AB7595" }}
-                />
+                <UploadFileIcon style={{ color: "#AB7595" }} />
                 <div style={{ fontWeight: "500", fontSize: "24px" }}>
                   Medical Files Appload
                 </div>
