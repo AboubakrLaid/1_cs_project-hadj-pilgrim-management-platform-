@@ -5,6 +5,7 @@ class PilgrimageSeasonInfo(models.Model):
     is_active = models.BooleanField(default=True)
     year = models.PositiveIntegerField(default=0, unique=True)
     # ratio = models.FloatField(default=0.0)
+    price = models.IntegerField(default=0)
     total_pilgrims = models.PositiveIntegerField(default=0)
     inscription_deadline = models.DateField()
     procedure_deadline = models.DateField()
