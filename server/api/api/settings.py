@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'personal_profile',
     'pilgrimage_info',
     'lottery',
-    'accounts_management'
+    'accounts_management',
+    'payment'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
