@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 import requests
 from .extract_text import extract_textt
+from users.models import UserStatus
 
 
 # @api_view(['POST'])
@@ -66,6 +67,7 @@ def validate_transaction(request):
     
     if response.status_code == 200:
         Payment.objects.create(user=user, payment_code=payment_details["payment_code"], file=file)
+        UserStatus.objects.filter(user=user).update(process= UserStatus.Process.RESERVATION)
         return Response({"success": True}, status=status.HTTP_200_OK)
     else:
         return Response({"error": f"External validation failed: {response.text}"}, status=status.HTTP_400_BAD_REQUEST)
