@@ -242,9 +242,6 @@ def update_delete_admin(request, admin_id):
 
 
 
-    else:  # DELETE
-        admin.delete()
-        return Response({"success": True}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
