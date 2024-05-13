@@ -242,9 +242,6 @@ def update_delete_admin(request, admin_id):
 
 
 
-    else:  # DELETE
-        admin.delete()
-        return Response({"success": True}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -324,7 +321,9 @@ def get_hospitals_in_wilaya(request):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def get_all_medical_admins(request):
-    medical_admins = MedicalAdminProfile.objects.all()
+    user = request.user
+    wilaya= user.admin_profile.object_id
+    medical_admins = MedicalAdminProfile.objects.filter(user__personal_profile__wilaya=wilaya)
     serializer = MedicalAdminProfileSerializer(medical_admins, many=True)
     return Response(serializer.data)
 
