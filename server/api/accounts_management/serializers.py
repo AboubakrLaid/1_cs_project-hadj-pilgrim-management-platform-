@@ -47,7 +47,7 @@ class MedicalAdminProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MedicalAdminProfile
-        fields = ['user','work_schedule']
+        fields = ['user','work_schedule', "profile_picture"]
     
     def create(self, validated_data):        
         hospital_name = self.context['request'].data.get('hospital_name')
