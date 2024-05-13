@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PayementImg from "../../assets/PayementImg.svg";
@@ -6,6 +6,7 @@ import CreditCrad from "../../assets/CreditCard.png";
 import AddFile from "../../assets/AddFile.png";
 import TaskIcon from "@mui/icons-material/Task";
 
+import UploadOutlinedIcon from "@mui/icons-material/UploadOutlined";
 const Number = /^\d{9}$/;
 
 const Payement = () => {
@@ -103,99 +104,23 @@ const Payement = () => {
           </span>
           {/* ----------------inputs---------------------*/}
           <form className="auth-form Login-form" onSubmit={handleSubmit}>
-            <div
-              className={
-                !validTransactionNumber &&
-                transactionNumber &&
-                !transactionNumberFocus
-                  ? "invalid-input"
-                  : "input"
-              }
-              style={{ width: "300px", borderRadius: "15px" }}
-            >
-              <img src={CreditCrad} className="icon" />
+            <div>
               <input
-                type="text"
-                placeholder="Transaction number"
-                onChange={(e) => setTransactionNumber(e.target.value)}
-                onFocus={() => setTransactionNumberFocus(true)}
-                onBlur={() => setTransactionNumberFocus(false)}
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setSelectedFile(e.target.files[0])}
                 required
+                id="PDFbutton"
               />
+              <label htmlFor="PDFbutton">
+                <UploadOutlinedIcon
+                  sx={{ mr: 2, color: "rgb(0, 0, 0, 0.5)" }}
+                />
+                Upload receipt (.pdf)
+              </label>
             </div>
           </form>
           {/* ----------------inputs---------------------*/}
-          <Box
-            // onClick={handleAddFile}
-
-            onClick={() => {
-              // Programmatically trigger the file input when the Box is clicked
-              document.getElementById("fileInput").click();
-            }}
-            sx={{
-              height: "140px",
-              width: "300px",
-              position: "relative",
-              bottom: "16px",
-              bgcolor: "rgba(0, 0, 0, 0.1)",
-              borderRadius: "15px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              p: 4,
-              textAlign: "center",
-              gap: 1,
-              cursor: "pointer",
-              transition: "all 0.2s linear ",
-              ":hover": {
-                cursor: "pointer",
-                bgcolor: "rgba(0, 0, 0, 0.2)",
-              },
-            }}
-          >
-            <input
-              type="file"
-              accept=".png, .jpg, .jpeg"
-              style={{ display: "none" }}
-              id="fileInput"
-              onChange={(e) => {
-                setSelectedFile(e.target.files[0]);
-              }}
-            />
-            {!selectedFile && (
-              <img
-                src={AddFile}
-                alt="AddImage"
-                style={{
-                  height: "40px",
-                  width: "40px",
-                }}
-              />
-            )}
-            {!selectedFile && (
-              <span style={{ fontSize: "14px", color: "rgba(0, 0, 0, 0.5)" }}>
-                <span style={{ fontWeight: 600, color: "black" }}>
-                  Click to upload
-                </span>{" "}
-                or drag and drop the receipt as PNG,JPG image
-              </span>
-            )}
-            {selectedFile && (
-              <>
-                <TaskIcon fontSize="large" style={{ color: "#4bb543" }} />
-                <span
-                  style={{
-                    fontSize: "14px",
-                    color: "rgba(75, 181, 67, 0.9)  ",
-                    fontWeight: 600,
-                  }}
-                >
-                  File Uploaded Succefully
-                </span>
-              </>
-            )}
-          </Box>
 
           <button
             className="button"

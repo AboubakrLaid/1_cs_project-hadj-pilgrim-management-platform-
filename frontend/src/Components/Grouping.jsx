@@ -21,12 +21,16 @@ const Grouping = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedMunicipals, setSelectedMunicipals] = useState([]);
   const [municipals, setMunicipals] = useState([]);
+  const [totalPopulation, setTotalPopulation] = useState(0);
+  const [totalSeats, setTotalSeats] = useState(0);
 
   const handleSelectMunicipal = (municipal) => {
     const municipalObject = {
       id: municipal.id,
       name: municipal.name,
       population: municipal.population,
+      seats: municipal.seats,
+      lottery_done: municipal.lottery_done,
     };
 
     const isSelected = selectedMunicipals.some(
@@ -37,27 +41,35 @@ const Grouping = () => {
       const updatedSelection = selectedMunicipals.filter(
         (item) => item.id !== municipal.id
       );
+      setTotalPopulation(totalPopulation - municipal.population);
+      setTotalSeats(totalSeats - municipal.seats);
       setSelectedMunicipals(updatedSelection);
     } else {
       setSelectedMunicipals([...selectedMunicipals, municipalObject]);
+      setTotalPopulation(totalPopulation + municipal.population);
+      setTotalSeats(totalSeats + municipal.seats);
     }
   };
   //fetch municipals
   const state = localStorage.getItem("wilaya_id");
-
   useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `/administrative/wilaya/${state}/municipals`
-        );
+        const response = await axios.get("/lottery/municipals", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         console.log("response", response.data);
+        const mun = response.data.municipals;
 
-        const fetchedMun = response.data.map((item) => ({
+        const fetchedMun = mun.map((item) => ({
           id: item.id,
           name: item.name,
           lottery_done: item.is_lottery_done,
           population: item.population,
+          seats: item.seats,
         }));
         setMunicipals(fetchedMun);
       } catch (error) {
@@ -67,7 +79,10 @@ const Grouping = () => {
 
     fetchData();
   }, [state]);
-  //////////
+
+  console.log("selectedMunicipals", selectedMunicipals);
+
+  console.log("municipals", municipals);
 
   const handleConfirm = () => {
     const mun_ids = {
@@ -191,33 +206,42 @@ const Grouping = () => {
         <List
           sx={{
             height: "550px",
-            width: "400px",
+            width: "550px",
             overflow: "auto",
-            paddingRight: "14px",
+            paddingRight: "2px",
           }}
         >
           <ListItem
             sx={{
+              width: "500px",
               bgcolor: "white",
+              borderBottom: "2px solid #DFDFDF",
+              p: 0,
               height: "50px",
-              "& .MuiTypography-root": { fontWeight: 600, color: "#343A40" },
+              "& .MuiTypography-root": {
+                fontWeight: 600,
+                color: "#343A40",
+                textAlign: "center",
+              },
             }}
           >
-            <ListItem sx={{ width: "70%" }}>
+            <ListItem sx={{ width: "180px" }}>
               <ListItemText primary="Municipal" />
             </ListItem>
-            <ListItem sx={{ width: "30%" }}>
+            <ListItem sx={{ width: "100px" }}>
               <ListItemText primary="Population" />
             </ListItem>
-            <ListItem sx={{ width: "30%" }}>
+            <ListItem sx={{ width: "120px" }}>
               <ListItemText primary="Status" />
+            </ListItem>
+            <ListItem sx={{ width: "100px" }}>
+              <ListItemText primary="Seats" />
             </ListItem>
           </ListItem>
           {municipals.map((municipal) => (
             <ListItem
               key={municipal?.id}
-              disabled={municipal?.is_lottery_done}
-              className={selectedMunicipals === "Azail" ? "listItemEnter" : ""}
+              disabled={municipal?.lottery_done}
               sx={{
                 bgcolor: municipal?.selected
                   ? "#E7D9CA"
@@ -230,6 +254,8 @@ const Grouping = () => {
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
+                width: "500px",
+                p: 0,
                 "& .MuiTypography-root": {
                   fontWeight: 400,
                   fontSize: "14px",
@@ -239,34 +265,63 @@ const Grouping = () => {
             >
               <ListItem
                 sx={{
-                  width: "70%",
+                  width: "180px",
                   height: "50px",
+                  "& .MuiTypography-root": {
+                    textAlign: "center",
+                    color: municipal?.lottery_done ? "#000000" : "",
+                  },
                 }}
               >
                 <ListItemButton
                   onClick={() => handleSelectMunicipal(municipal)}
-                  disabled={municipal?.selected}
+                  disabled={municipal?.lottery_done}
                 >
                   <ListItemText primary={municipal?.name} />
                 </ListItemButton>
               </ListItem>
-              <ListItem sx={{ height: "50px", width: "30%" }}>
+              <ListItem
+                sx={{
+                  height: "50px",
+                  width: "100px",
+                  "& .MuiTypography-root": {
+                    textAlign: "center",
+                  },
+                }}
+              >
                 <ListItemText primary={municipal?.population} />
               </ListItem>
               <ListItem
                 sx={{
-                  height: "25px",
-                  width: "30%",
-                  bgcolor: municipal?.lottery_done ? "#067C27" : "#121843",
-                  borderRadius: "25px",
+                  width: "120px",
+                  color: "white",
                   "& .MuiTypography-root": {
                     color: "white",
+                    textAlign: "center",
+                    bgcolor: municipal?.lottery_done ? "#067C27" : "#121843",
+                    borderRadius: "25px",
+                    p: 1,
+                    height: "25px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
                   },
                 }}
               >
                 <ListItemText
                   primary={municipal?.lottery_done ? "grouped" : "Not yet"}
                 />
+              </ListItem>
+              <ListItem
+                sx={{
+                  height: "50px",
+                  width: "100px",
+                  "& .MuiTypography-root": {
+                    textAlign: "center",
+                  },
+                }}
+              >
+                <ListItemText primary={municipal?.seats} />
               </ListItem>
             </ListItem>
           ))}
@@ -279,7 +334,7 @@ const Grouping = () => {
         {clicked && (
           <List
             sx={{
-              width: "300px",
+              width: "400px",
               overflow: "auto",
               maxHeight: "80%",
               paddingRight: "14px",
@@ -291,17 +346,23 @@ const Grouping = () => {
               sx={{
                 bgcolor: "white",
                 height: "50px",
+                width: "100%",
+
+                p: 0,
                 "& .MuiTypography-root": {
                   fontWeight: 600,
                   color: "#343A40",
                 },
               }}
             >
-              <ListItem sx={{ width: "70%" }}>
+              <ListItem sx={{ width: "40%" }}>
                 <ListItemText primary="Municipal" />
               </ListItem>
               <ListItem sx={{ width: "30%" }}>
                 <ListItemText primary="Population" />
+              </ListItem>
+              <ListItem sx={{ width: "30%" }}>
+                <ListItemText primary="Seats" />
               </ListItem>
             </ListItem>
             {selectedMunicipals.map((municipal) => (
@@ -319,6 +380,9 @@ const Grouping = () => {
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  width: "100%",
+                  p: 0,
+
                   "& .MuiTypography-root": {
                     fontWeight: 400,
                     fontSize: "14px",
@@ -328,17 +392,53 @@ const Grouping = () => {
               >
                 <ListItem
                   sx={{
-                    width: "70%",
+                    width: "40%",
                     height: "50px",
                   }}
                 >
                   <ListItemText primary={municipal?.name} />
                 </ListItem>
-                <ListItem sx={{ height: "50px", width: "30%" }}>
+                <ListItem
+                  sx={{
+                    height: "50px",
+                    width: "30%",
+                  }}
+                >
                   <ListItemText primary={municipal?.population} />
+                </ListItem>
+                <ListItem
+                  sx={{
+                    height: "50px",
+                    width: "30%",
+                  }}
+                >
+                  <ListItemText primary={municipal?.seats} />
                 </ListItem>
               </ListItem>
             ))}
+            <ListItem
+              sx={{
+                bgcolor: "white",
+                height: "50px",
+                width: "100%",
+
+                p: 0,
+                "& .MuiTypography-root": {
+                  fontWeight: 600,
+                  color: "#343A40",
+                },
+              }}
+            >
+              <ListItem sx={{ width: "40%" }}>
+                <ListItemText primary="Total" />
+              </ListItem>
+              <ListItem sx={{ width: "30%" }}>
+                <ListItemText primary={totalPopulation} />
+              </ListItem>
+              <ListItem sx={{ width: "30%" }}>
+                <ListItemText primary={totalSeats} />
+              </ListItem>
+            </ListItem>
           </List>
         )}
       </Box>

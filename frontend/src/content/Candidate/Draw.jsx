@@ -3,9 +3,10 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { purple } from "@mui/material/colors";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../../Components/Calendar";
+import axios from "../../Api/base";
 
 const Draw = () => {
   const [arrow, setArrow] = useState(0);
@@ -14,6 +15,29 @@ const Draw = () => {
     localStorage.clear();
     navigate("/");
   };
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    const fetchHosp = async () => {
+      try {
+        const response = await axios.get(
+          "/accounts/hospitals-in-wilaya-with-schedule/",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
+            },
+          }
+        );
+        console.log(response);
+      } catch (error) {
+        // Handle network errors or Axios request errors
+        console.error("Error:", error);
+      }
+    };
+
+    fetchHosp();
+  }, []);
 
   return (
     <>
