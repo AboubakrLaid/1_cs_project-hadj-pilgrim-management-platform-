@@ -1,7 +1,7 @@
 import { Box, Stack } from "@mui/system";
 import Avatar from "@mui/material/Avatar";
 import { DataGrid, gridClasses } from "@mui/x-data-grid";
-import { grey, purple } from "@mui/material/colors";
+import { grey } from "@mui/material/colors";
 import { useMemo, useState, useEffect } from "react";
 import AvatarGroup from "@mui/material/AvatarGroup";
 import MailIcon from "@mui/icons-material/Mail";
@@ -23,7 +23,7 @@ const Patients = () => {
 
     const fetchData = async () => {
       try {
-        const response = await axios.get("/accounts/users", {
+        const response = await axios.get("/accounts/users/user/", {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header

@@ -26,6 +26,7 @@ import DoctorInterface from "./Pages/DoctorInterface";
 import DashboardD from "./content/Doctor/DashboardD";
 import Patients from "./content/Doctor/Patients";
 import Payement from "./content/Candidate/Payement";
+import PatientHealthReview from "./content/Doctor/PatientHealthReview";
 
 function App() {
   return (
@@ -33,6 +34,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
+          <Route
+            path="/PatientHealthReview"
+            element={<PatientHealthReview />}
+          />
           <Route path="/Home" element={<Home />}>
             <Route path="Draw" element={<Draw />} />
             <Route path="Message" element={<Message />} />
