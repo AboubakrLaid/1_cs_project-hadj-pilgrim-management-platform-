@@ -17,6 +17,19 @@ const LandingPage = () => {
   const email = localStorage.getItem("email");
   const role = localStorage.getItem("role");
   console.log(role);
+  const status = localStorage.getItem("Status");
+  console.log("here status", status);
+  const process = localStorage.getItem("process");
+  console.log("here process", process);
+
+  useEffect(() => {
+    if (role === "Candidate" && (status === "P" || process === "I")) {
+      navigate("/home/message");
+    }
+    if (role === "Candidate" && process === "L") {
+      navigate("/home/draw");
+    }
+  }, []);
 
   useEffect(() => {
     if (role === "GeneralAdmin" || role === "Admin") {
@@ -233,7 +246,15 @@ const LandingPage = () => {
                       height: "40%",
                     }}
                   >
-                    Profile
+                    <Typography
+                      sx={{
+                        color: "white",
+                        fontWeight: "500",
+                        fontSize: { xs: "12px", md: "16px" },
+                      }}
+                    >
+                      Profile
+                    </Typography>
                   </button>
                 </Box>
               </Stack>

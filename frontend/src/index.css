@@ -79,13 +79,14 @@ select {
   position: relative;
   left: 8px;
   bottom: 8px;
-  color: #3c87f0 !important;
+  color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
   font-weight: 400;
 }
 
 .Forgot-pass:hover {
   text-decoration: underline;
+  color: #3c87f0 !important;
 }
 .sub-but {
   display: flex;
@@ -203,6 +204,11 @@ select {
   justify-content: center;
   align-items: center;
 }
+@media (max-width: 900px) {
+  .Sidebar-List .row {
+    height: 38px; /* Set default height */
+  }
+}
 .Sidebar-List .row:hover {
   background-color: rgb(199, 192, 192);
   border-radius: 16px;
@@ -282,7 +288,8 @@ select {
   height: 80%; /* Adjust height as needed */
   margin: 10px;
   border-radius: 25px;
-  background-color: rgba(231, 217, 202, 0.7);
+  background-color: #eae3db;
+  opacity: 0.7;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -319,40 +326,80 @@ select {
   background-color: #ac5f82;
 }
 
-input[type="checkbox"] {
+.Methods-box input[type="checkbox"] {
   appearance: none; /* Hide default appearance */
   -webkit-appearance: none; /* For older versions of Safari */
   -moz-appearance: none; /* For older versions of Firefox */
   display: inline-block; /* Display inline with the label */
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   margin-right: 15px;
   border-radius: 6px; /* Rounded corners */
   outline: none; /* Remove focus outline */
-  background-color: #e7d9ca;
+  background-color: transparent;
+  border: 2px solid #ab7595;
 }
-input[type="checkbox"]:checked::before {
-  content: "\2713"; /* Unicode character for checkmark */
+.Methods-box input[type="checkbox"]:checked::before {
+  content: "\2714";
+  color: #ab7595;
   display: block;
   width: 100%;
   height: 100%;
-  font-size: 16px; /* Size of the checkmark */
+  font-size: 20px; /* Size of the checkmark */
   text-align: center;
-  line-height: 20px; /* Center the checkmark vertically */
+
+  line-height: 25px; /* Center the checkmark vertically */
 }
 
 .Lottery-methods {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  justify-content: center;
+  gap: 20px;
+  width: 90%;
+  height: 75%;
+  background-color: #ede8e8;
+  padding-left: 20px;
+  border-radius: 20px;
 }
 
-.Lottery-methods p {
+.Lottery-methods .options {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 2px solid black;
+  height: 60px;
+  width: 80%;
   font-size: 12px;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.5);
-  margin-left: 32px;
+  margin-left: 65px;
+  padding-left: 30px;
 }
+.Lottery-methods .options label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: black;
+  font-weight: normal;
+}
+
+.Lottery-methods .options input {
+  width: 110px;
+  height: 32px;
+  padding-left: 8px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 2px solid #ab7595;
+  background-color: transparent;
+}
+.Lottery-methods .options input:focus {
+  border-color: green;
+}
+
 .Methods-box {
   display: flex; /* Use flexbox */
   align-items: center; /* Align items vertically */
@@ -364,7 +411,8 @@ input[type="checkbox"]:checked::before {
   font-size: 16px;
 }
 .Landing-page-Head {
-  background-image: url(./assets/MeccaImg.jpg);
+  border: 1px solid #ab7595;
+  background-image: url(./assets/wp2122140-mecca-hd-wallpapers%202.jpg);
   background-repeat: no-repeat;
   background-size: 100% 100%;
   height: 900px;
@@ -411,7 +459,7 @@ input[type="checkbox"]:checked::before {
   width: 440px;
   border-top-left-radius: 50%;
   border-top-right-radius: 50%;
-  background-image: url(./assets/Content2.jpg);
+  background-image: url(./assets/9aws%203.png);
   background-repeat: no-repeat;
   background-size: cover;
 }
@@ -427,15 +475,35 @@ input[type="checkbox"]:checked::before {
 }
 .image-wrapper1 {
   position: relative;
-
   height: calc(100% - 10px);
   width: calc(100% - 10px);
-  background-image: url(./assets/Mosque1.jpg);
-  background-repeat: no-repeat;
-  background-size: cover;
   border-radius: 30px;
   border-bottom-right-radius: 20%;
+  overflow: hidden; /* Ensure the pseudo-elements are clipped to the parent's border radius */
 }
+
+.image-wrapper1::before,
+.image-wrapper1::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.image-wrapper1::before {
+  background-color: rgba(171, 117, 149, 0.25); /* AB7595 at 25% opacity */
+  z-index: 999;
+}
+
+.image-wrapper1::after {
+  background-image: url(./assets/Content3.1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .image-wrapper::before {
   content: "";
   position: absolute;
@@ -456,12 +524,22 @@ input[type="checkbox"]:checked::before {
   border-radius: 30px;
   border: 2px solid #ab7595;
 }
+.Content3-Img3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  width: 240px;
+  border-radius: 30px;
+  border: 2px solid #ab7595;
+  border-bottom-left-radius: 21%;
+}
 
 .image-wrapper2 {
   position: relative;
   height: calc(100% - 10px);
   width: calc(100% - 10px);
-  background-image: url(./assets/Mosque2.jpg);
+  background-image: url(./assets/Content3.2.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   border-radius: 30px;
@@ -495,6 +573,7 @@ input[type="checkbox"]:checked::before {
   height: 100%;
   background-color: rgba(171, 117, 149, 0.25);
   border-radius: 30px;
+  border-bottom-left-radius: 30%;
 }
 .Content4 {
   display: flex;
@@ -515,7 +594,7 @@ input[type="checkbox"]:checked::before {
 #uploadButton + label {
   display: inline-block;
   height: 45px;
-  width: 200px;
+  width: 350px;
   display: flex;
   padding-left: 15px;
   align-items: center;
@@ -528,4 +607,117 @@ input[type="checkbox"]:checked::before {
 #uploadButton + label:hover {
   background-color: rgb(0, 0, 0, 0.5);
   cursor: pointer;
+}
+
+#PDFbutton {
+  display: none; /* Hide the actual file input */
+}
+#PDFbutton + label {
+  display: inline-block;
+  height: 45px;
+  width: 350px;
+  display: flex;
+  padding-left: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+#PDFbutton + label:hover {
+  background-color: rgb(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(222, 221, 219);
+  border-radius: 5px;
+  margin: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ab7595;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ac5f82;
+  border-radius: 5px;
+}
+.new-form input,
+select {
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  border-radius: 10px;
+  line-height: 30px;
+  font-weight: 200;
+  padding-left: 10px;
+  width: 200px;
+  border: none;
+}
+.new-form select:hover {
+  cursor: pointer;
+}
+
+.Unfortunately-body {
+  background-image: url(./assets/MessageBack.png);
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+  left: 345px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lottery-body {
+  background-image: url(./assets/Lottery-backg.jpg);
+  background-size: cover;
+}
+
+@keyframes listItemAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.listItemEnter {
+  animation: listItemAnimation 0.5s ease forwards;
+}
+
+.winner-icon {
+  width: 50px;
+  height: 50px;
+  background-image: url(./assets/confettis.png); /* Adjust the path accordingly */
+  background-size: cover;
+  display: inline-block;
+}
+
+.DrawType-body {
+  background-image: url(./assets/Lottery-backg.jpg);
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.RowColor1 {
+  background-color: #e7d9ca;
+}
+.RowColor2 {
+  background-color: rgba(0, 0, 0, 0.1);
 }

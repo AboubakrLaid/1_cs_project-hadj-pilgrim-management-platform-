@@ -9,7 +9,7 @@ from municipal_wilaya.models import Seats
 
 
 # this algorithm does not take into account the age of the participants
-def _registration_priority(municipals, wilaya, _):
+def _registration_priority(municipals, wilaya, _, used_seats):
     season = PilgrimageSeasonInfo.objects.get(is_active=True)
     # ratio = season.ratio
     winners = []
@@ -18,7 +18,9 @@ def _registration_priority(municipals, wilaya, _):
 
     participants_ids = list(
         ParticipantStatusPhase.objects.filter(
-            participant__personal_profile__municipal__in=municipals
+            participant__personal_profile__municipal__in=municipals,
+            participant__status__status=UserStatus.Status.PENDING.value,
+            participant__status__process=UserStatus.Process.LOTTERY.value,
         ).values_list("participant", flat=True)
     )
     participants_weighted_ids = []
@@ -48,11 +50,13 @@ def _registration_priority(municipals, wilaya, _):
 
     wilaya_seats = Seats.objects.get(wilaya=wilaya, season=season)
 
-    seats = int(
+    seats = round(
         wilaya_seats.available_seats
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
     )
+    
+    seats+=used_seats
 
     select_winners(
         non_duplicate_list=participants_ids,
@@ -74,8 +78,13 @@ def _registration_priority(municipals, wilaya, _):
         status=UserStatus.Status.IN_RESERVE.value,
         result_list=backup,
     )
+    try:
+        UserStatus.objects.filter(user__in = participants_ids).update(status = UserStatus.Status.REJECTED.value)
+    except Exception as e:
+        print(f"error {e}")
 
     result = {
+        "total_winners": seats,
         "winners": winners,
         "backup": backup,
     }

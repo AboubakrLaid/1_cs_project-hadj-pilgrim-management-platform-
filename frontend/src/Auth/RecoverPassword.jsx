@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import EmailIcon from "@mui/icons-material/Email";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import axios from "../Api/base";
 import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
-//import AuthContext from "../Context/AuthProvider";
 
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -110,7 +109,7 @@ const RecoverPassword = () => {
                   : "input"
               }
             >
-              <EmailIcon fontSize="medium" className="icon" />
+              <EmailOutlinedIcon fontSize="medium" className="icon" />
               <input
                 type="text"
                 placeholder="Email"

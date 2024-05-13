@@ -13,7 +13,7 @@ class WilayaSerializer(serializers.ModelSerializer):
 class MunicipalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipal
-        fields = ['id', 'name', 'population']
+        fields = ['id', 'name', 'population', 'is_lottery_done']
 
 
 

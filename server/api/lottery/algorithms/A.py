@@ -10,7 +10,7 @@ from .util import winner_data
 from users.models import UserInscriptionHistory
 
 
-def _age_category(municipals, wilaya, algorithm):
+def _age_category(municipals, wilaya, algorithm, used_seats):
     season = PilgrimageSeasonInfo.objects.get(is_active=True)
     winners = []
     backup = []
@@ -18,7 +18,9 @@ def _age_category(municipals, wilaya, algorithm):
 
     participants_ids = list(
         ParticipantStatusPhase.objects.filter(
-            participant__personal_profile__municipal__in=municipals
+            participant__personal_profile__municipal__in=municipals,
+            participant__status__status=UserStatus.Status.PENDING.value,
+            participant__status__process=UserStatus.Process.LOTTERY.value,
         ).values_list("participant", flat=True)
     )
     participants = [
@@ -27,7 +29,7 @@ def _age_category(municipals, wilaya, algorithm):
             user__in=participants_ids
         ).values_list("user_id", "birth_date")
     ]
-    
+
     # categorise the participants by age
     result = categorise_participants_by_age(participants, algorithm)
     participants_grps = [
@@ -35,7 +37,7 @@ def _age_category(municipals, wilaya, algorithm):
         result["category_2"],
         result["category_3"],
     ]
-    
+
     # Calculating the total number of seats
     municipals_population = sum(
         list(
@@ -57,8 +59,8 @@ def _age_category(municipals, wilaya, algorithm):
         * 0.01
         * ((100 * municipals_population) / wilaya_population)
     )
-    
-    
+    seats += used_seats
+
     # starting from the last category
     # cuz it has the heighest percentage
     # so the possibility of having empty seats is more
@@ -68,18 +70,16 @@ def _age_category(municipals, wilaya, algorithm):
         participants_weighted_ids = []
         for participant in participants_grps[i]:
             inscription_count = max(
-                UserInscriptionHistory.objects.get(
-                    user=participant
-                ).inscription_count,
+                UserInscriptionHistory.objects.get(user=participant).inscription_count,
                 1,
             )
             participants_weighted_ids.extend([participant] * inscription_count)
         # shuffle the participants
         random.shuffle(participants_weighted_ids)
-        
+
         available_seats = round(seats * algorithm.values["categories"][i]["percentage"])
         print(f"available_seats: {available_seats}")
-        
+
         select_winners(
             participants_ids=participants_weighted_ids,
             non_duplicate_list=participants_grps[i],
@@ -88,7 +88,7 @@ def _age_category(municipals, wilaya, algorithm):
             status=UserStatus.Status.PENDING.value,
             result_list=winners,
         )
-        backup_seats = round(available_seats * 0.5) 
+        backup_seats = round(available_seats * 0.5)
         select_winners(
             participants_ids=participants_weighted_ids,
             non_duplicate_list=participants_grps[i],
@@ -98,17 +98,13 @@ def _age_category(municipals, wilaya, algorithm):
             result_list=backup,
         )
         
-        
-        
-            
-    
-    
-    
-    
-    
-    
+        try:
+            UserStatus.objects.filter(user__in=participants_grps[i]).update(status=UserStatus.Status.REJECTED.value)
+        except Exception as e:
+            print(f"Error updating UserStatus: {e}")
+
     result = {
-        
+        "total_winners": seats,
         "winners": winners,
         "backup": backup,
     }
@@ -120,7 +116,7 @@ def select_winners(
 ):
     while participants_ids and seats > 0:
         winner = random.choice(participants_ids)
-        
+
         participant_status = UserStatus.objects.get(user=winner)
 
         # make sure the winner is not already a in the visit process
@@ -135,7 +131,6 @@ def select_winners(
                 non_duplicate_list.remove(winner)
                 while winner in participants_ids:
                     participants_ids.remove(winner)
-                    
 
     return seats
 
@@ -156,20 +151,17 @@ def categorise_participants_by_age(participants, algorithm):
     paticipant_category_1 = [
         participant
         for participant, age in participants
-        if age >= category[0]["min"]
-        and age <= category[0]["max"]
+        if age >= category[0]["min"] and age <= category[0]["max"]
     ]
     paticipant_category_2 = [
         participant
         for participant, age in participants
-        if age >= category[1]["min"]
-        and age <= category[1]["max"]
+        if age >= category[1]["min"] and age <= category[1]["max"]
     ]
     paticipant_category_3 = [
         participant
         for participant, age in participants
-        if age >= category[2]["min"]
-        and age <= category[2]["max"]
+        if age >= category[2]["min"] and age <= category[2]["max"]
     ]
 
     return {

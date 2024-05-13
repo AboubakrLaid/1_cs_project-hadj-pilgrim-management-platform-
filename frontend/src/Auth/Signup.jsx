@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
+import Person2OutlinedIcon from "@mui/icons-material/Person2Outlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Gendericon from "../assets/GenderIcon.png";
 import axios from "../Api/base";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -173,7 +174,7 @@ function Signup() {
                     : "input"
                 }
               >
-                <PersonIcon fontSize="medium" className="icon" />
+                <Person2OutlinedIcon fontSize="medium" className="icon" />
                 <input
                   type="text"
                   placeholder="First name"
@@ -191,7 +192,7 @@ function Signup() {
                     : "input"
                 }
               >
-                <PersonIcon fontSize="medium" className="icon" />
+                <Person2OutlinedIcon fontSize="medium" className="icon" />
                 <input
                   type="text"
                   placeholder="Last name"
@@ -215,7 +216,7 @@ function Signup() {
                 !validEmail && email && !emailFocus ? "invalid-input" : "input"
               }
             >
-              <EmailIcon fontSize="medium" className="icon" />
+              <EmailOutlinedIcon fontSize="medium" className="icon" />
               <input
                 type="text"
                 placeholder="Email"
@@ -237,7 +238,7 @@ function Signup() {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <LockOutlinedIcon className="icon" />
               <input
                 type="password"
                 placeholder="Password"
@@ -260,7 +261,7 @@ function Signup() {
                   : "input"
               }
             >
-              <LockIcon className="icon" />
+              <LockOutlinedIcon className="icon" />
               <input
                 type="Password"
                 placeholder="Repeat Password"
@@ -279,6 +280,7 @@ function Signup() {
             <div
               className={!validGender && submitted ? "invalid-input" : "input"}
             >
+              <img src={Gendericon} fontSize="medium" className="icon" />
               <select required onChange={handleGenderChange}>
                 <option value="">Select gender</option>
                 <option value="male">Male</option>

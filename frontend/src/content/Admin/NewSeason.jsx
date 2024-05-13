@@ -7,15 +7,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/base";
-import useAuth from "../../Context/useAuth";
+//import useAuth from "../../Context/useAuth";
+import PropTypes from "prop-types";
 
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-
-const validDate = /^\d{4}\-(0?[1-9]|1[0-2])\-(0?[1-9]|[12]\d|3[01])$/;
+const validDate = /^\d{4}-(0?[1-9]|1[0-2])-(0?[1-9]|[12]\d|3[01])$/;
 
 const NewSeason = ({ onClose }) => {
-  const { auth } = useAuth();
+  NewSeason.propTypes = {
+    onClose: PropTypes.func.isRequired,
+  };
+  //const { auth } = useAuth();
 
   const navigate = useNavigate();
 
@@ -158,24 +161,27 @@ const NewSeason = ({ onClose }) => {
 
       const yearInteger = parseInt(year, 10);
       const totalPInteger = parseInt(totalP, 10);
-      const data = {
+      const payload = {
         year: yearInteger,
         total_pilgrims: totalPInteger,
         inscription_deadline: inscDeadline,
         procedure_deadline: procDeadline,
+        wilayas_seats: newData,
         phases: phase,
       };
-      console.log(data);
-      const access = auth?.accessToken;
+      console.log(payload);
+      const access = localStorage.getItem("accessToken");
+      console.log(access);
       try {
-        const response = await axios.post("/pilgrimage/", data, {
+        const response = await axios.post("/pilgrimage/", payload, {
           headers: {
             Authorization: `Bearer ${access}`,
           },
         });
-        if (response.status === 200) {
+        if (response.status === 201) {
           alert("success");
           navigate("/Admin/Season");
+          //onclose=true
 
           // Check for successful login response data
         } else {
@@ -187,7 +193,6 @@ const NewSeason = ({ onClose }) => {
         alert("Request failed : Invalid cardenalities");
       }
     }
-
   };
 
   //File data
@@ -207,7 +212,6 @@ const NewSeason = ({ onClose }) => {
     if (file) {
       reader.readAsText(file);
     }
-
   };
 
   const parseCSV = (csv) => {
@@ -227,14 +231,20 @@ const NewSeason = ({ onClose }) => {
     return data;
   };
 
+  const newData = data.map((item) => ({
+    wilaya: parseInt(item.wilaya),
+    available_seats: parseInt(item.available_seats),
+    extra_seats: parseInt(item.extra_seats),
+  }));
+
   useEffect(() => {
-    if (data.length > 0) {
+    if (newData.length > 0) {
       console.log("All Data:");
-      console.log(data);
+      console.log(newData);
     } else {
       console.log("No data available.");
     }
-  }, [data]);
+  }, [newData]);
   //---------------------------------------------
 
   return (

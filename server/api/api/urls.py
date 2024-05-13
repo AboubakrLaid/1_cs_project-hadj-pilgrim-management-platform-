@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/lottery/', include('lottery.urls')),
     path('api/accounts/', include('accounts_management.urls')),
     path('api/health_reviews/', include('condidat_health_reviews.urls')),
+    path('api/payment/', include('payment.urls')),
+   
 
     # token urls
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),  

@@ -5,11 +5,37 @@ import { Box, Avatar } from "@mui/material";
 import Stepper from "../Components/Stepper";
 import { useTheme, useMediaQuery } from "@mui/material";
 import HorStepper from "../Components/HorStepper";
+import { useEffect } from "react";
 
 const Home = () => {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const name = localStorage.getItem("name");
+  const phase = localStorage.getItem("process");
+  let step = 1;
+  const status = localStorage.getItem("Status");
+
+  if (phase === "I") {
+    step = 1;
+  } else if (phase === "L") {
+    step = 2;
+  } else if (phase === "v") {
+    step = 3;
+  } else if (phase === "p") {
+    step = 4;
+  }
+
+  useEffect(() => {
+    if (phase === "L" && status === "P") {
+      navigate("Draw");
+    }
+    if (phase === "v" && status === "P") {
+      navigate("VisitMed");
+    }
+    if (status === "R" || status === "C") {
+      navigate("Message");
+    }
+  }, []);
 
   const handleclick = () => {
     navigate("Draw");
@@ -57,18 +83,25 @@ const Home = () => {
             onClick={handleclick}
             src="/broken-image.jpg"
             sx={{
-              width: { xs: "70px", sm: "90px", md: "110px" },
-              height: { xs: "70px", sm: "90px", md: "110px" },
+              width: { xs: "70px", sm: "90px" },
+              height: { xs: "70px", sm: "90px" },
             }}
           />
-          <div style={{ color: "white", fontWeight: "600", marginTop: "10px" }}>
+          <div
+            style={{
+              color: "white",
+              fontWeight: "600",
+              marginTop: "10px",
+              fontSize: "16px",
+            }}
+          >
             {name}
           </div>
           <Box sx={{ mt: 1 }}>
             <button
               style={{
                 width: "110px",
-                height: "35px",
+                height: "30px",
                 borderRadius: "20px",
                 fontWeight: "600",
                 fontSize: "16px",
@@ -84,9 +117,7 @@ const Home = () => {
         <Box
           sx={{
             position: "relative",
-            border: "2px solid black",
             paddingTop: "20px",
-
             height: { xs: "100%", md: "70%" },
             background: "rgba(153, 105, 134, 0.95)",
             width: "100%",
@@ -94,15 +125,7 @@ const Home = () => {
             justifyContent: "center",
           }}
         >
-
-          <Box
-            sx={{
-              border: "2px solid red",
-            }}
-          >
-            {isXsMd ? <HorStepper /> : <Stepper />}
-          </Box>
-
+          <Box>{isXsMd ? <HorStepper /> : <Stepper Step={step} />}</Box>
         </Box>
       </Box>
       <Box sx={{ width: "100%", overflow: "auto" }}>

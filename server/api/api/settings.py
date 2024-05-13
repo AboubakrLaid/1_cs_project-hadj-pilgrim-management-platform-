@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'pilgrimage_info',
     'lottery',
     'accounts_management',
-    'condidat_health_reviews'
+    'condidat_health_reviews',
+    'payment'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

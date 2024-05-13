@@ -6,6 +6,8 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { Box } from "@mui/material";
 
 const Calendar = () => {
+  const lotteryDate = localStorage.getItem("lotteryDate");
+  console.log("lotteryDate", lotteryDate);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DemoContainer
@@ -29,12 +31,14 @@ const Calendar = () => {
             flexDirection: "column",
           }}
         >
-          <span style={{ color: "#AB7595", fontSize: "14px" }}>hello</span>
-          <span style={{ color: "black", fontSize: "20px" }}>Date</span>
+          <span style={{ color: "#AB7595", fontSize: "14px" }}>Draw</span>
+          <span style={{ color: "black", fontSize: "20px" }}>
+            {lotteryDate}
+          </span>
         </Box>
         <DemoItem>
           <DateCalendar
-            defaultValue={dayjs("2024-04-17")}
+            defaultValue={dayjs(lotteryDate)}
             readOnly
             slotProps={{
               day: {
