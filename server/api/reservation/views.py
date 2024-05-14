@@ -1,37 +1,27 @@
+from rest_framework.response import Response
 from rest_framework import status
-from .models import Reservation
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from .models import Flight
-from .models import Flight
-from .models import Room
-
-
+from .models import Reservation, Flight, Hotel, Room
+from .serializers import ReservationSerializer, FlightSerializer, HotelSerializer, RoomSerializer
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def does_user_have_reservation(request):
     try:
         reservation = Reservation.objects.get(user=request.user)
-        return Response({'has_reservation': True, 'reservation_id': reservation.id}, status=status.HTTP_200_OK)
+        serializer = ReservationSerializer(reservation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Reservation.DoesNotExist:
         return Response({'has_reservation': False}, status=status.HTTP_404_NOT_FOUND)
-
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_flights(request):
     user_wilaya = request.user.wilaya  
     flights = Flight.objects.filter(wilaya=user_wilaya)
-    
-    return Response({'flights': flights}, status=status.HTTP_200_OK)
-
-
-
+    serializer = FlightSerializer(flights, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -43,16 +33,13 @@ def reserve_flight(request):
         return Response({'message': 'Flight not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if flight.available_seats > 0:
-        
         reservation = Reservation.objects.create(user=request.user, flight=flight)
         flight.available_seats -= 1
         flight.save()
-        return Response({'message': 'Flight reserved successfully'}, status=status.HTTP_201_CREATED)
+        serializer = ReservationSerializer(reservation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response({'message': 'No available seats for this flight'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -66,8 +53,6 @@ def get_all_hotels_and_rooms(request):
             hotels_with_rooms.append({'hotel_name': hotel.name, 'room_number': reservation.room.room_number})
     return Response({'hotels_with_rooms': hotels_with_rooms}, status=status.HTTP_200_OK)
 
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def reserve_room(request):
@@ -78,12 +63,12 @@ def reserve_room(request):
         return Response({'message': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if room.available_beds > 0:
-        # Met à jour l'instance de réservation pour inclure la chambre réservée
         reservation = Reservation.objects.get(user=request.user)
         reservation.room = room
         reservation.save()
         room.available_beds -= 1
         room.save()
-        return Response({'message': 'Room reserved successfully'}, status=status.HTTP_201_CREATED)
+        serializer = ReservationSerializer(reservation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response({'message': 'No available beds in this room'}, status=status.HTTP_400_BAD_REQUEST)
