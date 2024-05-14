@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'lottery',
     'accounts_management',
     'condidat_health_reviews',
-    'payment'
+    'payment',
+    'reservation'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

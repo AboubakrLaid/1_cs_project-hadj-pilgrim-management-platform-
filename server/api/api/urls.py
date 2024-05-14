@@ -41,6 +41,7 @@ urlpatterns = [
     path('api/accounts/', include('accounts_management.urls')),
     path('api/health_reviews/', include('condidat_health_reviews.urls')),
     path('api/payment/', include('payment.urls')),
+    path('api/reservation/', include('reservation.urls')),
    
 
     # token urls
