@@ -169,7 +169,7 @@ const Participation = () => {
   }, [state]);
 
   const handleWilaya = (e) => {
-    setState(e.target.value);
+    setState(parseInt(e.target.value));
   };
   const handleMunicipal = (e) => {
     setMunicipal(e.target.value);

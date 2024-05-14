@@ -70,7 +70,8 @@ class MedicalAdminProfileSerializer(serializers.ModelSerializer):
             user=user,
             content_type=ContentType.objects.get_for_model(Hospital),
             object_id=hospital.id,
-            work_schedule=work_schedule
+            work_schedule=work_schedule,
+            profile_picture = validated_data["profile_picture"]
         )
         return medical_admin
     
@@ -183,7 +184,7 @@ class HospitalWithScheduleSerializer(serializers.Serializer):
 
 
 class HospitalsAdminSerializer(serializers.ModelSerializer):
-    work_schedules = serializers.SerializerMethodField()
+    #work_schedules = serializers.SerializerMethodField()
 
     class Meta:
         model = Hospital

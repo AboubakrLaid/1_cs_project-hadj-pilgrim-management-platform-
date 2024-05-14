@@ -101,11 +101,15 @@ const Lottery = () => {
 
     const check = async () => {
       try {
-        const response = await axios.post("/lottery/result", municipal_ids, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+        const response = await axios.post(
+          "/lottery/result",
+          { municipals: municipal_ids.municipals, used_seats: 0 },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
         console.log("Response:", response.data);
         setTotalWinners(response.data.total_winners);
         setInitialWinners(response.data.winners);

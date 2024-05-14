@@ -14,14 +14,15 @@ const Home = () => {
   const phase = localStorage.getItem("process");
   let step = 1;
   const status = localStorage.getItem("Status");
+  console.log("phase is ", phase, "process is ", status);
 
   if (phase === "I") {
     step = 1;
   } else if (phase === "L") {
     step = 2;
-  } else if (phase === "v") {
+  } else if (phase === "V") {
     step = 3;
-  } else if (phase === "p") {
+  } else if (phase === "P") {
     step = 4;
   }
 
@@ -29,11 +30,14 @@ const Home = () => {
     if (phase === "L" && status === "P") {
       navigate("Draw");
     }
-    if (phase === "v" && status === "P") {
+    if (phase === "V" && status === "P") {
       navigate("VisitMed");
     }
     if (status === "R" || status === "C") {
       navigate("Message");
+    }
+    if (phase === "P" && status === "P") {
+      navigate("payement");
     }
   }, []);
 

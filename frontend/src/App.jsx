@@ -27,6 +27,8 @@ import DashboardD from "./content/Doctor/DashboardD";
 import Patients from "./content/Doctor/Patients";
 import Payement from "./content/Candidate/Payement";
 import PatientHealthReview from "./content/Doctor/PatientHealthReview";
+import Bna from "./Banque/Bna";
+import Doc from "./Doc";
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
+          <Route path="/BNA" element={<Bna />} />
+          <Route path="/Doc" element={<Doc />} />
           <Route
             path="/PatientHealthReview"
             element={<PatientHealthReview />}

@@ -16,29 +16,6 @@ const Draw = () => {
     navigate("/");
   };
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-
-    const fetchHosp = async () => {
-      try {
-        const response = await axios.get(
-          "/accounts/hospitals-in-wilaya-with-schedule/",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
-            },
-          }
-        );
-        console.log(response);
-      } catch (error) {
-        // Handle network errors or Axios request errors
-        console.error("Error:", error);
-      }
-    };
-
-    fetchHosp();
-  }, []);
-
   return (
     <>
       <Box sx={{ height: "100%", width: "100%" }}>

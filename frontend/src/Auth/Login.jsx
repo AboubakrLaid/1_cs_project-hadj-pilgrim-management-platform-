@@ -79,6 +79,11 @@ const Login = () => {
               navigate("/Home");
             }
           }
+          if (role === "MedicalAdmin") {
+            navigate("/Doctor");
+            localStorage.setItem("wilaya", response?.data?.wilaya?.name);
+            localStorage.setItem("wilaya_id", response?.data?.wilaya?.id);
+          }
         } else {
           alert(response.error);
         }

@@ -1,14 +1,14 @@
 import { Box, Button, Typography } from "@mui/material";
-import { useState, useEffect } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckIcon from "@mui/icons-material/Check";
+import AddIcon from "@mui/icons-material/Add";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -16,40 +16,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import CloseIcon from "@mui/icons-material/Close";
-import PropTypes from "prop-types";
-import axios from "../../Api/base";
+import { useState } from "react";
 
-function NewDoctor({ onClose }) {
-  NewDoctor.propTypes = {
-    onClose: PropTypes.func.isRequired,
-  };
-
+function Doc() {
   const [selectedCells, setSelectedCells] = useState([]);
-
-  const postData = {
-    work_schedule: [],
-  };
-
-  // Group time slots by day
-  const workSchedule = {};
-  selectedCells?.forEach((cell) => {
-    if (!workSchedule[cell.day]) {
-      workSchedule[cell.day] = [];
-    }
-    workSchedule[cell.day].push(cell.time);
-  });
-
-  // Transform workSchedule object into an array
-  Object.keys(workSchedule).forEach((day) => {
-    postData.work_schedule.push({
-      day: day,
-      times: workSchedule[day],
-    });
-  });
-
-  // Now postData is formatted as desired
-  console.log("postdata ", postData);
 
   const handleClick = (day, time) => {
     const cellIndex = selectedCells.findIndex(
@@ -68,7 +38,6 @@ function NewDoctor({ onClose }) {
     return selectedCells.some((cell) => cell.day === day && cell.time === time);
   };
   console.log(selectedCells);
-
   const [doctors, setDoctors] = useState([
     {
       firstName: "",
@@ -82,66 +51,8 @@ function NewDoctor({ onClose }) {
       hospitalName: "",
       roomId: "",
       image: null,
-      availability: [
-        { time: "8:00-12:00", days: ["", "", "", "", "", "", ""] },
-        { time: "14:00-16:00", days: ["", "", "", "", "", "", ""] },
-      ],
     },
   ]);
-
-  const [stateOptions, setStateOptions] = useState([]);
-  const [hospitalOptions, setHospitalOptions] = useState([]);
-
-  useEffect(() => {
-    const fetchStates = async () => {
-      try {
-        const response = await axios.get("/administrative/wilayas");
-        console.log(response.data);
-
-        const fetchedOptions = response.data.map((item) => ({
-          value: item.name,
-          label: item.id,
-        }));
-
-        setStateOptions(fetchedOptions);
-      } catch (error) {
-        console.error("Error fetching states:", error);
-      }
-    };
-
-    fetchStates();
-  }, []);
-
-  useEffect(() => {
-    console.log("fetching hospitals");
-    const access = localStorage.getItem("accessToken");
-    const fetchHospitals = async () => {
-      if (doctors[0].state) {
-        try {
-          const response = await axios.get("/accounts/hospitals-in-wilaya/", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${access}`,
-            },
-          });
-          console.log("Hospitals:", response.data);
-
-          const fetchedOptions = response.data.map((item) => ({
-            value: item.name,
-            label: item.id,
-          }));
-
-          setHospitalOptions(fetchedOptions);
-          console.log("Hospital options:", hospitalOptions);
-        } catch (error) {
-          console.error("Error fetching hospitals:", error);
-        }
-      }
-    };
-
-    fetchHospitals();
-  }, [doctors[0].state]);
-  console.log("Doctors:", doctors);
 
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;
@@ -157,54 +68,35 @@ function NewDoctor({ onClose }) {
     const updatedDoctors = [...doctors];
     updatedDoctors[index] = {
       ...updatedDoctors[index],
-      image: e,
+      image: e.target.files[0],
     };
     setDoctors(updatedDoctors);
   };
 
-  const handleAvailabilityClick = (rowIndex, colIndex, index) => {
-    const updatedDoctors = [...doctors];
-    updatedDoctors[index].availability[rowIndex].days[colIndex] =
-      updatedDoctors[index].availability[rowIndex].days[colIndex] === "checked"
-        ? ""
-        : "checked";
-    setDoctors(updatedDoctors);
+  const handleAddAnother = () => {
+    setDoctors((prevDoctors) => [
+      ...prevDoctors,
+      {
+        firstName: "",
+        lastName: "",
+        gender: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        state: "",
+        phoneNumber: "",
+        hospitalName: "",
+        roomId: "",
+        image: null,
+      },
+    ]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (doctors[0].gender === "male") {
-      doctors[0].gender = "M";
-    } else {
-      doctors[0].gender = "F";
-    }
-    doctors[0].state = parseInt(doctors[0].state);
-    console.log("Doctors:", doctors[0]);
     try {
-      const access = localStorage.getItem("accessToken");
-      const response = await axios.post(
-        `/accounts/add-medical-admin/`,
-        {
-          user: {
-            first_name: doctors[0].firstName,
-            last_name: doctors[0].lastName,
-            email: doctors[0].email,
-            gender: doctors[0].gender,
-            role: "MedicalAdmin",
-          },
-          hospital_name: doctors[0].hospitalName,
-          work_schedule: postData.work_schedule,
-          profile_picture: null,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${access}`,
-          },
-        }
-      );
-      console.log("Response:", response.data);
-      onClose();
+      // Handle form submission here
+      console.log("Doctors added successfully!", doctors);
     } catch (error) {
       console.error("Error adding doctors:", error);
     }
@@ -230,22 +122,6 @@ function NewDoctor({ onClose }) {
             backgroundColor: "#ffffff",
           }}
         >
-          <Button
-            onClick={onClose}
-            sx={{
-              position: "absolute",
-              top: "10px",
-              right: "10px",
-              backgroundColor: "transparent",
-              color: "#000000",
-              "&:hover": {
-                backgroundColor: "transparent",
-              },
-            }}
-          >
-            <CloseIcon />
-          </Button>
-
           <Typography
             variant="h5"
             fontWeight="bold"
@@ -253,6 +129,21 @@ function NewDoctor({ onClose }) {
           >
             New Doctor
           </Typography>
+          {index === 0 && (
+            <Button
+              variant="contained"
+              sx={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                color: "#121843",
+                borderRadius: "20px",
+              }}
+              onClick={handleAddAnother}
+            >
+              Add ANOTHER <AddIcon fontSize="medium" className="icon" />
+            </Button>
+          )}
 
           <Typography
             variant="body1"
@@ -263,7 +154,7 @@ function NewDoctor({ onClose }) {
               marginTop: "1px",
             }}
           >
-            Enter doctor&apos;s information to add it to our hajj management
+            Enter doctor's information to add it to our hajj management
           </Typography>
 
           <form className="new-form" onSubmit={handleSubmit}>
@@ -296,19 +187,14 @@ function NewDoctor({ onClose }) {
               </div>
               <div className="input">
                 <LocationOnIcon fontSize="medium" className="icon" />
-                <select
+                <input
+                  type="text"
+                  placeholder="State"
                   name="state"
                   value={doctor.state}
                   onChange={(e) => handleInputChange(e, index)}
                   required
-                >
-                  <option value="">Select State</option>
-                  {stateOptions.map((state) => (
-                    <option key={state.label} value={state.label}>
-                      {state.value}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
             {/* Additional inputs */}
@@ -375,6 +261,7 @@ function NewDoctor({ onClose }) {
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
               <div className="input" style={{ marginRight: "10px" }}>
@@ -390,19 +277,14 @@ function NewDoctor({ onClose }) {
               </div>
               <div className="input">
                 <LocalHospitalIcon fontSize="medium" className="icon" />
-                <select
+                <input
+                  type="text"
+                  placeholder="Hospital Name"
                   name="hospitalName"
                   value={doctor.hospitalName}
                   onChange={(e) => handleInputChange(e, index)}
                   required
-                >
-                  <option value="">Select Hospital</option>
-                  {hospitalOptions.map((hospital) => (
-                    <option key={hospital.value} value={hospital.value}>
-                      {hospital.value}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
             <div
@@ -413,19 +295,14 @@ function NewDoctor({ onClose }) {
                 marginBottom: "15px",
               }}
             >
-              <div>
-                <input
-                  style={{ display: "none" }}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e.target.files[0], index)}
-                  id={`uploadButton${index}`}
-                />
-                <label htmlFor={`uploadButton${index}`}>
-                  <AccountBoxIcon fontSize="medium" className="icon" />
-                  image
-                </label>
-              </div>
+              <AddPhotoAlternateIcon fontSize="medium" className="icon" />
+              <p>Image</p>
+              <input
+                style={{ justifyContent: "space-between", marginRight: "10px" }}
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={(e) => handleFileChange(e, index)}
+              />
             </div>
             <Typography
               variant="h6"
@@ -535,4 +412,4 @@ function NewDoctor({ onClose }) {
   );
 }
 
-export default NewDoctor;
+export default Doc;
