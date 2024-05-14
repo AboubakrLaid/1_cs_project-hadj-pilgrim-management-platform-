@@ -14,21 +14,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import MailIcon from "@mui/icons-material/Mail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import NewDoctor from "./NewDoctor";
-const data = [
-  {
-    profile_pic: null,
-    first_name: "Alice",
-    last_name: "Smith",
-    email: "alice.smith@example.com",
-    gender: "Female",
-    hospital_name: "Hospital ABC",
-    day_off: "Saturday, Sunday",
-    contact: "9876543210",
-    availableTime:
-      "Monday 10:00-12:00, Wednesday 14:00-16:00, Friday 10:00-12:00",
-  },
-  // Add other users if needed...
-];
 
 const Doctors = () => {
   const accessToken = localStorage.getItem("accessToken");
@@ -36,6 +21,8 @@ const Doctors = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [addDoc, setAddDoc] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [daysOff, setDaysOff] = useState("");
 
   const renderSchedule = () => {
     if (!selectedUser) return null;
@@ -59,27 +46,30 @@ const Doctors = () => {
   };
 
   //-----------Fetching doctors
-  /* useEffect(() => {
+  useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await axios.get("/accounts/admins/", {
+        const response = await axios.get("/accounts/get-medical-admins", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        console.log(response.data);
+        console.log("fetch doctor response", response);
 
-        const formattedData = response.data.map((admin) => ({
-          id: admin.id,
-          name: `${admin.first_name} ${admin.last_name}`,
-          gender: admin.gender,
+        const formattedData = response.data.map((admin, index) => ({
+          profile_pic: admin.profile_pic,
+          id: index,
+          name: `${admin.user.first_name} ${admin.user.last_name}`,
+          gender: admin.user.gender,
           wilaya: admin?.wilaya?.name,
           number: admin?.wilaya?.id, // You need to specify how to get the number for each admin
-          email: admin.email,
+          email: admin.user.email,
+          days_off: admin.work_schedule,
+          availableTime: admin.work_schedule[0].times,
         }));
 
-        setData(formattedData);
-        console.log("the admin new data", data);
+        setDoctors(formattedData);
+        console.log("the admin new data", doctors);
       } catch (error) {
         console.error("Error:", error);
       }
@@ -87,8 +77,8 @@ const Doctors = () => {
     fetchAdmins();
 
     console.log("deleted in the fetch admin", deleted);
-    console.log("addAdmin in the fetch admin", addAdmin);
-  }, [deleted, addAdmin]);*/
+    //console.log("addAdmin in the fetch admin", addAdmin);
+  }, []);
 
   const myTheme = createTheme({
     components: {
@@ -111,7 +101,7 @@ const Doctors = () => {
     // Retrieve the selected user object from the users array
     const selectedUserData =
       newSelection.length > 0
-        ? data?.find((user) => user.email === newSelection[0])
+        ? doctors?.find((user) => user.id === newSelection[0])
         : null;
     setSelectedUser(selectedUserData);
     console.log(selectedUserData);
@@ -138,14 +128,39 @@ const Doctors = () => {
         field: "name",
         headerName: "Name",
         width: 150,
-        renderCell: (params) =>
-          `${params.row.first_name} ${params.row.last_name}`, // Concatenate first and last name
       },
-      { field: "gender", headerName: "Gender", width: 80 },
-      { field: "email", headerName: "Email", width: 220, sortable: false },
-      { field: "hospital_name", headerName: "Hospital", width: 200 },
-      { field: "day_off", headerName: "Days off", width: 130 },
-      { field: "contact", headerName: "Contact", width: 130 },
+      {
+        field: "gender",
+        headerName: "Gender",
+        width: 80,
+      },
+      {
+        field: "email",
+        headerName: "Email",
+        width: 220,
+        sortable: false,
+      },
+
+      {
+        field: "days_off",
+        headerName: "Days off",
+        width: 130,
+        renderCell: (params) => {
+          const allDays = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          const workDays = params.row.days_off.map((day) => day.day);
+          const daysOff = allDays.filter((day) => !workDays.includes(day));
+          setDaysOff(daysOff.join(", "));
+          return daysOff.join(", ");
+        },
+      },
     ],
     []
   );
@@ -352,8 +367,8 @@ const Doctors = () => {
               <DataGrid
                 columns={columns}
                 onRowSelectionModelChange={handleSelectionChange}
-                rows={data}
-                getRowId={(row) => row.email}
+                rows={doctors}
+                getRowId={(row) => row.id}
                 hideFooterSelectedRowCount
                 initialState={{
                   pagination: { paginationModel: { pageSize: 10 } },
@@ -439,7 +454,7 @@ const Doctors = () => {
                 }}
               >
                 <Avatar
-                  alt={selectedUser?.fullName}
+                  alt={selectedUser?.name}
                   src={`data:image/png;base64,${selectedUser?.profile_pic}`}
                   sx={{
                     width: { xs: 150, md: 120, lg: 196 },
@@ -448,7 +463,7 @@ const Doctors = () => {
                   }}
                 />
                 <span style={{ fontWeight: 600, fontSize: "16px" }}>
-                  {selectedUser?.first_name} {selectedUser?.last_name}
+                  {selectedUser?.name}
                 </span>
                 <span
                   style={{
@@ -459,7 +474,7 @@ const Doctors = () => {
                     bottom: "8px",
                   }}
                 >
-                  {selectedUser?.municipal}
+                  {localStorage.getItem("wilaya")}
                 </span>
                 <Stack direction={"row"} spacing={2}>
                   <MailIcon
@@ -495,7 +510,7 @@ const Doctors = () => {
                         color: "#A7A7A7",
                       }}
                     >
-                      {selectedUser?.day_off}
+                      {daysOff}
                     </span>
                   </Stack>
                   <Stack direction={"column"} spacing={"2px"}>

@@ -1,8 +1,9 @@
 import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import { Box, Stack, createTheme, ThemeProvider } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "../../Api/base";
 
 const data = [
   {
@@ -43,7 +44,37 @@ const VisitMed = () => {
     localStorage.clear();
     navigate("/");
   };
+  const [hospitals, setaHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    const fetchHosp = async () => {
+      try {
+        const response = await axios.get(
+          "/accounts/hospitals-in-wilaya-with-schedule/",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
+            },
+          }
+        );
+        console.log(response);
+        const formattedData = response.data.map((admin, index) => ({
+          id: index,
+          availableTime: admin.work_schedule[0].times,
+          name: admin.hospital_name,
+        }));
+        setaHospitals(formattedData);
+      } catch (error) {
+        // Handle network errors or Axios request errors
+        console.error("Error:", error);
+      }
+    };
+
+    fetchHosp();
+  }, []);
 
   const handleSelectionChange = (newSelection) => {
     // Retrieve the selected user object from the users array
@@ -60,10 +91,9 @@ const VisitMed = () => {
   const columns = useMemo(
     () => [
       { field: "hospital_name", headerName: "Hospital", width: 200 },
-      { field: "municipal", headerName: "Municipal", width: 150 },
       {
         field: "days_off",
-        headerName: "Days off",
+        headerName: "Schedule",
         width: 150,
         sortable: false,
       },

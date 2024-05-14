@@ -173,10 +173,10 @@ const Patients = () => {
         field: "birth_date",
         headerName: "Age",
         width: 70,
-        valueGetter: (params) => calculateAge(params.getValue("birth_date")),
+        renderCell: (params) => calculateAge(params.value),
       },
-      { field: "email", headerName: "Email", width: 200, sortable: false },
-      { field: "municipal", headerName: "Municipal", width: 150 },
+      { field: "email", headerName: "Email", width: 180, sortable: false },
+      { field: "municipal", headerName: "Municipal", width: 130 },
       {
         field: "status",
         headerName: "Status",
@@ -199,6 +199,30 @@ const Patients = () => {
             }}
           >
             {params.row.phase}
+          </Box>
+        ),
+        sortable: false,
+      },
+      {
+        field: "phase_status",
+        headerName: "Status",
+        width: 100,
+        type: "singleSelect",
+        valueOptions: ["Pending", "Accepted", "Refused"],
+        renderCell: (params) => (
+          <Box
+            sx={{
+              color: getColorphase_status(params.row.phase_status),
+              fontWeight: 600,
+              width: "100%",
+              height: "60%",
+              borderRadius: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {params.row.phase_status}
           </Box>
         ),
         sortable: false,
@@ -268,40 +292,23 @@ const Patients = () => {
             Wilaya of {localStorage.getItem("wilaya")}
           </Typography>
           <div style={{ flex: 1 }} />
-          {selectedUser?.phase === "Inscription" &&
+          {selectedUser?.phase === "Med visit" &&
             selectedUser?.phase_status === "Pending" && (
               <button
                 onClick={handleValidateUser}
                 className="button"
                 style={{
-                  backgroundColor: "rgba(231, 217, 202, 0.6)",
                   marginRight: isSmallScreen ? "10px" : "30px",
                   height: "46px",
                   width: isSmallScreen ? "110px" : "140px",
-                  fontSize: isSmallScreen ? "10px" : "18px",
+                  fontSize: isSmallScreen ? "10px" : "16px",
                   borderRadius: 30,
-                  color: "black",
-                  fontWeight: "bold",
-                  border: "1px solid black",
+                  fontWeight: "600",
                 }}
               >
-                Validate user
+                Validate Patient
               </button>
             )}
-
-          <button
-            onClick={handleLogOut}
-            className="button"
-            style={{
-              marginRight: isSmallScreen ? "10px" : "30px",
-              height: "46px",
-              width: isSmallScreen ? "110px" : "140px",
-              fontSize: isSmallScreen ? "10px" : "18px",
-              borderRadius: 30,
-            }}
-          >
-            Log Out
-          </button>
         </Box>
         <Stack
           sx={{

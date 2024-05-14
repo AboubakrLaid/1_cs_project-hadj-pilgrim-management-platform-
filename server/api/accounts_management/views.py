@@ -323,9 +323,11 @@ def get_hospitals_in_wilaya(request):
 def get_all_medical_admins(request):
     user = request.user
     wilaya= user.admin_profile.object_id
-    medical_admins = MedicalAdminProfile.objects.filter(user__personal_profile__wilaya=wilaya)
+    hospitals_ids = Hospital.objects.filter(wilaya=wilaya).values_list("id")
+    medical_admins = MedicalAdminProfile.objects.filter(object_id__in = hospitals_ids)
     serializer = MedicalAdminProfileSerializer(medical_admins, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsCandidateUser])

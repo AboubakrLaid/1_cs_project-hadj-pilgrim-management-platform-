@@ -21,6 +21,12 @@ const Sidebar = [
     path: "/Doctor/Patients",
     icon: <HomeIcon />,
   },
+
+  {
+    title: "Log Out",
+    path: "/",
+    icon: <LogoutIcon />,
+  },
 ];
 
 const DoctorInterface = () => {
@@ -43,7 +49,9 @@ const DoctorInterface = () => {
   const handleItemClick = (item) => {
     setSelectedItem(item.title);
     console.log("item tile is ", item.title);
-
+    if (item.title === "Log Out") {
+      localStorage.clear();
+    }
     navigate(item.path);
   };
 

@@ -30,6 +30,9 @@ const Payement = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Submitted");
+    if (selectedFile) {
+      console.log("File uploaded");
+    }
   };
 
   return (
