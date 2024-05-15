@@ -28,7 +28,7 @@ import Patients from "./content/Doctor/Patients";
 import Payement from "./content/Candidate/Payement";
 import PatientHealthReview from "./content/Doctor/PatientHealthReview";
 import Bna from "./Banque/Bna";
-import Doc from "./Doc";
+import Reservation from "./content/Candidate/Reservation";
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<LandingPage />} />
           <Route path="/BNA" element={<Bna />} />
-          <Route path="/Doc" element={<Doc />} />
+
           <Route
             path="/PatientHealthReview"
             element={<PatientHealthReview />}
@@ -47,6 +47,7 @@ function App() {
             <Route path="Message" element={<Message />} />
             <Route path="VisitMed" element={<VisitMed />} />
             <Route path="Payement" element={<Payement />} />
+            <Route path="Reservation" element={<Reservation />} />
           </Route>
           <Route exact path="/Login" element={<Login />} />
           <Route path="/Register" element={<Signup />} />

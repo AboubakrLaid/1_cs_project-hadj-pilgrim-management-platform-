@@ -24,6 +24,8 @@ const Home = () => {
     step = 3;
   } else if (phase === "P") {
     step = 4;
+  } else if (phase === "R") {
+    step = 5;
   }
 
   useEffect(() => {
@@ -38,6 +40,9 @@ const Home = () => {
     }
     if (phase === "P" && status === "P") {
       navigate("payement");
+    }
+    if (phase === "R" && status === "P") {
+      navigate("Reservation");
     }
   }, []);
 
