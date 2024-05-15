@@ -7,12 +7,17 @@ import CloseIcon from "@mui/icons-material/Close";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/base";
-//import useAuth from "../../Context/useAuth";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import PropTypes from "prop-types";
-
+import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import dayjs from "dayjs";
 
+const today = dayjs();
 const validDate = /^\d{4}-(0?[1-9]|1[0-2])-(0?[1-9]|[12]\d|3[01])$/;
+const price = /^[0-9]+$/;
 
 const NewSeason = ({ onClose }) => {
   NewSeason.propTypes = {
@@ -44,8 +49,20 @@ const NewSeason = ({ onClose }) => {
   const [phaseNum, setPhaseNum] = useState("");
   const [validPhaseNum, setValidPhaseNum] = useState(false);
   const [pahseFocus, setPhaseFocus] = useState(false);
+  //Season feed
+  const [seasonFees, setSeasonFees] = useState(null);
+  const [validSeasonFees, setValidSeasonFees] = useState(false);
+  const [seasonFeesFocus, setSeasonFeesFocus] = useState(false);
 
   //-----------------------Effects------------------//
+
+  useEffect(() => {
+    setValidSeasonFees(price.test(seasonFees));
+    /*setValidSeasonFees(true);
+    let passportExp = dayjs(seasonFees?.$d).format("YYYY-MM-DD");
+    console.log("seasonFees", seasonFees);
+    console.log("passportExp", passportExp);*/
+  }, [seasonFees]);
 
   useEffect(() => {
     // Year validation
@@ -105,7 +122,8 @@ const NewSeason = ({ onClose }) => {
       validTotalP &&
       validInscDeadline &&
       validProcDeadline &&
-      validPhaseNum
+      validPhaseNum &&
+      validSeasonFees
     ) {
       //***********************************Algorithme */
 
@@ -168,6 +186,7 @@ const NewSeason = ({ onClose }) => {
         procedure_deadline: procDeadline,
         wilayas_seats: newData,
         phases: phase,
+        price: parseInt(seasonFees),
       };
       console.log(payload);
       const access = localStorage.getItem("accessToken");
@@ -346,6 +365,30 @@ const NewSeason = ({ onClose }) => {
                 <span className="error-msg">Please enter a valid Number</span>
               </div>
             )}
+
+            <div
+              className={
+                !validSeasonFees && seasonFees && !seasonFeesFocus
+                  ? "invalid-input"
+                  : "input"
+              }
+            >
+              <CreditCardOutlinedIcon fontSize="medium" className="icon" />
+              <input
+                type="text"
+                placeholder="Hajj fees"
+                onChange={(e) => setSeasonFees(e.target.value)}
+                onFocus={() => setSeasonFeesFocus(true)}
+                onBlur={() => setSeasonFeesFocus(false)}
+                required
+              />
+            </div>
+            {!validSeasonFees && seasonFees && !seasonFeesFocus && (
+              <div className="error-container">
+                <span className="error-msg">Please enter a valid Price</span>
+              </div>
+            )}
+
             <div
               className={
                 !validInscDeadline && inscDeadline && !inscFocus
@@ -426,6 +469,49 @@ const NewSeason = ({ onClose }) => {
               Upload CSV file
               <UploadFileIcon sx={{ ml: 3 }} />
             </label>
+
+            {/* ----------------- Birthday input ----------------- 
+            <div
+              style={{ position: "relative", width: "350px" }}
+              className={
+                !validSeasonFees && seasonFees && !seasonFeesFocus
+                  ? "invalid-input"
+                  : "input"
+              }
+            >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  minDate={today}
+                  onFocus={() => setSeasonFeesFocus(true)}
+                  onBlur={() => setSeasonFeesFocus(false)}
+                  value={seasonFees}
+                  onChange={(newValue) => setSeasonFees(newValue)}
+                  format={"YYYY/MM/DD"}
+                  sx={{
+                    "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline":
+                      { border: "none" },
+                    "& input": {
+                      fontWeight: 400,
+                      fontSize: "16px",
+                      color: "black",
+                    },
+                  }}
+                  slotProps={{
+                    textField: { placeholder: "Birth date" },
+
+                    inputAdornment: {
+                      position: "start",
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+
+              {!validSeasonFees && seasonFees && !seasonFeesFocus && (
+                <span style={{ top: "45px" }} className="error-msg">
+                  you must be at least 18 years old
+                </span>
+              )}
+            </div> */}
 
             <div className="sub-but">
               <button className="button" onClick={handleSubmit}>

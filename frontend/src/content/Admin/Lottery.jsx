@@ -13,6 +13,11 @@ const screenHeight = window.innerHeight;
 const Lottery = () => {
   const navigate = useNavigate();
   const [initialWinners, setInitialWinners] = useState([]);
+  let newSeats = 0;
+  if (localStorage.getItem("seats")) {
+    newSeats = parseInt(localStorage.getItem("seats"));
+    console.log("new seats", newSeats);
+  }
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -63,14 +68,25 @@ const Lottery = () => {
   const columns = useMemo(
     () => [
       { field: "nin", headerName: "NIN", width: 180 },
-      { field: "first_name", headerName: "First name", width: 150 },
-      { field: "last_name", headerName: "Last name", width: 150 },
+      {
+        field: "name",
+        headerName: "Name",
+        width: 220,
+        renderCell: (params) =>
+          `${params.row.first_name} ${params.row.last_name}`, // Concatenate first and last name
+      },
       {
         field: "inscription_count",
         headerName: "Inscription count",
-        width: 130,
+        width: 120,
         renderCell: (params) => (
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <LocalActivityOutlinedIcon style={{ color: "#AB7595" }} />
             <span style={{ marginLeft: 5 }}>{params.value}</span>
           </div>
@@ -103,7 +119,10 @@ const Lottery = () => {
       try {
         const response = await axios.post(
           "/lottery/result",
-          { municipals: municipal_ids.municipals, used_seats: 0 },
+          {
+            municipals: municipal_ids.municipals,
+            used_seats: newSeats,
+          },
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -316,7 +335,7 @@ const Lottery = () => {
                 sx={{
                   alignItems: "center",
                   position: "relative",
-                  top: { xs: "0px", md: "40px" },
+                  top: { xs: "0px", md: "20px" },
                 }}
               >
                 <span
@@ -465,12 +484,12 @@ const Lottery = () => {
         {/*   ------------------------------Table of users and winners--------------------------------------*/}
 
         <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={0}
+          direction={{ sm: "column", md: "row" }}
+          spacing={2}
           sx={{
             width: "100%",
             height: { xs: "1100px", md: `${screenHeight - 220}px` },
-            px: "80px",
+            px: { xs: "10px", md: "60px" },
             justifyContent: "space-between",
             alignItems: "center",
             py: "20px",
@@ -478,7 +497,7 @@ const Lottery = () => {
         >
           <Box
             sx={{
-              width: "50%",
+              width: "540px",
               height: "500px",
               display: "flex",
               flexDirection: "column",
@@ -519,6 +538,7 @@ const Lottery = () => {
                   "&.MuiDataGrid-root": {
                     border: "none",
                     backgroundColor: "white",
+                    width: "100%",
                   },
 
                   "& .MuiDataGrid-columnHeader": {
@@ -565,7 +585,7 @@ const Lottery = () => {
           </Box>
           <Box
             sx={{
-              width: "50%",
+              width: "540px",
               height: "500px",
               display: "flex",
               flexDirection: "column",
@@ -607,6 +627,7 @@ const Lottery = () => {
                   "&.MuiDataGrid-root": {
                     border: "none",
                     backgroundColor: "white",
+                    width: "100%",
                   },
 
                   "& .MuiDataGrid-columnHeader": {

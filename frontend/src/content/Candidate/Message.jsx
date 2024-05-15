@@ -2,6 +2,7 @@ import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 const Message = () => {
   const status = localStorage.getItem("Status");
+  const process = localStorage.getItem("process");
 
   const navigate = useNavigate();
   const handleLogOut = () => {
@@ -26,7 +27,7 @@ const Message = () => {
       >
         Log Out
       </button>
-      {status === "R" && (
+      {process === "R" && (
         <Box
           sx={{
             width: "619px",
@@ -51,7 +52,7 @@ const Message = () => {
               color: "#000000",
             }}
           >
-            Unfortunately!
+            {status === "L" ? "Unfortunately!" : "Refused !"}
           </Typography>
           <Typography
             sx={{

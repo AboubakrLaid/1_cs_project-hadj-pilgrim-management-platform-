@@ -108,13 +108,13 @@ function Bna() {
       try {
         const response = await axios.post(
           "http://localhost:8001/api/transactions/new",
-          JSON.stringify({
+          {
             nin: nin,
             first_name: firstName,
             last_name: lastName,
             email: email,
             wilaya: state,
-          })
+          }
         );
         console.log(response.data);
         console.log("here");

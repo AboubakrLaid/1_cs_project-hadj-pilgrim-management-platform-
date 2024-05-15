@@ -5,7 +5,7 @@ import PayementImg from "../../assets/PayementImg.svg";
 import CreditCrad from "../../assets/CreditCard.png";
 import AddFile from "../../assets/AddFile.png";
 import TaskIcon from "@mui/icons-material/Task";
-
+import axios from "../../Api/base";
 import UploadOutlinedIcon from "@mui/icons-material/UploadOutlined";
 const Number = /^\d{9}$/;
 
@@ -27,11 +27,34 @@ const Payement = () => {
     navigate("/");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted");
+    const access = localStorage.getItem("accessToken");
+
     if (selectedFile) {
-      console.log("File uploaded");
+      try {
+        const response = await axios.post(
+          "/payment/validate/",
+          {
+            file: selectedFile,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${access}`,
+            },
+          }
+        );
+        console.log(response);
+
+        if (response.status === 201 && response.data.success) {
+          alert("validated succesfully");
+          navigate("/Home/Reservation");
+        }
+      } catch (error) {
+        // Handle errors here
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -119,7 +142,7 @@ const Payement = () => {
                 <UploadOutlinedIcon
                   sx={{ mr: 2, color: "rgb(0, 0, 0, 0.5)" }}
                 />
-                Upload receipt (.pdf)
+                {selectedFile ? "File uploaded" : "Upload receipt (.pdf) "}
               </label>
             </div>
           </form>
