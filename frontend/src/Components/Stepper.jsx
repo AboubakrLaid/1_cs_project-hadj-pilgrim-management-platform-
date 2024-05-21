@@ -190,7 +190,7 @@ const Stepper = (Step) => {
             color: phase === 4 ? "white" : "rgba(255, 255, 255, 0.4) ",
           }}
         >
-          Payement
+          Reservation
         </TimelineContent>
       </TimelineItem>
     </Timeline>

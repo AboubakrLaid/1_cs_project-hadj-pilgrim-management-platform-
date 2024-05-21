@@ -256,7 +256,7 @@ const Lottery = () => {
         <Box
           sx={{
             width: "100%",
-            height: { xs: "400px", md: "220px" },
+            height: { xs: "400px", md: "200px" },
             position: "relative",
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
@@ -269,7 +269,7 @@ const Lottery = () => {
           <List
             sx={{
               width: "200px",
-              height: "200px",
+              maxHeight: "200px",
               overflow: "auto",
               paddingRight: "14px",
               boxShadow: "5px 5px 5px #ab7595",
@@ -335,7 +335,7 @@ const Lottery = () => {
                 sx={{
                   alignItems: "center",
                   position: "relative",
-                  top: { xs: "0px", md: "20px" },
+                  top: { xs: "0px", md: "10px" },
                 }}
               >
                 <span
@@ -369,7 +369,7 @@ const Lottery = () => {
                   sx={{
                     alignItems: "center",
                     position: "relative",
-                    top: { xs: "0px", md: "40px" },
+                    top: { xs: "0px", md: "10px" },
                   }}
                 >
                   <span

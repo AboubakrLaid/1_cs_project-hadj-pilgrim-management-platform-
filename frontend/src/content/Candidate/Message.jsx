@@ -27,7 +27,7 @@ const Message = () => {
       >
         Log Out
       </button>
-      {process === "R" && (
+      {process === "L" && (
         <Box
           sx={{
             width: "619px",
@@ -52,7 +52,7 @@ const Message = () => {
               color: "#000000",
             }}
           >
-            {status === "L" ? "Unfortunately!" : "Refused !"}
+            {status === "R" ? "Unfortunately!" : "Refused !"}
           </Typography>
           <Typography
             sx={{
@@ -67,7 +67,7 @@ const Message = () => {
           </Typography>
         </Box>
       )}
-      {status === "P" && (
+      {status === "P" && process === "I" && (
         <Box
           sx={{
             width: "619px",
@@ -104,6 +104,46 @@ const Message = () => {
             Your request is valuable to us, and we are committed to providing
             accurate and timely information. Our team is diligently working to
             verify the details you&lsquo;ve provided.
+          </Typography>
+        </Box>
+      )}
+
+      {process === "R" && (
+        <Box
+          sx={{
+            width: "619px",
+            height: "251px",
+            padding: "25px",
+            borderRadius: "20px",
+            border: "3px solid #AB7595",
+            backgroundColor: "white",
+            marginBottom: "90px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            sx={{
+              fontSize: "30px",
+              height: "65px",
+              color: "#AB7595",
+            }}
+          >
+            Done !
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "19px",
+              textAlign: "center",
+              color: "#000000",
+            }}
+          >
+            We wish you an accepted Hajj and a spiritually fulfilling
+            experience!
           </Typography>
         </Box>
       )}

@@ -14,7 +14,7 @@ const Home = () => {
   const phase = localStorage.getItem("process");
   let step = 1;
   const status = localStorage.getItem("Status");
-  console.log("phase is ", phase, "process is ", status);
+  console.log("phase is ", phase, "status is ", status);
 
   if (phase === "I") {
     step = 1;
@@ -24,8 +24,10 @@ const Home = () => {
     step = 3;
   } else if (phase === "P") {
     step = 4;
-  } else if (phase === "R") {
+  } else if (phase === "R" && status === "P") {
     step = 5;
+  } else if (phase === "R" && status === "C") {
+    step = 6;
   }
 
   useEffect(() => {
@@ -35,14 +37,16 @@ const Home = () => {
     if (phase === "V" && status === "P") {
       navigate("VisitMed");
     }
-    if (status === "R" || status === "C") {
-      navigate("Message");
-    }
     if (phase === "P" && status === "P") {
       navigate("payement");
     }
     if (phase === "R" && status === "P") {
       navigate("Reservation");
+    }
+    if (phase === "R" && status === "C") {
+      navigate("Message");
+    } else if (phase === null && status === null) {
+      navigate("/");
     }
   }, []);
 

@@ -36,7 +36,7 @@ class Room(models.Model):
     
 class Reservation(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='reservation')
-    room = models.OneToOneField(Room, on_delete=models.CASCADE, null=True, related_name ='persons')
+    rooms = models.ManyToManyField(Room, related_name='reservations')
     flight = models.OneToOneField(Flight, on_delete=models.CASCADE, null=True, related_name='passengers')
     
     

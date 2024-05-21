@@ -27,6 +27,11 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         
         companion_data = validated_data.pop('companion', None)
         personal_profile = PersonalProfile.objects.create(**validated_data)
+        UserStatus.objects.create(
+            user = validated_data["user"],
+            status = UserStatus.Status.PENDING,
+            process= UserStatus.Process.INSCRIPTION 
+        )
         
         if companion_data is not None:
             Companion.objects.create(**companion_data)
