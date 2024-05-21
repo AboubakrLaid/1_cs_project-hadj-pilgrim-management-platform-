@@ -29,6 +29,7 @@ import Payement from "./content/Candidate/Payement";
 import PatientHealthReview from "./content/Doctor/PatientHealthReview";
 import Bna from "./Banque/Bna";
 import Reservation from "./content/Candidate/Reservation";
+import HotelReservation from "./content/Candidate/HotelReservation";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
             <Route path="VisitMed" element={<VisitMed />} />
             <Route path="Payement" element={<Payement />} />
             <Route path="Reservation" element={<Reservation />} />
+            <Route path="Reservation/Hotel" element={<HotelReservation />} />
           </Route>
           <Route exact path="/Login" element={<Login />} />
           <Route path="/Register" element={<Signup />} />

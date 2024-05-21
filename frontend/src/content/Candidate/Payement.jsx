@@ -96,15 +96,15 @@ const Payement = () => {
           justifyContent: "space-between",
           alignItems: "center",
           margin: "auto",
-          px: { xs: 2, md: 12 },
+          px: { xs: 2, sm: 4, md: 8, lg: 12 },
 
-          gap: { xs: "20px", md: "80px" },
+          gap: { xs: "20px", sm: "40px", md: "80px" },
         }}
       >
         <Box
           sx={{
             width: { xs: "80%", sm: "65%", md: "37%" },
-            height: "75%",
+            height: "50%",
             border: "1px solid #ab7595",
             boxShadow: "5px 5px 4px #ab7595",
             borderRadius: "20px",
@@ -129,16 +129,26 @@ const Payement = () => {
             We sent you an Email. Please verify your transaction number
           </span>
           {/* ----------------inputs---------------------*/}
-          <form className="auth-form Login-form" onSubmit={handleSubmit}>
-            <div>
+          <form
+            className="auth-form Login-form"
+            onSubmit={handleSubmit}
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ width: "80%" }}>
               <input
                 type="file"
                 accept=".pdf"
                 onChange={(e) => setSelectedFile(e.target.files[0])}
                 required
                 id="PDFbutton"
+                style={{ width: "100px" }}
               />
-              <label htmlFor="PDFbutton">
+              <label htmlFor="PDFbutton" style={{ width: "100%" }}>
                 <UploadOutlinedIcon
                   sx={{ mr: 2, color: "rgb(0, 0, 0, 0.5)" }}
                 />
@@ -152,7 +162,8 @@ const Payement = () => {
             className="button"
             onClick={handleSubmit}
             style={{
-              width: "300px",
+              width: "60%",
+              maxWidth: "300px",
               height: "40px",
             }}
           >

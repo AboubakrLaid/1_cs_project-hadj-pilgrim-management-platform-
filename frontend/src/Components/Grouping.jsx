@@ -353,7 +353,7 @@ const Grouping = () => {
           )}
 
           {clicked && (
-            <Box sx={{ border: "2px solid black", position: "relative" }}>
+            <Box sx={{ position: "relative" }}>
               <button
                 style={{
                   position: "absolute",

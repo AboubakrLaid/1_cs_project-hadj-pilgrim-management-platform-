@@ -9,7 +9,8 @@ import axios from "../Api/base";
 import { useNavigate } from "react-router-dom";
 
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,26}$/;
+//const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{8,26}$/;
+const passwordPattern = /^(?=.*\d).{8,26}$/;
 
 const Login = () => {
   const navigate = useNavigate();
