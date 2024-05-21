@@ -8,11 +8,9 @@ import AvatarGroup from "@mui/material/AvatarGroup";
 import MailIcon from "@mui/icons-material/Mail";
 import PhoneIcon from "@mui/icons-material/Phone";
 import { useNavigate } from "react-router-dom";
-
 import axios from "../../Api/base";
 import UserValidation from "./UserValidation";
 import CloseIcon from "@mui/icons-material/Close";
-
 import { Typography, createTheme, ThemeProvider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";

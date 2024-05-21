@@ -47,6 +47,23 @@ const VisitMed = () => {
   const [hospitals, setaHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
 
+  /*useEffect(() => {
+    const fetchInfo = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      try {
+        const response = await axios.get("/pilgrimage/all", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Set the access token in the Authorization header
+          },
+        });
+        console.log(response);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+    fetchInfo();
+  }, []);
+*/
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
 

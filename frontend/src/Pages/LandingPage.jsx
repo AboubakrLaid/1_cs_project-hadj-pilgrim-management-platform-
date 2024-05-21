@@ -6,6 +6,9 @@ import Content1 from "../content/LandingPage/Content1";
 import Content2 from "../content/LandingPage/Content2";
 import Content3 from "../content/LandingPage/Content3";
 import Content4 from "../content/LandingPage/Content4";
+import Content5 from "../content/LandingPage/Content5";
+import Footer from "../content/LandingPage/Footer";
+import Logo from "../assets/Logo.png";
 import { useEffect, useState } from "react";
 
 const LandingPage = () => {
@@ -53,7 +56,7 @@ const LandingPage = () => {
             px: { xs: 0, md: 6 },
           }}
         >
-          <h1>logo</h1>
+          <img src={Logo} />
           <Typography
             sx={{
               fontWeight: "400",
@@ -297,6 +300,8 @@ const LandingPage = () => {
       <Content2 />
       <Content3 />
       <Content4 />
+      <Content5 />
+      <Footer />
     </>
   );
 };

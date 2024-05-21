@@ -71,7 +71,7 @@ const Home = () => {
           width: { xs: "100%", md: "300px" },
           borderTopRightRadius: { xs: "0px", md: "20px" },
           borderBottomLeftRadius: { xs: "20px", md: "0px" },
-          height: { xs: "200px", md: "100%" },
+          height: { xs: "200px", md: "100vh" },
         }}
       >
         <Box
@@ -80,20 +80,21 @@ const Home = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
             width: { xs: "30%", md: "100%" },
             borderTopRightRadius: { xs: "0px", md: "20px" },
             borderBottomLeftRadius: { xs: "20px", md: "0px" },
             backgroundColor: "#996986",
             borderBottom: "2px solid rgba(0, 0, 0, 0.4)",
+            py: { xs: 1, md: 3 },
           }}
         >
           <Avatar
             onClick={handleclick}
             src="/broken-image.jpg"
             sx={{
-              width: { xs: "70px", sm: "90px" },
-              height: { xs: "70px", sm: "90px" },
+              width: { xs: "11vh", sm: "15vh" },
+              height: { xs: "11vh", sm: "15vh" },
             }}
           />
           <div
@@ -110,7 +111,7 @@ const Home = () => {
             <button
               style={{
                 width: "110px",
-                height: "30px",
+                height: "5vh",
                 borderRadius: "20px",
                 fontWeight: "600",
                 fontSize: "16px",
@@ -132,9 +133,10 @@ const Home = () => {
             width: "100%",
             alignContent: "center",
             justifyContent: "center",
+            overflow: "auto",
           }}
         >
-          <Box>{isXsMd ? <HorStepper /> : <Stepper Step={step} />}</Box>
+          {isXsMd ? <HorStepper /> : <Stepper Step={step} />}
         </Box>
       </Box>
       <Box sx={{ width: "100%", overflow: "auto" }}>

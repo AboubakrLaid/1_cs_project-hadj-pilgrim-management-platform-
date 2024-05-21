@@ -721,3 +721,21 @@ select {
 .RowColor2 {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+.Content5 {
+  position: relative;
+  height: 467px;
+  width: 700px;
+  margin-top: -65px;
+  background-image: url(./assets/Content5.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.BawabatElHajj {
+  position: relative;
+  height: 57px;
+  width: 250px;
+  background-image: url(./assets/BawabatElHajj.png);
+  background-repeat: no-repeat;
+}

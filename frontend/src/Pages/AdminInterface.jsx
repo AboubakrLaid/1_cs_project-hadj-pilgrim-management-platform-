@@ -2,7 +2,6 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-//import { SidebarData } from "./SidebarData";
 import Avatar from "@mui/material/Avatar";
 import PersonIcon from "@mui/icons-material/Person";
 import { FaUserDoctor } from "react-icons/fa6";
@@ -11,6 +10,7 @@ import Photo from "../assets/AdminImg.png";
 import Newyear from "../assets/NewYear.png";
 import Random from "../assets/Random.png";
 import axios from "../Api/base";
+
 const SidebarDataGeneral = [
   {
     title: "Dashboard",
@@ -83,7 +83,6 @@ const AdminInterface = () => {
   const [selectedItem, setSelectedItem] = useState("Dashboard");
   const name = localStorage.getItem("name");
   const role = localStorage.getItem("role");
-  const [isFinished, setIsFinished] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
