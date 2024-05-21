@@ -12,128 +12,35 @@ import Hotel from "../../assets/Hotel.png";
 import Arrow from "../../assets/Arrow.svg";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-
-const Hotels = [
-  {
-    name: "Grand Hotel",
-    nbrOfFloors: 20,
-    id: 1,
-    floors: [
-      {
-        floorNumber: 1,
-        rooms: [
-          { id: 101, nbrBeds: 2 },
-          { id: 102, nbrBeds: 1 },
-          { id: 103, nbrBeds: 3 },
-          { id: 104, nbrBeds: 2 },
-          { id: 105, nbrBeds: 1 },
-        ],
-      },
-      {
-        floorNumber: 2,
-        rooms: [
-          { id: 201, nbrBeds: 3 },
-          { id: 202, nbrBeds: 2 },
-        ],
-      },
-      {
-        floorNumber: 3,
-        rooms: [
-          { id: 208, nbrBeds: 3 },
-          { id: 207, nbrBeds: 2 },
-        ],
-      },
-      {
-        floorNumber: 4,
-        rooms: [
-          { id: 281, nbrBeds: 3 },
-          { id: 292, nbrBeds: 2 },
-        ],
-      },
-      {
-        floorNumber: 5,
-        rooms: [
-          { id: 208, nbrBeds: 3 },
-          { id: 210, nbrBeds: 2 },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Ocean View Resort",
-    nbrOfFloors: 15,
-    id: 2,
-    floors: [
-      {
-        floorNumber: 1,
-        rooms: [
-          { id: 101, nbrBeds: 1 },
-          { id: 102, nbrBeds: 2 },
-        ],
-      },
-      {
-        floorNumber: 2,
-        rooms: [
-          { id: 201, nbrBeds: 2 },
-          { id: 202, nbrBeds: 1 },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Mountain Lodge",
-    nbrOfFloors: 10,
-    id: 3,
-    floors: [
-      {
-        floorNumber: 1,
-        rooms: [
-          { id: 101, nbrBeds: 2 },
-          { id: 102, nbrBeds: 3 },
-        ],
-      },
-      {
-        floorNumber: 2,
-        rooms: [
-          { id: 201, nbrBeds: 1 },
-          { id: 202, nbrBeds: 2 },
-        ],
-      },
-    ],
-  },
-  {
-    name: "City Central Hotel",
-    nbrOfFloors: 10,
-    id: 4,
-    floors: [
-      {
-        floorNumber: 1,
-        rooms: [
-          { id: 101, nbrBeds: 1 },
-          { id: 102, nbrBeds: 2 },
-        ],
-      },
-      {
-        floorNumber: 2,
-        rooms: [
-          { id: 201, nbrBeds: 3 },
-          { id: 202, nbrBeds: 1 },
-        ],
-      },
-    ],
-  },
-];
+import axios from "../../Api/base";
 
 const HotelReservation = () => {
-  const gender = "F";
+  const gender = localStorage.getItem("gender");
   const [hotels, setHotels] = useState([]);
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [selectedRoom2, setSelectedRoom2] = useState(null);
   const [arrow, setArrow] = useState(0);
   const [arrow2, setArrow2] = useState(0);
+  const [floors, setFloors] = useState([]);
 
   useEffect(() => {
-    setHotels(Hotels);
+    const access = localStorage.getItem("accessToken");
+
+    const fetchHotels = async () => {
+      try {
+        const response = await axios.get("/reservation/hotels-rooms/", {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        });
+        console.log("response", response);
+        setHotels(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchHotels();
   }, []);
 
   const navigate = useNavigate();
@@ -147,9 +54,65 @@ const HotelReservation = () => {
     console.log("Selected hotel: ", hotel);
   };
 
+  useEffect(() => {
+    setFloors(
+      gender === "F" ? selectedHotel?.female_floors : selectedHotel?.male_floors
+    );
+  }, [selectedHotel, gender]);
+
+  useEffect(() => {
+    console.log("floors : ", floors);
+  }, [floors, selectedHotel]);
+
   const handleSelectedRoom = (room) => {
     setSelectedRoom(room);
     console.log("Selected room: ", room);
+  };
+
+  const handleSelectedRoom2 = (room) => {
+    setSelectedRoom2(room);
+    console.log("Selected room: ", room);
+  };
+
+  const handleConfirmation = async () => {
+    const flightId = localStorage.getItem("selectedFlightId");
+    const accessToken = localStorage.getItem("accessToken");
+
+    const data = [
+      {
+        flight_id: flightId,
+        rooms_id:
+          gender === "F"
+            ? [selectedRoom?.id, selectedRoom2?.id]
+            : [selectedRoom?.id],
+      },
+    ];
+
+    console.log("data", data);
+    try {
+      const response = await axios.post(
+        "/reservation/reserve/",
+        {
+          flight_id: flightId,
+          rooms_id:
+            gender === "F"
+              ? [selectedRoom?.id, selectedRoom2?.id]
+              : [selectedRoom?.id],
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      console.log("response", response);
+
+      if (response.status === 201) {
+        navigate("/Home/Message");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -174,7 +137,7 @@ const HotelReservation = () => {
 
         {selectedRoom && (
           <button
-            onClick={console.log("Selected room: ", selectedRoom)}
+            onClick={handleConfirmation}
             className="button"
             style={{
               marginRight: "40px",
@@ -248,7 +211,7 @@ const HotelReservation = () => {
           <List
             sx={{
               width: "300px",
-              height: "200px",
+              maxHeight: "200px",
               overflow: "auto",
               paddingRight: "10px",
               borderRadius: "15px",
@@ -302,7 +265,7 @@ const HotelReservation = () => {
                       height: "50px",
                     }}
                   >
-                    <ListItemText primary={hotel.nbrOfFloors} />
+                    <ListItemText primary={hotel.floor_numbers} />
                   </ListItem>
                 </ListItem>
               </ListItemButton>
@@ -368,7 +331,7 @@ const HotelReservation = () => {
                     height: "100%",
                   }}
                 >
-                  {selectedHotel?.floors?.map((floor, index) => (
+                  {floors?.map((floor, index) => (
                     <>
                       <Stack
                         key={index}
@@ -443,17 +406,18 @@ const HotelReservation = () => {
                           <List
                             sx={{
                               width: "180px",
-                              height: "200px",
+                              height: "100%",
                               overflow: "auto",
                               paddingRight: "10px",
                               borderRadius: "15px",
+                              maxHeight: "200px",
                             }}
                           >
                             {floor?.rooms?.map((room) => (
                               <ListItemButton
                                 key={room?.id}
                                 onClick={() => handleSelectedRoom(room)}
-                                disabled={room?.nbrBeds === 0}
+                                disabled={room?.available_beds === 0}
                                 sx={{
                                   p: 0,
                                 }}
@@ -462,7 +426,7 @@ const HotelReservation = () => {
                                   key={room.id}
                                   sx={{
                                     bgcolor:
-                                      room?.nbrBeds === 0
+                                      room?.available_beds === 0
                                         ? "#C1C1C1"
                                         : selectedRoom &&
                                           selectedRoom.id === room.id
@@ -498,7 +462,9 @@ const HotelReservation = () => {
                                       height: "50px",
                                     }}
                                   >
-                                    <ListItemText primary={room.nbrBeds} />
+                                    <ListItemText
+                                      primary={room.available_beds}
+                                    />
                                   </ListItem>
                                 </ListItem>
                               </ListItemButton>
@@ -545,7 +511,7 @@ const HotelReservation = () => {
                       height: "100%",
                     }}
                   >
-                    {selectedHotel?.floors?.map((floor, index) => (
+                    {selectedHotel?.male_female?.map((floor, index) => (
                       <>
                         <Stack
                           key={index}
@@ -629,8 +595,8 @@ const HotelReservation = () => {
                               {floor?.rooms?.map((room) => (
                                 <ListItemButton
                                   key={room?.id}
-                                  onClick={() => handleSelectedRoom(room)}
-                                  disabled={room?.nbrBeds === 0}
+                                  onClick={() => handleSelectedRoom2(room)}
+                                  disabled={room?.available_beds === 0}
                                   sx={{
                                     p: 0,
                                   }}
@@ -639,10 +605,10 @@ const HotelReservation = () => {
                                     key={room.id}
                                     sx={{
                                       bgcolor:
-                                        room?.nbrBeds === 0
+                                        room?.available_beds === 0
                                           ? "#C1C1C1"
-                                          : selectedRoom &&
-                                            selectedRoom.id === room.id
+                                          : selectedRoom2 &&
+                                            selectedRoom2.id === room.id
                                           ? "#E7D9CA"
                                           : "white",
                                       borderTop: "1px solid #F3F3F3",
@@ -675,7 +641,9 @@ const HotelReservation = () => {
                                         height: "50px",
                                       }}
                                     >
-                                      <ListItemText primary={room.nbrBeds} />
+                                      <ListItemText
+                                        primary={room.available_beds}
+                                      />
                                     </ListItem>
                                   </ListItem>
                                 </ListItemButton>

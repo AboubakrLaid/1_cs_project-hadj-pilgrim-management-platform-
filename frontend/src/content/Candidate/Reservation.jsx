@@ -10,38 +10,11 @@ import {
 import { useEffect, useState } from "react";
 import Person from "../../assets/Person-res.svg";
 import Planes from "../../assets/Reservation.png";
-
-const Flights = [
-  {
-    id: 1,
-    flightName: "Flight 101",
-    date: "2024-06-15",
-    time: "10:00",
-    availablePlaces: 0,
-  },
-  {
-    id: 2,
-    flightName: "Flight 202",
-    date: "2024-06-16",
-    time: "2:00 ",
-    availablePlaces: 85,
-  },
-  {
-    id: 3,
-    flightName: "Flight 303",
-    date: "2024-06-17",
-    time: "6:00 ",
-    availablePlaces: 150,
-  },
-];
+import axios from "../../Api/base";
 
 const Reservation = () => {
   const [flights, setFlights] = useState([]);
   const [selectedFlight, setSelectedFlight] = useState(null);
-
-  useEffect(() => {
-    setFlights(Flights);
-  }, [flights]);
 
   const handleSelectFlight = (flight) => {
     setSelectedFlight(flight);
@@ -55,8 +28,41 @@ const Reservation = () => {
   };
 
   const handleReservation = () => {
+    localStorage.setItem("selectedFlightId", selectedFlight.id);
     navigate("/Home/Reservation/Hotel");
   };
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    const fetchFlights = async () => {
+      try {
+        const response = await axios.get("/reservation/flights/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        console.log("response", response);
+        const formattedData = response.data.map((flight) => ({
+          id: flight.id,
+          flightName: flight.name,
+          date: flight.date.split("T")[0], // Extract the date part
+          time: flight.date.split("T")[1].split("Z")[0], // Extract the time part and remove the trailing 'Z'
+          availablePlaces: flight.available_seats,
+          name: flight.airport.name,
+        }));
+        console.log("formattedData", formattedData);
+
+        setFlights(formattedData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFlights();
+  }, []);
+
+  console.log(flights);
 
   return (
     <Box
@@ -74,7 +80,9 @@ const Reservation = () => {
           alignItems: "center",
         }}
       >
-        <h1 style={{ marginLeft: "20px" }}>'something' airport</h1>
+        <h1 style={{ marginLeft: "20px" }}>
+          {flights.length > 0 && flights[0].name}
+        </h1>
         <div style={{ flex: 1 }} />
         {selectedFlight && (
           <button

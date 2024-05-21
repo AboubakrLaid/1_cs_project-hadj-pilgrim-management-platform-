@@ -3,6 +3,9 @@ from rest_framework.decorators import (
     api_view,
     permission_classes,
 )
+# from rest_framework.authentication import IsA
+from rest_framework.permissions import IsAuthenticated
+
 from roles.roles import IsGeneralAdminUser, IsGeneralAdminOrAdminUser, IsAdminUser
 from rest_framework import status
 from .models import PilgrimageSeasonInfo
@@ -22,7 +25,7 @@ def create_pilgrimage_season_info(request):
     
     
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def get_current_season(request):
     try:
         current_season = PilgrimageSeasonInfo.objects.get(is_active=True)
@@ -33,7 +36,7 @@ def get_current_season(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsGeneralAdminOrAdminUser])
+@permission_classes([IsAuthenticated])
 def get_all_seasons(request):
     
     seasons = PilgrimageSeasonInfo.objects.all().order_by('-year')

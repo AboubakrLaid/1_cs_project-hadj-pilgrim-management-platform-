@@ -481,7 +481,7 @@ const UserValidation = ({ onClose, user }) => {
                       color: "#D01717",
                     }}
                   >
-                    {user.contact} temporary
+                    {user.contact}
                   </span>
                   <span style={{ fontWeight: 500, fontSize: "15px" }}>
                     NIN:

@@ -26,7 +26,7 @@ const LandingPage = () => {
   console.log("here process", process);
 
   useEffect(() => {
-    if (role === "Candidate" && (status === "P" || process === "I")) {
+    if (role === "Candidate" && (status === "C" || process === "R")) {
       navigate("/home/message");
     }
     if (role === "Candidate" && process === "L") {
