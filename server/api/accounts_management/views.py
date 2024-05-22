@@ -14,6 +14,7 @@ from roles.roles import IsAdminUser, IsGeneralAdminOrAdminUser, IsMedicalAdminUs
 from django.db.models import Q
 from users.models import User, UserInscriptionHistory, UserStatus
 from personal_profile.models import PersonalProfile
+from personal_profile.serializers import CompanionSerializer
 
 from .serializers import MedicalAdminProfileSerializer, CandidateSerializer, AdminProfileSerializer ,HospitalsAdminSerializer,HospitalScheduleSerializer
 
@@ -141,6 +142,12 @@ def get_user_data(users_data):
             UserStatus.objects.get(user__email=email).status
         ]
         users_data[i]["contact"] = personal_profile.phone_number
+        try:
+            if users_data[i]["gender"] == "F":
+                user = User.objects.get(email=email)
+                users_data[i]["companion"] = CompanionSerializer(data=user.companion).data
+        except User.DoesNotExist:
+            pass
         try:
             x = UserInscriptionHistory.objects.get(user__email=email)
         except UserInscriptionHistory.DoesNotExist:

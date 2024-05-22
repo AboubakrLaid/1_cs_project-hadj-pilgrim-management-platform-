@@ -1,3 +1,4 @@
+from base64 import b64encode
 import requests
 from django.core.mail import send_mail
 from api.settings import EMAIL_HOST_USER
@@ -25,6 +26,7 @@ from .models import (
 from lottery.models import ParticipantStatusPhase
 from pilgrimage_info.models import Phase
 from accounts_management.models import AdminProfile
+from personal_profile.models import PersonalProfile
 
 # Create your views here.
 import random
@@ -99,6 +101,9 @@ def log_in(request):
             "last_name": user.last_name,
             "gender": user.gender,
         }
+        if user.role ==User.IS_MEDICAL_ADMIN:
+            picture = (user.medical_admin_profile.profile_picture.read() if user.medical_admin_profile.profile_picture else None)
+            response["profile_pic"]= b64encode(picture).decode("utf-8") 
         if user.role == User.IS_ADMIN:
             response['wilaya'] = {
                 "id": user.admin_profile.object_id,
@@ -107,7 +112,13 @@ def log_in(request):
         elif user.role == User.IS_CANDIDATE:
             user_status = {}
             user_status = {}
-            # response["profile_pic"] = user.personal_profile.pi
+            response["profile_pic"] = None
+            try :
+                profile = PersonalProfile.objects.get(user=user)
+                picture = (profile.picture.read() if profile.picture else None)
+                response["profile_pic"] = b64encode(picture).decode("utf-8")
+            except:
+                pass
             user_status['phase'] = None
             user_status['status'] = None
             try:
