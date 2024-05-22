@@ -37,7 +37,7 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
             Companion.objects.create(**companion_data)
         user = validated_data["user"]
         user_inscription_history = UserInscriptionHistory.objects.create(user=user)
-        user_inscription_history.inscription_count += 1
+        user_inscription_history.inscription_count += 0
         user_inscription_history.latest_inscription_year = datetime.now().year
         user_inscription_history.save()
         return personal_profile

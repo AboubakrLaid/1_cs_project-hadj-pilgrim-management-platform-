@@ -162,7 +162,7 @@ def get_user_data(users_data):
 def get_all_users(request):
     user = request.user
     wilaya = user.admin_profile.object_id
-    users = User.objects.filter(personal_profile__wilaya=wilaya)
+    users = User.objects.filter(personal_profile__wilaya=wilaya, role = User.IS_CANDIDATE)
     users_data = UserSerializer(users, many=True).data
     return Response(get_user_data(users_data), status=status.HTTP_200_OK)
 

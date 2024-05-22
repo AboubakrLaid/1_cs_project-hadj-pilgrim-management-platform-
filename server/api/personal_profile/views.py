@@ -102,7 +102,11 @@ def accept_or_refuse_candidate(request):
             user_status.status = UserStatus.Status.PENDING
             user_status.process = UserStatus.Process.LOTTERY
             user_status.save()
-            UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
+            # UserInscriptionHistory.objects.create(user=user, inscription_count=1+inscription_count, latest_inscription_year=datetime.now().year)
+            inscription = UserInscriptionHistory.objects.get(user=user)
+            inscription.inscription_count += 1+inscription_count
+            inscription.latest_inscription_year = datetime.now().year
+            inscription.save()
             try:
                 phase = Phase.objects.get(pilgrimage_season_info__is_active=True, phase_number=1)
             except Phase.DoesNotExist:
